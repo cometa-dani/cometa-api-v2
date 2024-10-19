@@ -1,5 +1,6 @@
-
 type Order = 'asc' | 'desc'
+
+
 /**
  *
  * @description Configures the cursor for pagination

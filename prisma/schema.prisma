@@ -129,22 +129,22 @@ enum Education {
 }
 
 model Organization {
-  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          Int        @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  uuid        String?
+  avatarUrl   String?    @map("avatar_url")
+  name        String     @unique @db.VarChar(255)
+  email       String     @unique
+  password    String
+  phone       String?
+  description String?
+  locations   Location[]
+  events      Event[]
 
-  mediaUrl      String?    @map("media_url")
-  name          String     @unique @db.VarChar(255)
-  email         String     @unique
-  password      String
-  phone         String?
-  accessToken   String?    @map("access_token") //TODO: delete this field
-  description   String?
-  webPage       String?    @map("web_page")
-  instagramPage String?    @map("instagram_page")
-  facebookPage  String?    @map("facebook_page")
-  locations     Location[]
-  events        Event[]
+  webPage       String? @map("web_page")
+  instagramPage String? @map("instagram_page")
+  facebookPage  String? @map("facebook_page")
 }
 
 model Location {
@@ -169,7 +169,7 @@ model EventPhoto {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   url         String
-  uuid        String // remove in the future for @id with uuid()
+  // uuid        String // remove in the future for @id with uuid()
   placeholder String?
   order       Int
 
@@ -179,15 +179,15 @@ model EventPhoto {
 }
 
 model EventLike {
-  // represents the likes given by users to events.
-  id Int @id @default(autoincrement()) // TODO:  Sintrg @id @default(uuid())
-
+  id        Int      @id @default(autoincrement()) // TODO:  Sintrg @id @default(uuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  event     Event    @relation(fields: [eventId], references: [id])
-  eventId   Int      @map("event_id")
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @map("user_id")
+
+  // Relations
+  event   Event @relation(fields: [eventId], references: [id])
+  eventId Int   @map("event_id")
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int   @map("user_id")
 
   @@unique([eventId, userId]) // no repeated records with same eventID & userID
 }
@@ -206,23 +206,24 @@ model EventShare {
 
 model Event {
   //  represents social events. Users can like events, and matches can be formed based on common likes.
-  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          Int             @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
   date        DateTime
-  name        String   @db.VarChar(255)
+  name        String          @db.VarChar(255)
   description String
+  categories  EventCategory[] @default([]) // change to an array of categories
 
-  photos     EventPhoto[]
-  categories EventCategory[] @default([]) // change to an array of categories
+  // one to many relations
+  photos EventPhoto[]
+  likes  EventLike[]
+  shares EventShare[]
 
-  // Relations
+  // one to one relations
   location       Location      @relation(fields: [locationId], references: [id])
   locationId     Int           @map("location_id")
   organization   Organization? @relation(fields: [organizationId], references: [id])
   organizationId Int?          @map("organization_id")
-  likes          EventLike[]
-  shares         EventShare[]
 
   // Unique constraint to prevent events at the same date and location
   @@unique([date, locationId])
@@ -233,7 +234,7 @@ model UserPhoto {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   url         String
-  uuid        String // remove in the future for @id with uuid()
+  // uuid        String // remove in the future for @id with uuid()
   placeholder String?
   order       Int
 
@@ -247,7 +248,6 @@ model User {
   id        Int       @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
-  avatar    String?
   email     String    @unique
   phone     String?   @unique
   username  String    @unique // must all be prefixed with a '@'
@@ -275,23 +275,24 @@ model User {
   pets               String[]            @default([])
   smoking            Boolean?
   drinking           Boolean?
-  religion           Religion?
+  // religion           Religion?
   ethnicity          Ethnicity?
   children           Boolean?
   company            String?
   verified           Boolean?            @default(false)
   gender             Gender?
-  diet               Diet?
+  // diet               Diet?
   exerciseFrequency  ExerciseFrequency?  @map("exercise_frequency")
 
   // Relations
   likedEvents          EventLike[]
   sharedEvents         EventShare[]
   chatGroupMemberships ChatGroup[]  @relation("ChatGroupMember")
-  ChatGroupAsAdmin     ChatGroup[]  @relation("ChatGroupAdmin")
+  chatGroupAsAdmin     ChatGroup[]  @relation("ChatGroupAdmin")
+
   // a single user has many friends
-  outgoingFriendships  Friendship[] @relation("SenderFriendship")
-  incomingFriendships  Friendship[] @relation("ReceiverFriendship")
+  outgoingFriendships Friendship[] @relation("SenderFriendship")
+  incomingFriendships Friendship[] @relation("ReceiverFriendship")
 
   outgoingNotification Notification[] @relation("SentNotifications")
   incomingNotification Notification[] @relation("ReceivedNotifications")
@@ -313,35 +314,33 @@ model Friendship {
   receiverId Int  @map("receiver_id")
 
   status FriendshipStatus @default(PENDING) //(e.g., PENDING, ACCEPTED, BLOCKED)
-
-  chatuuid String? @unique @map("chat_uuid")
+  // chatRoomUuid String? @unique @map("chat_room_uuid") // CAN BE JUST THE ID (it's simpler)
 
   @@unique([senderId, receiverId])
 }
 
-model ChatGroupPhoto {
-  id          Int         @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  url         String
-  uuid        String // remove in the future for @id with uuid()
-  placeholder String?
-  ChatGroup   ChatGroup[]
-}
+// model ChatGroupPhoto {
+//   id          Int         @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+//   createdAt   DateTime    @default(now()) @map("created_at")
+//   updatedAt   DateTime    @updatedAt @map("updated_at")
+//   url         String
+//   // uuid        String // remove in the future for @id with uuid()
+//   placeholder String?
+//   ChatGroup   ChatGroup[]
+// }
 
 model ChatGroup {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // TODO:   Sintrg @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  // chatRoomUuid String? @unique @map("chat_room_uuid")
+  name        String
+  description String?
+  avatarUrl   String?  @map("avatar_url")
 
-  name             String
-  description      String?
-  photo            ChatGroupPhoto? @relation(fields: [chatGroupPhotoId], references: [id])
-  chatGroupPhotoId Int?            @map("chat_group_photo_id")
-  // uuid             String          @unique // remove in the future for @id with uuid()
-  members          User[]          @relation("ChatGroupMember")
-  admin            User            @relation("ChatGroupAdmin", fields: [adminId], references: [id])
-  adminId          Int             @map("admin_id")
+  members User[] @relation("ChatGroupMember")
+  admin   User   @relation("ChatGroupAdmin", fields: [adminId], references: [id])
+  adminId Int    @map("admin_id")
 }
 
 model WorldCities {
@@ -355,7 +354,7 @@ model Notification {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
   type       String // Define the type of notification (e.g., like, comment, friend request)
-  content    String // The content of the notification, such as the message or event
+  message    String // The content of the notification, such as the message or event @map("content")
   read       Boolean  @default(false) // Indicates whether the notification has been read
   sender     User     @relation("SentNotifications", fields: [senderId], references: [id])
   senderId   Int      @map("sender_id")
