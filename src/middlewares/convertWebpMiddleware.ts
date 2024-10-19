@@ -1,11 +1,8 @@
 import path from 'path';
 import { RequestHandler } from 'express';
 import { IFile } from '../interfaces/IFile';
-// import * as webp from 'webp-converter';
 import { unlink } from 'fs/promises';
 
-
-// webp.grant_permission();
 
 export const convertImgWebpToPngMiddleware: RequestHandler = async (req, res, next) => {
   const files = req.files as IFile[];
