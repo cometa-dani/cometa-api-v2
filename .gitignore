@@ -16,6 +16,7 @@ node_modules
 *.launch
 .settings/
 *.sublime-workspace
+cometa-e5dd5-firebase-adminsdk-a2ubx-89762eba14.json
 
 # IDE - VSCode
 .vscode/*
