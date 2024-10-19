@@ -18,7 +18,7 @@ userRouter
   .patch(controller.updateUser);
 // .delete(controller.deleteUser);
 
-userRouter;
+// userRouter;
 // .get('/:uid', authMiddleware, controller.getUserProfileInfoByUuIdWithFriendShips);
 
 
@@ -26,7 +26,7 @@ userRouter;
 // sets the avatar img for every new created user
 // userRouter
 //   .patch('/:id/avatar', fileUploadMiddleware.single('file'), controller.uploadUserAvatarImg);
-userRouter;
+// userRouter;
 // .post('/:id/photos', fileUploadMiddleware.any(), controller.uploadUserPhotos)
 // .patch('/:id/photos', fileUploadMiddleware.any(), controller.updateUserPhotos)
 // .delete('/:id/photos/:uid', controller.deleteUserPhotoByUuid);

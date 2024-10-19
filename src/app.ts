@@ -14,7 +14,6 @@ import { worldCitiesRouter } from './worldcities/router';
 import chatGroupRouter from './chatGroup/chat-group.router';
 import userRouter from './user/user.router';
 import friendShipRouter from './friendship/friendship.router';
-// import { defaultErrorMiddleware } from 'src/middlewares/defaultErrorMiddleware';
 
 
 export const app = express();

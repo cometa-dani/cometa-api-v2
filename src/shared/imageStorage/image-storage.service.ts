@@ -26,6 +26,7 @@ export class ImageStorageService {
       return thumbHashToBase64;
     }
     catch (error) {
+      console.log(error);
       return '';
     }
   }

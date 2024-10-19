@@ -22,6 +22,7 @@ export async function optionalAuthMiddleware(request: Request, response: Respons
   try {
     payload = jwt.decode(token);
   } catch (e) {
+    console.log(e);
     // request.user = null;
     return next();
   }

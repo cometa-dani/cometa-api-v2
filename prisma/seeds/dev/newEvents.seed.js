@@ -1,6 +1,6 @@
-// const { PrismaClient } = require('@prisma/client');
-import { PrismaClient } from '@prisma/client';
-// const prisma = new PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 // const { parseDate } = require('./seeds');
 // import { parseDate } from './seed.js';
 
@@ -79,7 +79,7 @@ const locations = [
   //   longitude: 51.534544,
   //   organizationId: 5,
   // },
-]
+];
 
 
 const seedNewEvents = async (parseDate) => {
@@ -209,33 +209,33 @@ const seedNewEvents = async (parseDate) => {
     // ❓ Puedes consultar las preguntas frecuentes y sus respuestas aquí
     // 👉 No está permitido acceder al interior la exposición con carritos de bebé, maletas u otros objetos voluminosos. Se ha habilitado una zona específica en el hall del recinto para poder guardarlos. Su coste es de 5€ por objeto voluminoso`
     //   }
-  ]
+  ];
 
   for await (const organization of newOrganizations) {
-    const exists = await prisma.organization.findUnique({ where: { id: organization.id } })
+    const exists = await prisma.organization.findUnique({ where: { id: organization.id } });
 
     if (!exists) {
       const newOrganization = await prisma.organization.create({
         data: {
           ...organization,
         }
-      })
+      });
 
       const newLocation = await prisma.location.create({
         data: {
           ...locations.find(location => location.organizationId === newOrganization.id)
         }
-      })
+      });
 
       await prisma.event.create({
         data: {
           ...events.find(event => event.organizationId === newOrganization.id),
           locationId: newLocation.id
         }
-      })
+      });
     }
   }
-}
+};
 
-export { seedNewEvents };
-// exports.seedNewEvents = seedNewEvents;
+// export { seedNewEvents };
+exports.seedNewEvents = seedNewEvents;

@@ -1,18 +1,17 @@
-import { PrismaClient } from '@prisma/client';
-import fs from 'fs/promises';
-import Papa from 'papaparse';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { PrismaClient } from '@prisma/client';
+// import fs from 'fs/promises';
+// import Papa from 'papaparse';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+// import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
-
-// const { PrismaClient } = require('@prisma/client');
-// const path = require('path');
-// const fs = require('fs/promises');
-// const Papa = require('papaparse');
+const { PrismaClient } = require('@prisma/client');
+const path = require('path');
+const fs = require('fs/promises');
+const Papa = require('papaparse');
 const prisma = new PrismaClient();
 const csvFilePath = path.join(__dirname, 'worldcities.csv');
 
@@ -39,8 +38,7 @@ const worldCitiesSeed = async () => {
   catch (error) {
     console.error(error);
   }
-}
+};
 
-// worldCitiesSeed();
-export { worldCitiesSeed };
-// exports.worldCitiesSeed = worldCitiesSeed;
+// export { worldCitiesSeed };
+exports.worldCitiesSeed = worldCitiesSeed;
