@@ -1,0 +1,37 @@
+# Use the official Node.js 20 slim base image
+FROM node:lts-slim
+
+# Install necessary dependencies for Prisma and the system
+RUN apt update && apt install -y procps openssl
+
+# Expose the port your app will run on
+EXPOSE 3000
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy over package.json and yarn.lock to install dependencies first
+COPY package.json yarn.lock ./
+
+# Install dependencies including devDependencies to build the project
+RUN yarn install --ignore-engines
+# Ensure NX is available for the build
+RUN yarn global add nx@latest
+
+# Copy the rest of the application code to the container
+COPY . .
+
+# Build the project (including the NX workspace)
+RUN yarn run build
+
+# Ensure only production dependencies remain
+RUN yarn install --ignore-engines --production --ignore-scripts --prefer-offline
+
+# Set the working directory to where the build artifacts are located
+WORKDIR /app/dist/cometa-api
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Start the application
+CMD ["node", "main.js"]

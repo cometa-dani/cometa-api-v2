@@ -1,14 +1,16 @@
-import express from 'express';
+import 'reflect-metadata';
+import { app } from './app';
+import { host, port } from './vars';
+import { shutdownDb } from './dataBaseConnection';
 
-const host = process.env.HOST ?? 'localhost';
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
-const app = express();
-
-app.get('/', (req, res) => {
-  res.send({ message: 'Hello API' });
-});
-
+// starts the server
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);
+});
+
+// Handle database disconnection when the application is shutting down
+process.on('SIGINT', async () => {
+  await shutdownDb();
+  process.exit(0);
 });

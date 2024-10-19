@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  # api:
+  #   build:
+  #     context: . # sets the directory for the microservice
+  #     dockerfile: Dockerfile
+  #   container_name: api
+  #   ports:
+  #     - 3000:3000
+  #     # - 9229:9229  # debugger port
+  #   env_file:
+  #     - ./docker-compose.env
+  #   depends_on:
+  #     - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    environment:
+      POSTGRES_DB: cometa_db
+      POSTGRES_PASSWORD: cometa_db
+      POSTGRES_USER: cesar
+    ports:
+      - 5432:5432 # enables connecting locally via psql
+    volumes:
+      # we persist any data inside the container into our localComputer
+      # if we delete the container we can bring our data back again
+      # service:container-folder
+      - db:/data/db
+
+volumes:
+  db:

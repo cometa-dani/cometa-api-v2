@@ -1,0 +1,364 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../node_modules/.prisma/client"
+  previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto]
+}
+
+// https://www.prisma.io/docs/orm/prisma-schema/data-model/unsupported-database-features
+
+enum EventCategory {
+  RESTAURANT
+  BAR
+  CLUB
+  CAFE
+  CONCERT
+  FESTIVAL
+  THEATRE
+  MUSEUM
+  EXHIBITION
+  PARK
+  BRUNCH
+  SHOWS
+  SPORTS
+  GALLERY
+  PARTY
+  CINEMA
+  CONFERENCE
+  FOOD_AND_DRINK
+  SEMINAR
+  WORKSHOP
+  EDUCATIONAL
+  CULTURAL
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  BINARY
+  GAY
+  BISEXUAL
+  LESBIAN
+  OTHER
+}
+
+enum RelationshipStatus {
+  SINGLE
+  IN_A_RELATIONSHIP
+  MARRIED
+  DIVORCED
+  WIDOWED
+  OTHER
+}
+
+enum Diet {
+  OMNIVORE
+  VEGETARIAN
+  VEGAN
+  PESCATARIAN
+}
+
+enum Religion {
+  CHRISTIANITY
+  ISLAM
+  HINDUISM
+  BUDDHISM
+  SIKHISM
+  JUDAISM
+  ATHEISM
+  AGNOSTICISM
+  OTHER
+}
+
+enum Ethnicity {
+  WHITE
+  HISPANIC
+  LATINO
+  BLACK
+  ASIAN
+  MIDDLE_EASTERN
+  NATIVE_AMERICAN
+  PACIFIC_ISLANDER
+  MIXED
+  OTHER
+}
+
+enum ExerciseFrequency {
+  NEVER
+  RARELY
+  SOMETIMES
+  OFTEN
+  DAILY
+}
+
+enum LookingFor {
+  MEET_NEW_PEOPLE
+  DISCOVER_NEW_EVENTS
+  FIND_NEW_PLACES
+  FRIENDSHIP
+  RELATIONSHIP
+  NETWORKING
+}
+
+enum Education {
+  SECONDARY
+  UNIVERSITY
+  HIGH_SCHOOL
+  SOME_COLLEGE
+  BACHELORS
+  MASTERS
+  DOCTORATE
+  OTHER
+}
+
+model Organization {
+  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  mediaUrl      String?    @map("media_url")
+  name          String     @unique @db.VarChar(255)
+  email         String     @unique
+  password      String
+  phone         String?
+  accessToken   String?    @map("access_token") //TODO: delete this field
+  description   String?
+  webPage       String?    @map("web_page")
+  instagramPage String?    @map("instagram_page")
+  facebookPage  String?    @map("facebook_page")
+  locations     Location[]
+  events        Event[]
+}
+
+model Location {
+  // represents event locations
+  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Delete this relation
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int          @map("organization_id")
+
+  name        String  @unique @db.VarChar(255)
+  description String?
+  latitude    Float
+  longitude   Float
+  events      Event[]
+}
+
+model EventPhoto {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  url         String
+  uuid        String // remove in the future for @id with uuid()
+  placeholder String?
+  order       Int
+
+  // Relations
+  eventId Int   @map("event_id")
+  event   Event @relation(fields: [eventId], references: [id])
+}
+
+model EventLike {
+  // represents the likes given by users to events.
+  id Int @id @default(autoincrement()) // TODO:  Sintrg @id @default(uuid())
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int      @map("event_id")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @map("user_id")
+
+  @@unique([eventId, userId]) // no repeated records with same eventID & userID
+}
+
+model EventShare {
+  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  event   Event @relation(fields: [eventId], references: [id])
+  eventId Int   @map("event_id")
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int   @map("user_id")
+}
+
+model Event {
+  //  represents social events. Users can like events, and matches can be formed based on common likes.
+  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  date        DateTime
+  name        String   @db.VarChar(255)
+  description String
+
+  photos     EventPhoto[]
+  categories EventCategory[] @default([]) // change to an array of categories
+
+  // Relations
+  location       Location      @relation(fields: [locationId], references: [id])
+  locationId     Int           @map("location_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?          @map("organization_id")
+  likes          EventLike[]
+  shares         EventShare[]
+
+  // Unique constraint to prevent events at the same date and location
+  @@unique([date, locationId])
+}
+
+model UserPhoto {
+  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  url         String
+  uuid        String // remove in the future for @id with uuid()
+  placeholder String?
+  order       Int
+
+  // Relations
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model User {
+  // represents users, who can like events and form matches with other users.
+  id        Int       @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  avatar    String?
+  email     String    @unique
+  phone     String?   @unique
+  username  String    @unique // must all be prefixed with a '@'
+  name      String?
+  uid       String?   @unique // remove in the future for @id with uuid()
+
+  biography             String?
+  birthday              DateTime?
+  interests             EventCategory[] @default([])
+  activateNotifications Boolean         @default(false) @map("activate_notifications")
+
+  photos          UserPhoto[]
+  currentLocation String?     @map("current_location")
+  homeTown        String?     @map("home_town")
+  languages       String[]    @default([])
+  height          Int?
+  weight          Int?
+  favoriteSports  String[]    @default([]) @map("favorite_sports")
+  music           String[]    @default([])
+
+  lookingFor         LookingFor?         @map("looking_for")
+  occupation         String?
+  educationLevel     Education?          @map("education_level")
+  relationshipStatus RelationshipStatus? @map("relationship_status")
+  pets               String[]            @default([])
+  smoking            Boolean?
+  drinking           Boolean?
+  religion           Religion?
+  ethnicity          Ethnicity?
+  children           Boolean?
+  company            String?
+  verified           Boolean?            @default(false)
+  gender             Gender?
+  diet               Diet?
+  exerciseFrequency  ExerciseFrequency?  @map("exercise_frequency")
+
+  // Relations
+  likedEvents          EventLike[]
+  sharedEvents         EventShare[]
+  chatGroupMemberships ChatGroup[]  @relation("ChatGroupMember")
+  ChatGroupAsAdmin     ChatGroup[]  @relation("ChatGroupAdmin")
+  // a single user has many friends
+  outgoingFriendships  Friendship[] @relation("SenderFriendship")
+  incomingFriendships  Friendship[] @relation("ReceiverFriendship")
+
+  outgoingNotification Notification[] @relation("SentNotifications")
+  incomingNotification Notification[] @relation("ReceivedNotifications")
+}
+
+model Friendship {
+  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // sends invitations
+  sender   User @relation("SenderFriendship", fields: [senderId], references: [id])
+  // if senderID equal the user's id then friendship will be in outgoingFriendships array
+  senderId Int  @map("sender_id")
+
+  // receives inivitation
+  receiver   User @relation("ReceiverFriendship", fields: [receiverId], references: [id])
+  // if receiverID equal the user's id then friendship will be in incommingFriendships array
+  receiverId Int  @map("receiver_id")
+
+  status FriendshipStatus @default(PENDING) //(e.g., PENDING, ACCEPTED, BLOCKED)
+
+  chatuuid String? @unique @map("chat_uuid")
+
+  @@unique([senderId, receiverId])
+}
+
+model ChatGroupPhoto {
+  id          Int         @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  url         String
+  uuid        String // remove in the future for @id with uuid()
+  placeholder String?
+  ChatGroup   ChatGroup[]
+}
+
+model ChatGroup {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // TODO:   Sintrg @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name             String
+  description      String?
+  photo            ChatGroupPhoto? @relation(fields: [chatGroupPhotoId], references: [id])
+  chatGroupPhotoId Int?            @map("chat_group_photo_id")
+  // uuid             String          @unique // remove in the future for @id with uuid()
+  members          User[]          @relation("ChatGroupMember")
+  admin            User            @relation("ChatGroupAdmin", fields: [adminId], references: [id])
+  adminId          Int             @map("admin_id")
+}
+
+model WorldCities {
+  id      Int     @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  city    String
+  country String?
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  type       String // Define the type of notification (e.g., like, comment, friend request)
+  content    String // The content of the notification, such as the message or event
+  read       Boolean  @default(false) // Indicates whether the notification has been read
+  sender     User     @relation("SentNotifications", fields: [senderId], references: [id])
+  senderId   Int      @map("sender_id")
+  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id])
+  receiverId Int      @map("receiver_id")
+}
