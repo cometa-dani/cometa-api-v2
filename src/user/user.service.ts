@@ -66,7 +66,7 @@ export class UserService {
     const filesToUpload =
       incommingImgFiles.map((file) => {
         const destinationPath = `users/${userUUID}/photos/${file.filename}`;
-        return this._imageStorageService.uploadImage(destinationPath, file);
+        return this._imageStorageService.uploadPhotos(destinationPath, file);
       });
 
     return Promise.all(filesToUpload);
@@ -76,7 +76,7 @@ export class UserService {
   async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
     const filesToHash =
       incommingImgFiles.map((file) => {
-        return this._imageStorageService.generateImageHash(file.buffer);
+        return this._imageStorageService.generatePhotoHashes(file.buffer);
       });
 
     return Promise.all(filesToHash);
@@ -90,7 +90,7 @@ export class UserService {
 
   async deletePhoto(userId: number, photoToDelete: UserPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
-    await this._imageStorageService.deleteImage(destinationPath);
+    await this._imageStorageService.deletePhoto(destinationPath);
 
     return this._userRepository.deletePhoto(photoToDelete);
   }

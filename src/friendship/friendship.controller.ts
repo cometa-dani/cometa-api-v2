@@ -1,8 +1,8 @@
 import { Container, Service } from 'typedi';
 import { PaginatedQueriesDto, ParamsDTo as FriendIdsDTo, UpdateBodyDto, ParamsDTo } from './frienship.dto';
 import { TypedRequestHandlerBody, TypedRequestHandlerParams, TypedRequestHandlerQuery } from '../helpers/typeRequestHandlers';
-import { FriendshipService } from './friendship.service';
 import { BaseController } from '../helpers/basecontroller';
+import { FriendshipService } from './friendship.service';
 
 
 @Service()

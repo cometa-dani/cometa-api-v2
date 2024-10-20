@@ -18,7 +18,7 @@ export class EventService {
 
 
   async searchLatestEventsWithPagination(queryParams: SearchEventsByQueryParamsDTO, userID: number) {
-    return this._eventRepository.searchLastestEventsWithPagination(queryParams, userID);
+    return this._eventRepository.searchLatestEventsWithPagination(queryParams, userID);
   }
 
 
@@ -31,7 +31,7 @@ export class EventService {
     const filesToUpload =
       incommingImgFiles.map((file) => {
         const destinationPath = `events/${userId}/photos/${file.filename}`;
-        return this._imageStorageService.uploadImage(destinationPath, file);
+        return this._imageStorageService.uploadPhotos(destinationPath, file);
       });
 
     return Promise.all(filesToUpload);
@@ -41,7 +41,7 @@ export class EventService {
   async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
     const filesToHash =
       incommingImgFiles.map((file) => {
-        return this._imageStorageService.generateImageHash(file.buffer);
+        return this._imageStorageService.generatePhotoHashes(file.buffer);
       });
 
     return Promise.all(filesToHash);
@@ -50,7 +50,7 @@ export class EventService {
 
   async deletePhoto(userId: number, photoToDelete: EventPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
-    await this._imageStorageService.deleteImage(destinationPath);
+    await this._imageStorageService.deletePhoto(destinationPath);
 
     return this._eventRepository.deletePhoto(photoToDelete);
   }

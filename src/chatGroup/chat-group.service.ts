@@ -15,9 +15,9 @@ export class ChatGroupService {
     // create chatGroup
     this._chatGroupRepository.create(body, '', 1);
 
-    const imageHash = await this._imageUploadService.generateImageHash(imgfile.buffer, 200, 200);
+    const imageHash = await this._imageUploadService.generatePhotoHashes(imgfile.buffer, 200, 200);
     const imageDestinationPath = `chatGroups/${'chatGroupUUID'}/photos/${imgfile.filename}`;
-    const imageUpload = await this._imageUploadService.uploadImage('', imgfile);
+    const imageUpload = await this._imageUploadService.uploadPhotos('', imgfile);
 
 
     // 3. create image register in DB, and connect that image with the chatGroup ID

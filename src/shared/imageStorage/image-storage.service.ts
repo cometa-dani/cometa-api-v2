@@ -17,7 +17,7 @@ export class ImageStorageService {
   }
 
 
-  public async generateImageHash(imageBuffer: Buffer, width = 100, height = 100): Promise<string> {
+  public async generatePhotoHashes(imageBuffer: Buffer, width = 100, height = 100): Promise<string> {
     try {
       this._thumbHash = !this._thumbHash ? await import('thumbhash') : this._thumbHash;
       const { data, info } = await this._resizeImage(imageBuffer, width, height);
@@ -32,7 +32,7 @@ export class ImageStorageService {
   }
 
 
-  public async uploadImage(destinationPath: string, imgFile: Express.Multer.File) {
+  public async uploadPhotos(destinationPath: string, imgFile: Express.Multer.File) {
     await this._bucket.file(destinationPath).save(imgFile.buffer, {
       contentType: imgFile.mimetype,
       public: true,
@@ -47,7 +47,7 @@ export class ImageStorageService {
   }
 
 
-  public deleteImage(destinationPath: string) {
+  public deletePhoto(destinationPath: string) {
     return (
       this._bucket.file(destinationPath).delete()
     );

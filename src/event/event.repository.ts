@@ -96,7 +96,7 @@ export class EventRepository {
   }
 
 
-  async searchLastestEventsWithPagination({ categories, cursor, limit, name = '' }: SearchEventsByQueryParamsDTO, userID: number): Promise<[ILikeableEvent[], number]> {
+  async searchLatestEventsWithPagination({ categories, cursor, limit, name = '' }: SearchEventsByQueryParamsDTO, userID: number): Promise<[ILikeableEvent[], number]> {
     const whereCategoriesAndName: Prisma.EventWhereInput = {
       AND: [
         { categories: { hasSome: categories } },
