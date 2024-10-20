@@ -319,16 +319,6 @@ model Friendship {
   @@unique([senderId, receiverId])
 }
 
-// model ChatGroupPhoto {
-//   id          Int         @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-//   createdAt   DateTime    @default(now()) @map("created_at")
-//   updatedAt   DateTime    @updatedAt @map("updated_at")
-//   url         String
-//   // uuid        String // remove in the future for @id with uuid()
-//   placeholder String?
-//   ChatGroup   ChatGroup[]
-// }
-
 model ChatGroup {
   id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
   createdAt   DateTime @default(now()) @map("created_at")

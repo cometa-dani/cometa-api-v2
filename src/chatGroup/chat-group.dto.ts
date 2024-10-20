@@ -10,5 +10,5 @@ export type CreateChatGroupDTO = z.infer<typeof createChatGroup>;
 
 
 export const iDParam = z.object({
-  id: z.string()
+  id: z.number({ coerce: true })
 });

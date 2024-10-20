@@ -165,20 +165,20 @@ export class FiendshipRepository {
     });
 
     // first time
-    if (friendshipExists && !friendshipExists.chatuuid && friendshipExists.status === 'PENDING') {
+    if (friendshipExists && friendshipExists.status === 'PENDING') {
       const friendShip = await this._prisma.friendship.update({
         where: {
           id: friendshipExists.id
         },
         data: {
           status: 'ACCEPTED',
-          chatuuid: `${friendshipExists.sender.uid}__${loggedInUser.uid}`
+          // chatuuid: `${friendshipExists.sender.uid}__${loggedInUser.uid}`
         }
       });
       return friendShip;
     }
     // atfer first time
-    if (friendshipExists && friendshipExists.chatuuid && friendshipExists.status === 'PENDING') {
+    if (friendshipExists && friendshipExists.status === 'PENDING') {
       const friendShip = await this._prisma.friendship.update({
         where: {
           id: friendshipExists.id
@@ -203,7 +203,7 @@ export class FiendshipRepository {
         ]
       }
     });
-    if (friendshipExists && friendshipExists.chatuuid && friendshipExists.status === 'ACCEPTED') {
+    if (friendshipExists && friendshipExists.status === 'ACCEPTED') {
       const updatedFriendship =
         await this._prisma.friendship.update({
           where: { id: friendshipExists.id },

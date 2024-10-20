@@ -14,7 +14,7 @@ export class ChatGroupRepository {
   private _prisma = prisma;
 
 
-  async findByID(id: string, loggedInUser: number): Promise<IChatGroupWithMembers | null> {
+  async findByID(id: number, loggedInUser: number): Promise<IChatGroupWithMembers | null> {
     const foundChatGroup = await this._prisma.chatGroup.findUnique({
       where: { id },
       include: {
@@ -34,13 +34,13 @@ export class ChatGroupRepository {
       data: {
         name: payload.groupName,
         description: '',
-        photo: {
-          create: {
-            url: img,
-            placeholder: '',
-            uuid: ''
-          }
-        },
+        // photo: {
+        //   create: {
+        //     url: img,
+        //     placeholder: '',
+        //     uuid: ''
+        //   }
+        // },
         admin: {
           connect: { id: adminId }
         },

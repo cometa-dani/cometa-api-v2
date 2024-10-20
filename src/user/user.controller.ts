@@ -52,9 +52,6 @@ export class UserController extends BaseController {
   };
 
 
-  // public getUserByID: TypedRequestHandlerParams<UrlParamsDTO, UpdateUserDTO> = async () => { };
-
-
   public findUniqueUserByQueryParams: TypedRequestHandlerQuery<SearchByQueryParamsDTO> = async (req, res, next) => {
     try {
       const { email, username } = req.query;
@@ -197,11 +194,11 @@ export class UserController extends BaseController {
       if (!userFound) {
         return this.notFound(res, 'User not found');
       }
-      const photoToDelete = userFound.photos.find(photo => photo.uuid === req.params.uid);
+      const photoToDelete = userFound.photos.find(photo => photo.order === req.params.id);
       if (!photoToDelete) {
         return this.notFound(res, 'Photo not found');
       }
-      await this._userService.deletePhoto(userFound.uid, photoToDelete);
+      await this._userService.deletePhoto(userFound.id, photoToDelete);
 
       return this.noContent(res);
     }

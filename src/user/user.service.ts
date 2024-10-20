@@ -88,8 +88,8 @@ export class UserService {
   }
 
 
-  async deletePhoto(userUUID: string, photoToDelete: UserPhoto) {
-    const destinationPath = `users/${userUUID}/photos/${photoToDelete.uuid}`;
+  async deletePhoto(userId: number, photoToDelete: UserPhoto) {
+    const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deleteImage(destinationPath);
 
     return this._userRepository.deletePhoto(photoToDelete);

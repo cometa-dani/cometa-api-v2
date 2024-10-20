@@ -27,10 +27,10 @@ export class EventService {
   }
 
 
-  async uploadPhotos(incommingImgFiles: Express.Multer.File[], userUUID: string): Promise<string[]> {
+  async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number): Promise<string[]> {
     const filesToUpload =
       incommingImgFiles.map((file) => {
-        const destinationPath = `events/${userUUID}/photos/${file.filename}`;
+        const destinationPath = `events/${userId}/photos/${file.filename}`;
         return this._imageStorageService.uploadImage(destinationPath, file);
       });
 
@@ -48,8 +48,8 @@ export class EventService {
   }
 
 
-  async deletePhoto(userUUID: string, photoToDelete: EventPhoto) {
-    const destinationPath = `users/${userUUID}/photos/${photoToDelete.uuid}`;
+  async deletePhoto(userId: number, photoToDelete: EventPhoto) {
+    const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deleteImage(destinationPath);
 
     return this._eventRepository.deletePhoto(photoToDelete);

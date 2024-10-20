@@ -1,5 +1,6 @@
 {
   "name": "@cometa-api-v2/source",
+  "packageManager": "yarn@1.22.22",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {

@@ -233,4 +233,4 @@ export const schemmaEventID = z.object({
 export type EventIdQueryParamsDTO = z.infer<typeof schemmaEventID>
 
 
-export type UserPhotoDTO = Pick<UserPhoto, 'url' | 'order' | 'placeholder' | 'uuid'>
+export type UserPhotoDTO = Pick<UserPhoto, 'url' | 'order' | 'placeholder'>

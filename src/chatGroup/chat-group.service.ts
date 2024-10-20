@@ -27,7 +27,7 @@ export class ChatGroupService {
   }
 
 
-  async getChatGroupByID(id: string, loggedInUserID: number) {
+  async getChatGroupByID(id: number, loggedInUserID: number) {
     return this._chatGroupRepository.findByID(id, loggedInUserID);
     // try {
     // const catGroupID = req.params?.id;

@@ -25,7 +25,7 @@ class ChatGroupController extends BaseController {
   };
 
 
-  getChatGroupByID: TypedRequestHandlerParams<{ id: string }> = async (req, res, next) => {
+  getChatGroupByID: TypedRequestHandlerParams<{ id?: number }> = async (req, res, next) => {
     try {
       const chatGroup = await this._chatGroupService.getChatGroupByID(req.params.id, req.user.id);
       if (chatGroup) {

@@ -211,16 +211,16 @@ export const getFriendshipByTargetUserUUID: RequestHandler = async (req, res, ne
     });
 
     if (friendship.length === 1) {
-      if (!friendship[0]?.chatuuid) {
-        const updatedFriendShip = await prisma.friendship.update({
-          where: { id: friendship[0].id },
-          data: {
-            chatuuid: `${req.user.uid}__${targetUser.uid}`
-          }
-        });
+      // if (!friendship[0]?.chatuuid) {
+      //   const updatedFriendShip = await prisma.friendship.update({
+      //     where: { id: friendship[0].id },
+      //     data: {
+      //       // chatuuid: `${req.user.uid}__${targetUser.uid}`
+      //     }
+      //   });
 
-        return res.status(200).json(updatedFriendShip);
-      }
+      //   return res.status(200).json(updatedFriendShip);
+      // }
 
       return res.status(200).json(friendship[0]);
     }
@@ -392,7 +392,7 @@ export const acceptFriendShipInvitation: RequestHandler = async (req, res, next)
         },
         data: {
           status: 'ACCEPTED',
-          chatuuid: `${req.user.uid}__${friendshipExists.sender.uid}`
+          // chatuuid: `${req.user.uid}__${friendshipExists.sender.uid}`
         }
       });
 

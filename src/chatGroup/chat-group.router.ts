@@ -3,7 +3,7 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 import { imageUploadMiddleware } from '../middlewares/imageUploadMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import chatGroupController from './chat-group.controller';
-import { createChatGroup } from './chat-group.dto';
+import { createChatGroup, iDParam } from './chat-group.dto';
 
 
 class ChatGroupRouter {
@@ -27,7 +27,7 @@ class ChatGroupRouter {
       .route('/:id')
       .get(
         authMiddleware,
-        // validateIdParamMiddleware(),
+        validateRequestMiddleware({ params: iDParam }),
         chatGroupController.getChatGroupByID
       );
   }

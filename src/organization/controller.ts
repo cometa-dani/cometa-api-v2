@@ -101,7 +101,7 @@ export const createOrganization: RequestHandler = async (req, res, next) => {
     const organization = await prisma.organization.create({
       data: {
         ...organizationBody.data as Organization,
-        mediaUrl: await getDownloadURL(fileUploaded[0])
+        avatarUrl: await getDownloadURL(fileUploaded[0])
       },
     });
 
