@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { ChatGroup, User } from '@prisma/client';
-import { prisma } from '../dataBaseConnection';
+import { prisma } from '../config/dataBase';
 import { CreateChatGroupDTO } from './chat-group.dto';
 
 

@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { prisma } from '../dataBaseConnection';
+import { prisma } from '../config/dataBase';
 import * as schemmaValidation from './validations';
 
 
@@ -12,12 +12,10 @@ import * as schemmaValidation from './validations';
  */
 export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
   try {
-    const queries = schemmaValidation.worlCities.safeParse(req.query);
-
+    const queries = schemmaValidation.getWorlCitiesSchemma.safeParse(req.query);
     if (!queries.success) {
       return res.status(400).json({ error: 'Validation failed', issues: queries['error'].issues });
     }
-
     const { cityName, cursor, limit } = queries.data;
 
     const [cities, citiesCount] =
@@ -34,9 +32,7 @@ export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
         prisma.worldCities.count()
       ]);
 
-
     const nextCursor = cities.at(-1)?.id === 1 ? null : cities.at(-1)?.id ?? null;
-
     res
       .status(200)
       .json({

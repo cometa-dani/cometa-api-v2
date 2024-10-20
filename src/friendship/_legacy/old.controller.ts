@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { prisma } from '../../dataBaseConnection';
+import { prisma } from '../../config/dataBase';
 import * as schemma from '../frienship.dto';
 import { Prisma, Friendship, User } from '@prisma/client';
 
@@ -25,7 +25,7 @@ interface NewFriend extends Friendship {
 export const getLatestFriendsWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // Parse the limit & cursor from the query parameters using a validation schema
-    const paginatedQueries = schemma.paginatedQueries.safeParse(req.query);
+    const paginatedQueries = schemma.getFriendshipsSchemma.safeParse(req.query);
 
     if (!paginatedQueries.success) {
       return res.status(400).json({ error: 'Validation error', issues: paginatedQueries['error']?.issues });
@@ -104,7 +104,7 @@ export const getLatestFriendsWithPagination: RequestHandler = async (req, res, n
 export const searchFriendsWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // Parse the limit & cursor from the query parameters using a validation schema
-    const paginatedQueries = schemma.paginatedQueries.safeParse(req.query);
+    const paginatedQueries = schemma.getFriendshipsSchemma.safeParse(req.query);
 
     if (!paginatedQueries.success) {
       return res.status(400).json({ error: 'Validation error', issues: paginatedQueries['error']?.issues });
@@ -183,7 +183,7 @@ export const searchFriendsWithPagination: RequestHandler = async (req, res, next
 export const getFriendshipByTargetUserUUID: RequestHandler = async (req, res, next) => {
   try {
     // Parse the receiver id from the query parameters using a validation schema
-    const urlParam = schemma.paramsSchemma.safeParse(req.params);
+    const urlParam = schemma.getFriendshipByIdSchemma.safeParse(req.params);
 
     // If the validation fails, respond with a 400 Bad Request and provide validation issues
     if (!urlParam.success) {
@@ -251,7 +251,7 @@ export const getFriendshipByTargetUserUUID: RequestHandler = async (req, res, ne
 export const sentFriendShipInvitation: RequestHandler = async (req, res, next) => {
   try {
     // Parse the new friend id from the request body using a validation schema
-    const friendId = schemma.paramsSchemma.safeParse(req.body);
+    const friendId = schemma.getFriendshipByIdSchemma.safeParse(req.body);
 
     // If the validation fails, respond with a 400 Bad Request and provide validation issues
     if (!friendId.success) {
@@ -309,7 +309,7 @@ export const sentFriendShipInvitation: RequestHandler = async (req, res, next) =
 export const deleteFriendShipInvitation: RequestHandler = async (req, res, next) => {
   try {
     // Parse the receiver id from the url parameters using a validation schema
-    const receiver = schemma.paramsSchemma.safeParse(req.params);
+    const receiver = schemma.getFriendshipByIdSchemma.safeParse(req.params);
 
     // If the validation fails, respond with a 400 Bad Request and provide validation issues
     if (!receiver.success) {
@@ -370,7 +370,7 @@ export const deleteFriendShipInvitation: RequestHandler = async (req, res, next)
 export const acceptFriendShipInvitation: RequestHandler = async (req, res, next) => {
   try {
     // Parse the friendId from the url parameter using a validation schema
-    const friendShipIdParam = schemma.paramsSchemma.safeParse(req.params);
+    const friendShipIdParam = schemma.getFriendshipByIdSchemma.safeParse(req.params);
 
     // If the validation fails, respond with a 400 Bad Request and provide validation issues
     if (!friendShipIdParam.success) {

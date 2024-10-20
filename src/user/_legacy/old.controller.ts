@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { prisma } from '../../dataBaseConnection';
+import { prisma } from '../../config/dataBase';
 import * as schemma from '../user.dto';
 // import Jimp from 'jimp';
 
@@ -132,7 +132,7 @@ import * as schemma from '../user.dto';
 export const createUser: RequestHandler = async (req, res, next) => {
   try {
     // Parse and validate the request body against a predefined schema.
-    const reqBody = schemma.schemmaCreateUser.safeParse(req.body);
+    const reqBody = schemma.createUserSchemma.safeParse(req.body);
 
     if (!reqBody.success) {
       // Respond with a 400 status code and validation errors if the data is invalid.
@@ -179,8 +179,8 @@ export const createUser: RequestHandler = async (req, res, next) => {
 export const updateUser: RequestHandler = async (req, res, next) => {
   try {
     // Parse and validate the URL parameters and request body against predefined schemas.
-    const urlID = schemma.schemmaUrlParams.safeParse(req.params);
-    const reqBody = schemma.schemmaUpdateUser.safeParse(req.body);
+    const urlID = schemma.urlParamsSchemma.safeParse(req.params);
+    const reqBody = schemma.updateUserSchemma.safeParse(req.body);
 
     if (!urlID.success) {
       // Respond with a 400 status code and validation errors if URL parameters are invalid.

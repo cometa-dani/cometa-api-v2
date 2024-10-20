@@ -2,37 +2,31 @@ import { Service, Container } from 'typedi';
 import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO, UserPhotoDTO } from './user.dto';
 import { ImageStorageService } from '../shared/imageStorage/image-storage.service';
 import { UserPhoto, User, Friendship } from '@prisma/client';
-import { prisma } from '../dataBaseConnection';
+import { PrismaService } from '../config/dataBase';
 import { configCursor } from '../helpers/configCursor';
 
 
 @Service()
 export class UserService {
-
-  private _prisma = prisma;
+  private _prisma = Container.get(PrismaService);
   private _imageStorageService = Container.get(ImageStorageService);
 
-
-  async uploadPhotos(incommingImgFiles: Express.Multer.File[], userUUID: string): Promise<string[]> {
+  public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userUUID: string): Promise<string[]> {
     const filesToUpload =
       incommingImgFiles.map((file) => {
         const destinationPath = `users/${userUUID}/photos/${file.filename}`;
         return this._imageStorageService.uploadPhotos(destinationPath, file);
       });
-
     return Promise.all(filesToUpload);
   }
 
-
-  async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
+  public async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
     const filesToHash =
       incommingImgFiles.map((file) => {
         return this._imageStorageService.generatePhotoHashes(file.buffer);
       });
-
     return Promise.all(filesToHash);
   }
-
 
   private _areFriends(
     user: {
@@ -41,7 +35,6 @@ export class UserService {
     },
     loggedInUserID: number
   ): boolean {
-
     const friendShip = (
       (user?.incomingFriendships.length === 1 && user?.incomingFriendships[0]) ||
       (user?.outgoingFriendships.length === 1 && user?.outgoingFriendships[0])
@@ -50,12 +43,10 @@ export class UserService {
       (friendShip?.senderId === loggedInUserID || friendShip?.receiverId === loggedInUserID)
       && friendShip?.status === 'ACCEPTED'
     );
-
     return areFriends;
   }
 
-
-  async findAll(): Promise<User[]> {
+  public async findAll(): Promise<User[]> {
     return this._prisma.user.findMany({
       include: {
         photos: true,
@@ -67,8 +58,7 @@ export class UserService {
     });
   }
 
-
-  async searchAllByUsername(searchUsersByUsernameDTO: SearchByUsernameDTO, loggedInUserID: number): Promise<[User[], number]> {
+  public async searchAllByUsername(searchUsersByUsernameDTO: SearchByUsernameDTO, loggedInUserID: number): Promise<[User[], number]> {
     const { username, limit, cursor } = searchUsersByUsernameDTO;
     return (
       Promise.all([
@@ -98,8 +88,7 @@ export class UserService {
     );
   }
 
-
-  async findByID(id: number, includePhotos = false) {
+  public async findByID(id: number, includePhotos = false) {
     return (
       await this._prisma.user.findUnique({
         where: { id },
@@ -108,8 +97,7 @@ export class UserService {
     );
   }
 
-
-  async create(usertDto: CreateUserDTO): Promise<User> {
+  public async create(usertDto: CreateUserDTO): Promise<User> {
     return await this._prisma.user.create({
       data: {
         username: usertDto.username,
@@ -121,8 +109,7 @@ export class UserService {
     });
   }
 
-
-  async update(userID: number, userDto: UpdateUserDTO): Promise<User> {
+  public async update(userID: number, userDto: UpdateUserDTO): Promise<User> {
     return await this._prisma.user.update({
       where: { id: userID },
       data: {
@@ -131,8 +118,7 @@ export class UserService {
     });
   }
 
-
-  async updateUserPhotos(userPhotos: UserPhotoDTO[], userID: number): Promise<User> {
+  public async updateUserPhotos(userPhotos: UserPhotoDTO[], userID: number): Promise<User> {
     return await this._prisma.user.update({
       where: { id: userID },
       data: {
@@ -148,8 +134,7 @@ export class UserService {
     });
   }
 
-
-  async deletePhoto(userId: number, photoToDelete: UserPhoto) {
+  public async deletePhoto(userId: number, photoToDelete: UserPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deletePhoto(destinationPath);
     await this._prisma.userPhoto.delete({ where: { id: photoToDelete.id } });
@@ -165,8 +150,7 @@ export class UserService {
     });
   }
 
-
-  async findUniqueByField(queryParams: SearchByQueryParamsDTO) {
+  public async findUniqueByField(queryParams: SearchByQueryParamsDTO) {
     if (queryParams.email) {
       return await this._prisma.user.findFirst({
         where: {
@@ -183,8 +167,7 @@ export class UserService {
     }
   }
 
-
-  async findTargetUserWithFriendship(targetUuid: string, loggedInUserID: number) {
+  public async findTargetUserWithFriendship(targetUuid: string, loggedInUserID: number) {
     try {
       const userFound = await this._prisma.user.findUnique({
         where: { uid: targetUuid },
@@ -214,7 +197,6 @@ export class UserService {
           }
         }
       });
-
       return {
         ...userFound,
         hasIncommingFriendship: userFound['incomingFriendships']?.at(0)?.status === 'PENDING',
@@ -227,8 +209,7 @@ export class UserService {
     }
   }
 
-
-  async findUniqueWithLikeEvents(uuid: string) {
+  public async findUniqueWithLikeEvents(uuid: string) {
     return await this._prisma.user.findUnique({
       where: { uid: uuid },
       include: {

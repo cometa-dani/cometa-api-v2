@@ -2,31 +2,31 @@ import z from 'zod';
 import { Friendship, User } from '@prisma/client';
 
 
-export const paramsSchemma = z.object({
+export const getFriendshipByIdSchemma = z.object({
   id: z.number({ coerce: true }).optional(),
   uuid: z.string().optional()  // remove in te future
 });
 
-export type ParamsDTo = z.infer<typeof paramsSchemma>;
+export type FrienshipParamsDTo = z.infer<typeof getFriendshipByIdSchemma>;
 
-export const queryParams = z.object({
+export const getFriendshipByFieldSchemma = z.object({
   receiverid: z.number({ coerce: true })
 });
 
-export const paginatedQueries = z.object({
+export const getFriendshipsSchemma = z.object({
   limit: z.number({ coerce: true }),
   cursor: z.number({ coerce: true }).optional(),
   page: z.number({ coerce: true }).optional(),
   friendUserName: z.string().transform(str => str.startsWith('@') ? str : `@${str}`).optional()
 });
 
-export type PaginatedQueriesDto = z.infer<typeof paginatedQueries>;
+export type GetFriendshipsDto = z.infer<typeof getFriendshipsSchemma>;
 
-export const updateBodySchemma = z.object({
+export const updateFrienshipSchemma = z.object({
   status: z.enum(['ACCEPTED', 'PENDING', 'BLOCKED'])
 });
 
-export type UpdateBodyDto = z.infer<typeof updateBodySchemma>
+export type UpdateFriendshipDto = z.infer<typeof updateFrienshipSchemma>
 
 export interface NewFriend extends Friendship {
   sender: User,

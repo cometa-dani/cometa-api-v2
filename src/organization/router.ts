@@ -1,6 +1,5 @@
 import express from 'express';
 import * as controller from './controller';
-// import { fileUploadMiddleware } from 'src/middlewares/fileUploadMiddleware';
 import { fileUploadMiddleware } from '../middlewares/fileUploadMiddleware';
 
 

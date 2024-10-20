@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import { app } from './app';
+import Container from 'typedi';
 import { host, port } from './vars';
-import { shutdownDb } from './dataBaseConnection';
+import { PrismaService } from './config/dataBase';
 
 
 // starts the server
@@ -11,6 +12,6 @@ app.listen(port, host, () => {
 
 // Handle database disconnection when the application is shutting down
 process.on('SIGINT', async () => {
-  await shutdownDb();
+  Container.get(PrismaService).$disconnect();
   process.exit(0);
 });

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { EventCategory } from '@prisma/client';
 
 
-export const searchEventsByQueryParams = z.object({
+export const searchEventsSchemma = z.object({
   cursor: z.number({ coerce: true }).default(0).optional(), // default value -1 or 0
   limit: z.number({ coerce: true }).default(10).optional(),
   name: z.string().optional(),
@@ -41,10 +41,10 @@ export const searchEventsByQueryParams = z.object({
 });
 
 
-export type SearchEventsByQueryParamsDTO = z.infer<typeof searchEventsByQueryParams>
+export type SearchEventsDTO = z.infer<typeof searchEventsSchemma>
 
 
-export const schemmaEventQueriesWithPagination = z.object({
+export const getEventsSchemma = z.object({
   cursor: z.number({ coerce: true }).default(0).optional(), // default value -1 or 0
   limit: z.number({ coerce: true }).default(10).optional(),
 
@@ -84,10 +84,10 @@ export const schemmaEventQueriesWithPagination = z.object({
       .optional(),
 });
 
-export type EventsByQueryParamsDTO = z.infer<typeof schemmaEventQueriesWithPagination>
+export type GetAllEventsDTO = z.infer<typeof getEventsSchemma>
 
 
-export const createEvent = z.object({
+export const createEventSchemma = z.object({
   name: z.string().default(''),
   description: z.string().min(5).max(200).default(''),
   locationId: z.number({ coerce: true }),
@@ -127,17 +127,17 @@ export const createEvent = z.object({
 });
 
 
-export const schemmaEventIdParams = z.object({
+export const getEventIdSchemma = z.object({
   id: z.number({ coerce: true }).optional(),
   uid: z.string().optional()
 });
 
-export type EventUrlParamsDto = z.infer<typeof schemmaEventIdParams>
+export type EventParamsDto = z.infer<typeof getEventIdSchemma>
 
-export const schemmaSearchByName = z.object({
+export const searchByNameSchemma = z.object({
   name: z.string(),
   limit: z.number({ coerce: true }).optional(),
   cursor: z.number({ coerce: true }).optional(),
 });
 
-export type SearchByNameDto = z.infer<typeof schemmaSearchByName>
+export type SearchByNameDto = z.infer<typeof searchByNameSchemma>

@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 
-export const createOrganization = z.object({
+export const createOrganizationSchemma = z.object({
   name: z.string().min(3).max(255),
   email: z.string().email(),
   description: z.string().min(3).max(255),

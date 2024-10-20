@@ -1,5 +1,5 @@
 import { Container, Service } from 'typedi';
-import { EventUrlParamsDto, EventsByQueryParamsDTO, SearchByNameDto, SearchEventsByQueryParamsDTO } from './event.dto';
+import { EventParamsDto, GetAllEventsDTO, SearchByNameDto, SearchEventsDTO } from './event.dto';
 import { TypedRequestHandlerBody, TypedRequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
 import { BaseController } from '../helpers/basecontroller';
@@ -11,7 +11,7 @@ export class EventController extends BaseController {
   private _eventService = Container.get(EventService);
 
 
-  public getUsersWhoLikedSameEventWithPagination: TypedRequestHandlerQuery<EventsByQueryParamsDTO, object, EventUrlParamsDto> = async (req, res, next) => {
+  public getUsersWhoLikedSameEventWithPagination: TypedRequestHandlerQuery<GetAllEventsDTO, object, EventParamsDto> = async (req, res, next) => {
     try {
       const { limit, cursor } = req.query;
       const [totalCount, usersList] = await this._eventService.getUsersWhoLikedSameEvent(req.params.id, req.user.id, req.query);
@@ -54,7 +54,7 @@ export class EventController extends BaseController {
   };
 
 
-  public searchLatestEventsWithPagination: TypedRequestHandlerQuery<SearchEventsByQueryParamsDTO> = async (req, res, next) => {
+  public searchLatestEventsWithPagination: TypedRequestHandlerQuery<SearchEventsDTO> = async (req, res, next) => {
     try {
       const { limit = 10, cursor = 0 } = req.query;
       const [events, count] = await this._eventService.searchLatestEventsWithPagination(req.query, req.user.id);

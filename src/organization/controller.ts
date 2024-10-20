@@ -1,4 +1,4 @@
-import { prisma } from '../dataBaseConnection';
+import { prisma } from '../config/dataBase';
 import { RequestHandler } from 'express';
 import * as schemma from './schemma';
 import { randomUUID } from 'crypto';
@@ -68,7 +68,7 @@ export const getOrganizationById: RequestHandler<{ id: string }> = async (req, r
  */
 export const createOrganization: RequestHandler = async (req, res, next) => {
   try {
-    const organizationBody = schemma.createOrganization.safeParse(JSON.parse(req.body['organization']));
+    const organizationBody = schemma.createOrganizationSchemma.safeParse(JSON.parse(req.body['organization']));
 
     if (!organizationBody.success) {
       return res.status(400).json({ error: 'Invalid body', issues: organizationBody['error'].issues });

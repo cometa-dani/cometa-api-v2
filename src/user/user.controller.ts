@@ -9,15 +9,12 @@ import { RequestHandler } from 'express';
 
 @Service()
 export class UserController extends BaseController {
-
   private _userService = Container.get(UserService);
   private _maxNumPhotos = 5;
-
 
   constructor() {
     super();
   }
-
 
   public getAllUsers: RequestHandler = async (req, res, next) => {
     try {
@@ -29,13 +26,11 @@ export class UserController extends BaseController {
     }
   };
 
-
   public searchAllByUsernameWithPagination: TypedRequestHandlerQuery<SearchByUsernameDTO> = async (req, res, next) => {
     try {
       const { cursor = 0, limit = 10 } = req.query;
       const [users, count] = await this._userService.searchAllByUsername(req.query, req.user.id);
       const nextCursor = users.at(-1)?.id === 1 ? null : users.at(-1)?.id ?? null;
-
       const paginatedUsers = {
         users: cursor > 0 ? users.slice(1) : users,
         totalUsers: count,
@@ -43,14 +38,12 @@ export class UserController extends BaseController {
         hasNextCursor: nextCursor !== null || users.length < limit,
         usersPerPage: limit,
       };
-
       return this.ok(res, paginatedUsers);
     }
     catch (error) {
       next(error);
     }
   };
-
 
   public findUniqueUserByQueryParams: TypedRequestHandlerQuery<SearchByQueryParamsDTO> = async (req, res, next) => {
     try {
@@ -76,7 +69,6 @@ export class UserController extends BaseController {
     }
   };
 
-
   //TODO: specify two different methods for loggedInUser and targetUser
   public getloggedInUserWithLikeEvents: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
@@ -91,7 +83,6 @@ export class UserController extends BaseController {
     }
   };
 
-
   public getTargetUserWithFriendship: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findTargetUserWithFriendship(req.params.uid, req.user.id);
@@ -104,7 +95,6 @@ export class UserController extends BaseController {
       next(error);
     }
   };
-
 
   public createUser: TypedRequestHandlerBody<CreateUserDTO> = async (req, res, next) => {
     try {
@@ -123,7 +113,6 @@ export class UserController extends BaseController {
     }
   };
 
-
   public updateUserByID: TypedRequestHandlerParams<UrlParamsDTO, UpdateUserDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id);
@@ -140,7 +129,6 @@ export class UserController extends BaseController {
       next(error);
     }
   };
-
 
   public uploadUserPhotos: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
@@ -186,7 +174,6 @@ export class UserController extends BaseController {
       next(error);
     }
   };
-
 
   public deleteUserPhotoById: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {

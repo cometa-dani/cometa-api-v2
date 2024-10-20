@@ -1,8 +1,8 @@
 import { EventLike, EventPhoto, Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
-import { prisma } from '../dataBaseConnection';
+import { PrismaService } from '../config/dataBase';
 import { configCursor } from '../helpers/configCursor';
-import { EventsByQueryParamsDTO, SearchByNameDto, SearchEventsByQueryParamsDTO } from './event.dto';
+import { GetAllEventsDTO, SearchByNameDto, SearchEventsDTO } from './event.dto';
 import { ImageStorageService } from '../shared/imageStorage/image-storage.service';
 
 
@@ -12,12 +12,13 @@ interface ILikeableEvent extends Event {
 
 @Service()
 export class EventService {
-
-  private _prisma = prisma;
+  private _prisma = Container.get(PrismaService);
   private _imageStorageService = Container.get(ImageStorageService);
 
-
-  async getUsersWhoLikedSameEvent(eventID: number, loggedInUserID: number, { limit, cursor }: EventsByQueryParamsDTO): Promise<[number, EventLike[]]> {
+  public async getUsersWhoLikedSameEvent(
+    eventID: number, loggedInUserID: number, { limit, cursor }: GetAllEventsDTO
+  )
+    : Promise<[number, EventLike[]]> {
     // EventLike model
     const whereCondition: Prisma.EventLikeWhereInput = {
       eventId: eventID, // all the likes for this event
@@ -39,7 +40,6 @@ export class EventService {
         },
       }
     };
-
     const query: Prisma.EventLikeFindManyArgs = {
       ...configCursor(limit, cursor),
       where: whereCondition,
@@ -97,21 +97,20 @@ export class EventService {
     return [totalusersCount, usersList];
   }
 
-
-  async searchLatestEventsWithPagination({ categories, cursor, limit, name = '' }: SearchEventsByQueryParamsDTO, userID: number): Promise<[ILikeableEvent[], number]> {
+  public async searchLatestEventsWithPagination(
+    { categories, cursor, limit, name = '' }: SearchEventsDTO, userID: number
+  )
+    : Promise<[ILikeableEvent[], number]> {
     const whereCategoriesAndName: Prisma.EventWhereInput = {
       AND: [
         { categories: { hasSome: categories } },
         { name: { contains: name, mode: 'insensitive' } }
       ]
     };
-
     const whereOnlyName: Prisma.EventWhereInput = {
       name: { contains: name, mode: 'insensitive' }
     };
-
     const where = categories ? whereCategoriesAndName : whereOnlyName;
-
     const query: Prisma.EventFindManyArgs = {
       ...configCursor(limit, cursor),
       // orderBy: { createdAt: 'desc' },
@@ -133,15 +132,13 @@ export class EventService {
         photos: true
       }
     };
-
     const [totalEventsCount, latestEvents] = (
       await
         Promise.all([
-          prisma.event.count({ where }),  // counting all records in the entire table
-          prisma.event.findMany(query),
+          this._prisma.event.count({ where }),  // counting all records in the entire table
+          this._prisma.event.findMany(query),
         ])
     );
-
     const latestLikabledEvents: ILikeableEvent[] = latestEvents.map(event => {
       return {
         ...event,
@@ -150,12 +147,10 @@ export class EventService {
       };
 
     }) ?? [];
-
     return [latestLikabledEvents, totalEventsCount];
   }
 
-
-  async searchEventsByName(searchDto: SearchByNameDto) {
+  public async searchEventsByName(searchDto: SearchByNameDto) {
     return (
       Promise.all([
         this._prisma.event
@@ -181,41 +176,37 @@ export class EventService {
     );
   }
 
-
-  async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number): Promise<string[]> {
+  public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number): Promise<string[]> {
     const filesToUpload =
       incommingImgFiles.map((file) => {
         const destinationPath = `events/${userId}/photos/${file.filename}`;
         return this._imageStorageService.uploadPhotos(destinationPath, file);
       });
-
     return Promise.all(filesToUpload);
   }
 
-
-  async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
+  public async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
     const filesToHash =
       incommingImgFiles.map((file) => {
         return this._imageStorageService.generatePhotoHashes(file.buffer);
       });
-
     return Promise.all(filesToHash);
   }
 
-
-  async deletePhoto(userId: number, photoToDelete: EventPhoto) {
+  public async deletePhoto(userId: number, photoToDelete: EventPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deletePhoto(destinationPath);
     await this._prisma.eventPhoto.delete({ where: { id: photoToDelete.id } });
-
-    return this._prisma.eventPhoto.updateMany({
-      where: {
-        eventId: photoToDelete.eventId,
-        order: { gte: photoToDelete.order } // reorders the remaining photos
-      },
-      data: {
-        order: { decrement: 1 }  // reorders the remaining photos
-      }
-    });
+    return (
+      this._prisma.eventPhoto.updateMany({
+        where: {
+          eventId: photoToDelete.eventId,
+          order: { gte: photoToDelete.order } // reorders the remaining photos
+        },
+        data: {
+          order: { decrement: 1 }  // reorders the remaining photos
+        }
+      })
+    );
   }
 }

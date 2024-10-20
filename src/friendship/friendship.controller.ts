@@ -1,5 +1,5 @@
 import { Container, Service } from 'typedi';
-import { PaginatedQueriesDto, ParamsDTo as FriendIdsDTo, UpdateBodyDto, ParamsDTo } from './frienship.dto';
+import { GetFriendshipsDto, FrienshipParamsDTo as FriendIdsDTo, UpdateFriendshipDto, FrienshipParamsDTo } from './frienship.dto';
 import { TypedRequestHandlerBody, TypedRequestHandlerParams, TypedRequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { BaseController } from '../helpers/basecontroller';
 import { FriendshipService } from './friendship.service';
@@ -10,8 +10,7 @@ export class FrienshipController extends BaseController {
 
   private _friendshipService = Container.get(FriendshipService);
 
-
-  public searchFriendsWithPagination: TypedRequestHandlerQuery<PaginatedQueriesDto> = async (req, res, next) => {
+  public searchFriendsWithPagination: TypedRequestHandlerQuery<GetFriendshipsDto> = async (req, res, next) => {
     try {
       const { cursor = 0, limit = 10 } = req.query;
       const [newFriends, totalFriends] = await this._friendshipService.searchFriendsByUsername(req.user.id, req.query);
@@ -32,8 +31,7 @@ export class FrienshipController extends BaseController {
     }
   };
 
-
-  public getNewestFriendsWithPagination: TypedRequestHandlerQuery<PaginatedQueriesDto> = async (req, res, next) => {
+  public getNewestFriendsWithPagination: TypedRequestHandlerQuery<GetFriendshipsDto> = async (req, res, next) => {
     try {
       const { cursor = 0, limit = 10 } = req.query;
       const [newFriends, totalFriendshipsCount] = await this._friendshipService.getFriendsWithPagination(req.query, req.user.id);
@@ -53,8 +51,7 @@ export class FrienshipController extends BaseController {
     }
   };
 
-
-  public getFriendshipByTargetUserUUID: TypedRequestHandlerParams<ParamsDTo> = async (req, res, next) => {
+  public getFriendshipByTargetUserUUID: TypedRequestHandlerParams<FrienshipParamsDTo> = async (req, res, next) => {
     try {
       const foundFrienship = await this._friendshipService.getFriendshipByTargetUser(req.params.uuid, req.user.id);
       if (!foundFrienship) {
@@ -67,7 +64,6 @@ export class FrienshipController extends BaseController {
     }
   };
 
-
   public sentFriendShipInvitation: TypedRequestHandlerBody<FriendIdsDTo> = async (req, res, next) => {
     try {
       const newFriendshipInvitation = await this._friendshipService.sentFrienshipInvitation(req.body.id, req.user.id);
@@ -78,12 +74,11 @@ export class FrienshipController extends BaseController {
     }
   };
 
-
   /**
    *
    * @description unfollows a friendship
    */
-  public updateFriendShipInvitation: TypedRequestHandlerParams<FriendIdsDTo, UpdateBodyDto> = async (req, res, next) => {
+  public updateFriendShipInvitation: TypedRequestHandlerParams<FriendIdsDTo, UpdateFriendshipDto> = async (req, res, next) => {
     try {
       const { status } = req.body;
 
@@ -101,7 +96,6 @@ export class FrienshipController extends BaseController {
       next(error);
     }
   };
-
 
   public deleteFriendship: TypedRequestHandlerParams<FriendIdsDTo> = async (req, res, next) => {
     try {

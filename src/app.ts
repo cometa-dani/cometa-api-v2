@@ -9,7 +9,6 @@ import { defaultErrorMiddleware } from './middlewares/defaultErrorMiddleware';
 import { eventRouter } from './event/event.router';
 import { organizationRouter } from './organization/router';
 import { worldCitiesRouter } from './worldcities/router';
-
 // with new architecture
 import chatGroupRouter from './chatGroup/chat-group.router';
 import userRouter from './user/user.router';

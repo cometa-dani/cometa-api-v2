@@ -2,7 +2,7 @@ import z from 'zod';
 import { EventCategory, UserPhoto } from '@prisma/client';
 
 
-export const schemmaSearchQueryParams = z.object({
+export const searchQueryParamsSchemma = z.object({
   username:
     z.string()
       .optional()
@@ -16,10 +16,10 @@ export const schemmaSearchQueryParams = z.object({
   phone: z.string().optional()
 });
 
-export type SearchByQueryParamsDTO = z.infer<typeof schemmaSearchQueryParams>
+export type SearchByQueryParamsDTO = z.infer<typeof searchQueryParamsSchemma>
 
 
-export const schemmaSearchByUsername = z.object({
+export const searchByUsernameSchemma = z.object({
   username:
     z.string()
       .optional()
@@ -34,10 +34,10 @@ export const schemmaSearchByUsername = z.object({
   cursor: z.number({ coerce: true }).default(10).optional(),
 });
 
-export type SearchByUsernameDTO = z.infer<typeof schemmaSearchByUsername>
+export type SearchByUsernameDTO = z.infer<typeof searchByUsernameSchemma>
 
 
-export const schemmaCreateUser = z.object({
+export const createUserSchemma = z.object({
   username: z.string().min(2).max(18)
     .transform(
       (str) => str ?
@@ -52,10 +52,10 @@ export const schemmaCreateUser = z.object({
   birthday: z.string().transform(date => new Date(date)),
 });
 
-export type CreateUserDTO = z.infer<typeof schemmaCreateUser>
+export type CreateUserDTO = z.infer<typeof createUserSchemma>
 
 
-export const schemmaUpdateUser = z.object({
+export const updateUserSchemma = z.object({
   username: z.string().min(3).max(18).optional()
     .transform(
       (str) => str ?
@@ -215,22 +215,22 @@ export const schemmaUpdateUser = z.object({
     .optional(),
 });
 
-export type UpdateUserDTO = z.infer<typeof schemmaUpdateUser>
+export type UpdateUserDTO = z.infer<typeof updateUserSchemma>
 
 
-export const schemmaUrlParams = z.object({
+export const urlParamsSchemma = z.object({
   id: z.number({ coerce: true }).optional(),
   uid: z.string().optional(),
 });
 
-export type UrlParamsDTO = z.infer<typeof schemmaUrlParams>
+export type UrlParamsDTO = z.infer<typeof urlParamsSchemma>
 
 
-export const schemmaEventID = z.object({
+export const eventIDSchemma = z.object({
   eventId: z.number({ coerce: true }).optional()
 });
 
-export type EventIdQueryParamsDTO = z.infer<typeof schemmaEventID>
+export type EventIdQueryParamsDTO = z.infer<typeof eventIDSchemma>
 
 
 export type UserPhotoDTO = Pick<UserPhoto, 'url' | 'order' | 'placeholder'>

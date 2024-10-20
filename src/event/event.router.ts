@@ -3,7 +3,7 @@ import { Container } from 'typedi';
 import * as oldController from './_legacy/old.controller';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
-import { schemmaEventIdParams, schemmaEventQueriesWithPagination, schemmaSearchByName, searchEventsByQueryParams, } from './event.dto';
+import { getEventIdSchemma, getEventsSchemma, searchByNameSchemma, searchEventsSchemma, } from './event.dto';
 import { EventController } from './event.controller';
 
 
@@ -15,7 +15,7 @@ eventRouter
   .route('/')
   .get(
     authMiddleware,
-    validateRequestMiddleware({ query: searchEventsByQueryParams }),
+    validateRequestMiddleware({ query: searchEventsSchemma }),
     newEventController.searchLatestEventsWithPagination
   )
   // change to 'locations/:id/events' in location model
@@ -27,7 +27,7 @@ eventRouter
   .route('/search')
   .get(
     authMiddleware,
-    validateRequestMiddleware({ query: schemmaSearchByName }),
+    validateRequestMiddleware({ query: searchByNameSchemma }),
     newEventController.searchEventsByName
   );
 
@@ -47,7 +47,7 @@ eventRouter
   .route('/liked/:id/users')
   .get(
     authMiddleware,
-    validateRequestMiddleware({ query: schemmaEventQueriesWithPagination, params: schemmaEventIdParams }),
+    validateRequestMiddleware({ query: getEventsSchemma, params: getEventIdSchemma }),
     newEventController.getUsersWhoLikedSameEventWithPagination
   );
 
