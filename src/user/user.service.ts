@@ -152,8 +152,6 @@ export class UserService {
   async deletePhoto(userId: number, photoToDelete: UserPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deletePhoto(destinationPath);
-
-    // return this._userRepository.deletePhoto(photoToDelete);
     await this._prisma.userPhoto.delete({ where: { id: photoToDelete.id } });
 
     return this._prisma.userPhoto.updateMany({
