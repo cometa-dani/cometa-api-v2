@@ -26,8 +26,7 @@ export class FrienshipController extends BaseController {
         this.ok(res, paginatedFriends);
       }
       catch (error) {
-        // If an error occurs, pass it to the error-handling middleware
-        next(error);
+        next(error); // If an error occurs, pass it to the error-handling middleware
       }
     };
 
@@ -79,7 +78,7 @@ export class FrienshipController extends BaseController {
 
   /**
    *
-   * @description unfollows a friendship
+   * @description follows or unfollows a friendship
    */
   public updateFriendShipInvitation: RequestHandlerParams<FriendIdsDTo, UpdateFriendshipDto> =
     async (req, res, next) => {

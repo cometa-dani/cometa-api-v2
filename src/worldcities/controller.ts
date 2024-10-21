@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
-import { prisma } from '../config/dataBase';
+import { PrismaService } from '../config/dataBase';
 import * as schemmaValidation from './validations';
+import Container from 'typedi';
 
 
 /**
@@ -12,6 +13,7 @@ import * as schemmaValidation from './validations';
  */
 export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
   try {
+    const prismaService = Container.get(PrismaService);
     const queries = schemmaValidation.getWorlCitiesSchemma.safeParse(req.query);
     if (!queries.success) {
       return res.status(400).json({ error: 'Validation failed', issues: queries['error'].issues });
@@ -20,7 +22,7 @@ export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
 
     const [cities, citiesCount] =
       await Promise.all([
-        prisma.worldCities.findMany({
+        prismaService.worldCities.findMany({
           orderBy: { city: 'asc' },
           take: cursor > 0 ? limit + 1 : limit, // only adds 1 when limit is greater than 0
           cursor: cursor > 0 ? { id: cursor } : undefined, // makes pagination
@@ -29,7 +31,7 @@ export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
               city: { contains: cityName, mode: 'insensitive' }
             }
         }),
-        prisma.worldCities.count()
+        prismaService.worldCities.count()
       ]);
 
     const nextCursor = cities.at(-1)?.id === 1 ? null : cities.at(-1)?.id ?? null;
