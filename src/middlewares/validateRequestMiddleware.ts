@@ -16,7 +16,11 @@ export function validateRequestMiddleware(validateReq: ValidateReqArgs): Request
       if (schemma) {
         const validationResult = schemma?.safeParse(req[key]);
         if (!validationResult.success) {
-          return res.status(400).json({ error: 'Validation failed', issues: validationResult['error'].issues });
+          return (
+            res
+              .status(400)
+              .json({ error: 'Validation failed', issues: validationResult['error'].issues })
+          );
         }
         req[key] = validationResult.data;
       }
