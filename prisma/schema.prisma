@@ -129,17 +129,17 @@ enum Education {
 }
 
 model Organization {
-  id          Int        @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
   uuid        String?
-  avatarUrl   String?    @map("avatar_url")
-  name        String     @unique @db.VarChar(255)
-  email       String     @unique
+  avatarUrl   String?  @map("avatar_url")
+  name        String   @unique @db.VarChar(255)
+  email       String   @unique
   password    String
   phone       String?
   description String?
-  locations   Location[]
+  // locations   Location[]
   events      Event[]
 
   webPage       String? @map("web_page")
@@ -154,14 +154,39 @@ model Location {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Delete this relation
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId Int          @map("organization_id")
+  // organization   Organization @relation(fields: [organizationId], references: [id])
+  // organizationId Int          @map("organization_id")
 
   name        String  @unique @db.VarChar(255)
   description String?
   latitude    Float
   longitude   Float
   events      Event[]
+}
+
+model Event {
+  //  represents social events. Users can like events, and matches can be formed based on common likes.
+  id          Int             @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  date        DateTime
+  name        String          @db.VarChar(255)
+  description String
+  categories  EventCategory[] @default([]) // change to an array of categories
+
+  // one to many relations
+  photos EventPhoto[]
+  likes  EventLike[]
+  shares EventShare[]
+
+  // one to one relations
+  location       Location      @relation(fields: [locationId], references: [id])
+  locationId     Int           @map("location_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?          @map("organization_id")
+
+  // Unique constraint to prevent events at the same date and location
+  @@unique([date, locationId])
 }
 
 model EventPhoto {
@@ -202,31 +227,6 @@ model EventShare {
   eventId Int   @map("event_id")
   user    User  @relation(fields: [userId], references: [id])
   userId  Int   @map("user_id")
-}
-
-model Event {
-  //  represents social events. Users can like events, and matches can be formed based on common likes.
-  id          Int             @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
-  date        DateTime
-  name        String          @db.VarChar(255)
-  description String
-  categories  EventCategory[] @default([]) // change to an array of categories
-
-  // one to many relations
-  photos EventPhoto[]
-  likes  EventLike[]
-  shares EventShare[]
-
-  // one to one relations
-  location       Location      @relation(fields: [locationId], references: [id])
-  locationId     Int           @map("location_id")
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId Int?          @map("organization_id")
-
-  // Unique constraint to prevent events at the same date and location
-  @@unique([date, locationId])
 }
 
 model UserPhoto {

@@ -17,10 +17,10 @@ eventRouter
     authMiddleware,
     validateRequestMiddleware({ query: searchEventsSchemma }),
     newEventController.searchLatestEventsWithPagination
-  )
-  // change to 'locations/:id/events' in location model
-  // or pass a ?locationID=1 as queryParam
-  .post(newEventController.createEventByLocation);
+  );
+// change to 'locations/:id/events' in location model
+// or pass a ?locationID=1 as queryParam
+// .post(newEventController.createEventByLocation);
 
 
 eventRouter
@@ -44,7 +44,7 @@ eventRouter
 
 // for meeting new people
 eventRouter
-  .route('/liked/:id/users')
+  .route('/liked/:id/users') // eventId
   .get(
     authMiddleware,
     validateRequestMiddleware({ query: getAllEventsSchemma, params: getEventIdSchemma }),

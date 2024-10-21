@@ -1,0 +1,56 @@
+
+
+
+/users/
+    - get/search all users by @username
+    - create profile
+    - update profile
+    - upload photos
+    /?liked-same-event=8772/  (required)
+        - get users who give like the same event with pagination (meet new people, but aren't yet friends)
+
+    /events/                (user must be authenticated  :id )
+        - get/search newest events with pagination (can be filterd by category) HOME page
+
+        /:id/
+            - get event by ID
+
+        /:id/likes/
+            - create event like
+            - delete event like
+
+        /likes/
+            - get newest liked events with pagination (bucket list)
+
+            /?targetUser=344/
+                - get all events that two users liked (macthes carousel in targetUserProfile && event matches Component) with pagination
+
+        /shares/
+            -
+            -
+
+
+/friendships/
+    - get/search newest friends with pagination (chat app) & (new friends screen)
+    - get friendship by id to start the chat-app
+    - sent friendship invitation
+    - accept friendship invitation
+    - cancel friendship invitation
+
+
+/partners/
+    - get profile by id
+    - get all parnerts (usefull for cometa admins)
+    - create profile
+    - update profile
+    - delete profile
+
+    /events/
+        - get event by id
+        - get all events with pagination
+        - create event
+        - delete event
+        - update event
+
+    /locations/
+        - CRUD location
