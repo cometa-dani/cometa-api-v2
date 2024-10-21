@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { prisma } from '../config/dataBase';
+import { PrismaService } from '../config/dataBase';
 import jwt from 'jsonwebtoken';
+import Container from 'typedi';
 
 
 export async function authMiddleware(request: Request, response: Response, next: NextFunction) {
@@ -11,7 +12,6 @@ export async function authMiddleware(request: Request, response: Response, next:
       message: 'FORBIDDEN'
     });
   }
-
   const token = String(authHeader).split(' ')[1];
   if (!token) {
     return response.status(403).json({
@@ -19,7 +19,6 @@ export async function authMiddleware(request: Request, response: Response, next:
       message: 'FORBIDDEN'
     });
   }
-
   let payload!: string | jwt.JwtPayload;
   try {
     payload = jwt.decode(token);
@@ -49,10 +48,8 @@ export async function authMiddleware(request: Request, response: Response, next:
       message: 'UNAUTHORIZED'
     });
   }
-
   const uid = payload['user_id'];
-  const user = await prisma.user.findUnique({ where: { uid } });
-
+  const user = await Container.get(PrismaService).user.findUnique({ where: { uid } });
   if (!user) {
     return response.status(401).json({
       status: 401,

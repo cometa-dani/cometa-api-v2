@@ -129,7 +129,7 @@ export class UserController extends BaseController {
       next(error);
     }
   };
-
+  x;
   public uploadUserPhotos: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
