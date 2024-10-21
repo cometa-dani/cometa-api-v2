@@ -2,7 +2,7 @@ import { EventLike, EventPhoto, Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
 import { PrismaService } from '../config/dataBase';
 import { configCursor } from '../helpers/configCursor';
-import { GetAllEventsDTO, SearchByNameDto, SearchEventsDTO } from './event.dto';
+import { GetAllEventsDTO, SearchEventByNameDto, SearchEventsDTO } from './event.dto';
 import { ImageStorageService } from '../shared/imageStorage/image-storage.service';
 
 
@@ -12,7 +12,7 @@ interface ILikeableEvent extends Event {
 
 @Service()
 export class EventService {
-  private _prisma = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
   private _imageStorageService = Container.get(ImageStorageService);
 
   public async getUsersWhoLikedSameEvent(
@@ -79,8 +79,8 @@ export class EventService {
     const [totalusersCount = 0, usersWhoLikedEventList = []] = (
       await
         Promise.all([
-          this._prisma.eventLike.count({ where: whereCondition }),
-          this._prisma.eventLike.findMany(query)
+          this._prismaService.eventLike.count({ where: whereCondition }),
+          this._prismaService.eventLike.findMany(query)
         ])
     );
 
@@ -135,8 +135,8 @@ export class EventService {
     const [totalEventsCount, latestEvents] = (
       await
         Promise.all([
-          this._prisma.event.count({ where }),  // counting all records in the entire table
-          this._prisma.event.findMany(query),
+          this._prismaService.event.count({ where }),  // counting all records in the entire table
+          this._prismaService.event.findMany(query),
         ])
     );
     const latestLikabledEvents: ILikeableEvent[] = latestEvents.map(event => {
@@ -150,10 +150,10 @@ export class EventService {
     return [latestLikabledEvents, totalEventsCount];
   }
 
-  public async searchEventsByName(searchDto: SearchByNameDto) {
+  public async searchEventsByName(searchDto: SearchEventByNameDto) {
     return (
       Promise.all([
-        this._prisma.event
+        this._prismaService.event
           .findMany({
             ...configCursor(searchDto.limit, searchDto.cursor),
             where: {
@@ -166,7 +166,7 @@ export class EventService {
               photos: { where: { order: 0 }, take: 1 },
             }
           }),
-        this._prisma.event
+        this._prismaService.event
           .count({
             where: {
               name: { contains: searchDto.name, mode: 'insensitive' }
@@ -196,9 +196,9 @@ export class EventService {
   public async deletePhoto(userId: number, photoToDelete: EventPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deletePhoto(destinationPath);
-    await this._prisma.eventPhoto.delete({ where: { id: photoToDelete.id } });
+    await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
     return (
-      this._prisma.eventPhoto.updateMany({
+      this._prismaService.eventPhoto.updateMany({
         where: {
           eventId: photoToDelete.eventId,
           order: { gte: photoToDelete.order } // reorders the remaining photos

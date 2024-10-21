@@ -3,7 +3,7 @@ import { Container } from 'typedi';
 import * as oldController from './_legacy/old.controller';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
-import { getEventIdSchemma, getEventsSchemma, searchByNameSchemma, searchEventsSchemma, } from './event.dto';
+import { getEventIdSchemma, getAllEventsSchemma, searchEventByNameSchemma, searchEventsSchemma, } from './event.dto';
 import { EventController } from './event.controller';
 
 
@@ -27,7 +27,7 @@ eventRouter
   .route('/search')
   .get(
     authMiddleware,
-    validateRequestMiddleware({ query: searchByNameSchemma }),
+    validateRequestMiddleware({ query: searchEventByNameSchemma }),
     newEventController.searchEventsByName
   );
 
@@ -47,7 +47,7 @@ eventRouter
   .route('/liked/:id/users')
   .get(
     authMiddleware,
-    validateRequestMiddleware({ query: getEventsSchemma, params: getEventIdSchemma }),
+    validateRequestMiddleware({ query: getAllEventsSchemma, params: getEventIdSchemma }),
     newEventController.getUsersWhoLikedSameEventWithPagination
   );
 
@@ -60,3 +60,14 @@ eventRouter
 eventRouter
   .route('/:id/like') // creates a like for the given eventID
   .post(authMiddleware, oldController.createOrDeleteLikeByEventId);
+
+
+/**
+ *
+ * *********************************************
+ * TODO: connect sub router
+ * *********************************************
+ */
+// Sub-feature routes
+// eventRouter.use('/likes', likeRouter);  // Connect the likes router
+// eventRouter.use('/shares', shareRouter);  // Connect the shares router

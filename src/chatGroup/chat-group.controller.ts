@@ -2,7 +2,7 @@ import { Container, Service } from 'typedi';
 import { ChatGroupService } from './chat-group.service';
 import { BaseController } from '../helpers/basecontroller';
 import { CreateChatGroupDTO } from './chat-group.dto';
-import { TypedRequestHandlerBody, TypedRequestHandlerParams } from '../helpers/typeRequestHandlers';
+import { RequestHandlerBody, RequestHandlerParams } from '../helpers/typeRequestHandlers';
 
 
 @Service()
@@ -14,7 +14,7 @@ class ChatGroupController extends BaseController {
   }
 
 
-  createChatGroup: TypedRequestHandlerBody<CreateChatGroupDTO> = async (req, res, next) => {
+  createChatGroup: RequestHandlerBody<CreateChatGroupDTO> = async (req, res, next) => {
     try {
       const created = await this._chatGroupService.createChatGroup(req.body, req.file);
       return this.ok(res, created);
@@ -25,7 +25,7 @@ class ChatGroupController extends BaseController {
   };
 
 
-  getChatGroupByID: TypedRequestHandlerParams<{ id?: number }> = async (req, res, next) => {
+  getChatGroupByID: RequestHandlerParams<{ id?: number }> = async (req, res, next) => {
     try {
       const chatGroup = await this._chatGroupService.getChatGroupByID(req.params.id, req.user.id);
       if (chatGroup) {

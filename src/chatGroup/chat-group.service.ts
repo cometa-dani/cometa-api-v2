@@ -10,22 +10,16 @@ export class ChatGroupService {
   private _imageUploadService = Container.get(ImageStorageService);
   private _chatGroupRepository = Container.get(ChatGroupRepository);
 
-
   async createChatGroup(body: CreateChatGroupDTO, imgfile: Express.Multer.File) {
     // create chatGroup
     this._chatGroupRepository.create(body, '', 1);
-
     const imageHash = await this._imageUploadService.generatePhotoHashes(imgfile.buffer, 200, 200);
     const imageDestinationPath = `chatGroups/${'chatGroupUUID'}/photos/${imgfile.filename}`;
     const imageUpload = await this._imageUploadService.uploadPhotos('', imgfile);
-
-
     // 3. create image register in DB, and connect that image with the chatGroup ID
-
     // return the updated chatGroup with the image url and placeholder
     return;
   }
-
 
   async getChatGroupByID(id: number, loggedInUserID: number) {
     return this._chatGroupRepository.findByID(id, loggedInUserID);

@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { Service } from 'typedi';
+import Container, { Token } from 'typedi';
 
 
 export const prisma = new PrismaClient();
 
-@Service()
-export class PrismaService extends PrismaClient { }
+export const PrismaService = new Token<PrismaClient>('PrismaService');
+Container.set(PrismaService, prisma);

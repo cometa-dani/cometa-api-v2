@@ -25,7 +25,7 @@ interface NewFriend extends Friendship {
 export const getLatestFriendsWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // Parse the limit & cursor from the query parameters using a validation schema
-    const paginatedQueries = schemma.getFriendshipsSchemma.safeParse(req.query);
+    const paginatedQueries = schemma.getAllFriendshipsSchemma.safeParse(req.query);
 
     if (!paginatedQueries.success) {
       return res.status(400).json({ error: 'Validation error', issues: paginatedQueries['error']?.issues });
@@ -104,7 +104,7 @@ export const getLatestFriendsWithPagination: RequestHandler = async (req, res, n
 export const searchFriendsWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // Parse the limit & cursor from the query parameters using a validation schema
-    const paginatedQueries = schemma.getFriendshipsSchemma.safeParse(req.query);
+    const paginatedQueries = schemma.getAllFriendshipsSchemma.safeParse(req.query);
 
     if (!paginatedQueries.success) {
       return res.status(400).json({ error: 'Validation error', issues: paginatedQueries['error']?.issues });

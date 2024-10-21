@@ -3,7 +3,7 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 import { FrienshipController } from './friendship.controller';
 import { Container } from 'typedi';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
-import { getFriendshipByIdSchemma, updateFrienshipSchemma, getFriendshipsSchemma } from './frienship.dto';
+import { getFriendshipByIdSchemma, updateFrienshipSchemma, getAllFriendshipsSchemma } from './frienship.dto';
 
 
 class FrienshipRouter {
@@ -19,7 +19,7 @@ class FrienshipRouter {
       .route('/')
       .get(
         authMiddleware,
-        validateRequestMiddleware({ query: getFriendshipsSchemma }),
+        validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
         this._frienshipController.getNewestFriendsWithPagination
       )
       .post(
@@ -32,7 +32,7 @@ class FrienshipRouter {
       .route('/search')
       .get(
         authMiddleware,
-        validateRequestMiddleware({ query: getFriendshipsSchemma }),
+        validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
         this._frienshipController.searchFriendsWithPagination
       );
 

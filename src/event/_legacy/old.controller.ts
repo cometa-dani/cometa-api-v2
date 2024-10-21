@@ -25,7 +25,7 @@ interface ILikeableEvent extends Event {
 export const getAllLatestEventsWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // parsing queryParams
-    const reqQueryParams = schemma.getEventsSchemma.safeParse(req.query);
+    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
 
     // handles validation
     if (!reqQueryParams.success) {
@@ -103,7 +103,7 @@ export const getAllLatestEventsWithPagination: RequestHandler = async (req, res,
 export const getLikedEventsForBucketListWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // parsing queryParams
-    const reqQueryParams = schemma.getEventsSchemma.safeParse(req.query);
+    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
 
     // handles validation
     if (!reqQueryParams.success) {
@@ -267,7 +267,7 @@ export const getEventByID: RequestHandler = async (req, res, next) => {
 export const getAllUsersWhoLikedSameEventWithPagination: RequestHandler = async (req, res, next) => {
   try {
     const eventID = schemma.getEventIdSchemma.safeParse(req.params);
-    const reqQueryParams = schemma.getEventsSchemma.safeParse(req.query);
+    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
 
     // handles validation
     if (!reqQueryParams.success) {
@@ -390,7 +390,7 @@ export const getAllUsersWhoLikedSameEventWithPagination: RequestHandler = async 
 export const getMatchedEventsByTwoUsersWithPagination: RequestHandler = async (req, res, next) => {
   try {
     const urlParam = schemma.getEventIdSchemma.safeParse(req.params);
-    const reqQueryParams = schemma.getEventsSchemma.safeParse(req.query);
+    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
 
     if (!urlParam.success) {
       return res.status(400).json({ error: 'Validation error', issues: urlParam['error']?.issues });

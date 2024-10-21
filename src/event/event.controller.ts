@@ -1,6 +1,6 @@
 import { Container, Service } from 'typedi';
-import { EventParamsDto, GetAllEventsDTO, SearchByNameDto, SearchEventsDTO } from './event.dto';
-import { TypedRequestHandlerBody, TypedRequestHandlerQuery } from '../helpers/typeRequestHandlers';
+import { EventParamsDto, GetAllEventsDTO, SearchEventByNameDto, SearchEventsDTO } from './event.dto';
+import { RequestHandlerBody, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
 import { BaseController } from '../helpers/basecontroller';
 
@@ -10,73 +10,68 @@ export class EventController extends BaseController {
 
   private _eventService = Container.get(EventService);
 
+  public getUsersWhoLikedSameEventWithPagination: RequestHandlerQuery<GetAllEventsDTO, object, EventParamsDto> =
+    async (req, res, next) => {
+      try {
+        const { limit, cursor } = req.query;
+        const [totalCount, usersList] =
+          await this._eventService.getUsersWhoLikedSameEvent(req.params.id, req.user.id, req.query);
+        // since we are counting down from the latest items in the table,
+        // when we reach the first item, we should stop looking for the next cursor.
+        const nextCursor = usersList.at(-1)?.id === 1 ? null : usersList.at(-1)?.id ?? null;
+        return this.ok(res, {
+          usersWhoLikedEvent: cursor > 0 ? usersList.slice(1) : usersList,
+          nextCursor,
+          totalUsers: totalCount,
+          hasNextCursor: nextCursor !== null || usersList.length < limit,
+          usersPerPage: limit,
+        });
+      }
+      catch (error) {
+        next(error);
+      }
+    };
 
-  public getUsersWhoLikedSameEventWithPagination: TypedRequestHandlerQuery<GetAllEventsDTO, object, EventParamsDto> = async (req, res, next) => {
-    try {
-      const { limit, cursor } = req.query;
-      const [totalCount, usersList] = await this._eventService.getUsersWhoLikedSameEvent(req.params.id, req.user.id, req.query);
-      // since we are counting down from the latest items in the table,
-      // when we reach the first item, we should stop looking for the next cursor.
-      const nextCursor = usersList.at(-1)?.id === 1 ? null : usersList.at(-1)?.id ?? null;
+  public searchEventsByName: RequestHandlerQuery<SearchEventByNameDto> =
+    async (req, res, next) => {
+      try {
+        const { limit = 10, cursor = 0 } = req.query;
+        const [events, count] = await this._eventService.searchEventsByName(req.query);
+        const nextCursor: number = events.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
+        const paginatedEvents = {
+          events: cursor > 0 ? events.slice(1) : events,
+          totalEvents: count,
+          nextCursor,
+          eventsPerPage: limit,
+        };
+        return this.ok(res, paginatedEvents);
+      }
+      catch (error) {
+        next(error);
+      }
+    };
 
-      return this.ok(res, {
-        usersWhoLikedEvent: cursor > 0 ? usersList.slice(1) : usersList,
-        nextCursor,
-        totalUsers: totalCount,
-        hasNextCursor: nextCursor !== null || usersList.length < limit,
-        usersPerPage: limit,
-      });
-    }
-    catch (error) {
-      next(error);
-    }
-  };
+  public searchLatestEventsWithPagination: RequestHandlerQuery<SearchEventsDTO> =
+    async (req, res, next) => {
+      try {
+        const { limit = 10, cursor = 0 } = req.query;
+        const [events, count] = await this._eventService.searchLatestEventsWithPagination(req.query, req.user.id);
+        const nextCursor: number = events?.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
+        const paginatedEvents = {
+          events: cursor > 0 ? events.slice(1) : events,
+          totalEvents: count,
+          nextCursor,
+          hasNextCursor: nextCursor !== null || events.length < limit,
+          eventsPerPage: limit,
+        };
+        return this.ok(res, paginatedEvents);
+      }
+      catch (error) {
+        next(error);
+      }
+    };
 
-
-  public searchEventsByName: TypedRequestHandlerQuery<SearchByNameDto> = async (req, res, next) => {
-    try {
-      const { limit = 10, cursor = 0 } = req.query;
-      const [events, count] = await this._eventService.searchEventsByName(req.query);
-      const nextCursor: number = events.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
-
-      const paginatedEvents = {
-        events: cursor > 0 ? events.slice(1) : events,
-        totalEvents: count,
-        nextCursor,
-        eventsPerPage: limit,
-      };
-
-      return this.ok(res, paginatedEvents);
-    }
-    catch (error) {
-      next(error);
-    }
-  };
-
-
-  public searchLatestEventsWithPagination: TypedRequestHandlerQuery<SearchEventsDTO> = async (req, res, next) => {
-    try {
-      const { limit = 10, cursor = 0 } = req.query;
-      const [events, count] = await this._eventService.searchLatestEventsWithPagination(req.query, req.user.id);
-      const nextCursor: number = events?.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
-
-      const paginatedEvents = {
-        events: cursor > 0 ? events.slice(1) : events,
-        totalEvents: count,
-        nextCursor,
-        hasNextCursor: nextCursor !== null || events.length < limit,
-        eventsPerPage: limit,
-      };
-
-      return this.ok(res, paginatedEvents);
-    }
-    catch (error) {
-      next(error);
-    }
-  };
-
-
-  public createEventByLocation: TypedRequestHandlerBody = async (req, res, next) => {
+  public createEventByLocation: RequestHandlerBody = async (req, res, next) => {
     try {
       // ThumbHash = !ThumbHash ? await import('thumbhash') : ThumbHash;
 

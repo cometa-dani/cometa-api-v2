@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Service, Container } from 'typedi';
 import { BaseController } from '../helpers/basecontroller';
-import { TypedRequestHandlerBody, TypedRequestHandlerParams, TypedRequestHandlerQuery } from '../helpers/typeRequestHandlers';
+import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { UserService } from './user.service';
 import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO, UrlParamsDTO } from './user.dto';
 import { RequestHandler } from 'express';
@@ -26,7 +26,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public searchAllByUsernameWithPagination: TypedRequestHandlerQuery<SearchByUsernameDTO> = async (req, res, next) => {
+  public searchAllByUsernameWithPagination: RequestHandlerQuery<SearchByUsernameDTO> = async (req, res, next) => {
     try {
       const { cursor = 0, limit = 10 } = req.query;
       const [users, count] = await this._userService.searchAllByUsername(req.query, req.user.id);
@@ -45,7 +45,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public findUniqueUserByQueryParams: TypedRequestHandlerQuery<SearchByQueryParamsDTO> = async (req, res, next) => {
+  public findUniqueUserByQueryParams: RequestHandlerQuery<SearchByQueryParamsDTO> = async (req, res, next) => {
     try {
       const { email, username } = req.query;
       if (email) {
@@ -70,7 +70,7 @@ export class UserController extends BaseController {
   };
 
   //TODO: specify two different methods for loggedInUser and targetUser
-  public getloggedInUserWithLikeEvents: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public getloggedInUserWithLikeEvents: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findUniqueWithLikeEvents(req.params.uid); // authMiddleware should be remove
       if (!userFound) {
@@ -83,7 +83,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public getTargetUserWithFriendship: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public getTargetUserWithFriendship: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findTargetUserWithFriendship(req.params.uid, req.user.id);
       if (!userFound) {
@@ -96,7 +96,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public createUser: TypedRequestHandlerBody<CreateUserDTO> = async (req, res, next) => {
+  public createUser: RequestHandlerBody<CreateUserDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findUniqueByField({ email: req.body.email });
       if (userFound) {
@@ -113,7 +113,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public updateUserByID: TypedRequestHandlerParams<UrlParamsDTO, UpdateUserDTO> = async (req, res, next) => {
+  public updateUserByID: RequestHandlerParams<UrlParamsDTO, UpdateUserDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id);
       if (!userFound) {
@@ -130,7 +130,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public uploadUserPhotos: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public uploadUserPhotos: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {
@@ -175,7 +175,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public deleteUserPhotoById: TypedRequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public deleteUserPhotoById: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {

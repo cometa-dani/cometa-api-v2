@@ -8,11 +8,9 @@ interface IChatGroupWithMembers extends ChatGroup {
   members: User[]
 }
 
-
 @Service()
 export class ChatGroupRepository {
   private _prisma = prisma;
-
 
   async findByID(id: number, loggedInUser: number): Promise<IChatGroupWithMembers | null> {
     const foundChatGroup = await this._prisma.chatGroup.findUnique({
@@ -24,10 +22,8 @@ export class ChatGroupRepository {
         }
       }
     });
-
     return foundChatGroup;
   }
-
 
   async create(payload: CreateChatGroupDTO, img: string, adminId: number): Promise<ChatGroup | null> {
     const createdChatGroup = await this._prisma.chatGroup.create({
@@ -50,7 +46,6 @@ export class ChatGroupRepository {
         }
       }
     });
-
     return createdChatGroup;
   }
 }

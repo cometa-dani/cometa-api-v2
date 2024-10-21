@@ -40,11 +40,9 @@ export const searchEventsSchemma = z.object({
       .optional()
 });
 
-
 export type SearchEventsDTO = z.infer<typeof searchEventsSchemma>
 
-
-export const getEventsSchemma = z.object({
+export const getAllEventsSchemma = z.object({
   cursor: z.number({ coerce: true }).default(0).optional(), // default value -1 or 0
   limit: z.number({ coerce: true }).default(10).optional(),
 
@@ -84,8 +82,7 @@ export const getEventsSchemma = z.object({
       .optional(),
 });
 
-export type GetAllEventsDTO = z.infer<typeof getEventsSchemma>
-
+export type GetAllEventsDTO = z.infer<typeof getAllEventsSchemma>
 
 export const createEventSchemma = z.object({
   name: z.string().default(''),
@@ -126,7 +123,6 @@ export const createEventSchemma = z.object({
       ),
 });
 
-
 export const getEventIdSchemma = z.object({
   id: z.number({ coerce: true }).optional(),
   uid: z.string().optional()
@@ -134,10 +130,10 @@ export const getEventIdSchemma = z.object({
 
 export type EventParamsDto = z.infer<typeof getEventIdSchemma>
 
-export const searchByNameSchemma = z.object({
+export const searchEventByNameSchemma = z.object({
   name: z.string(),
   limit: z.number({ coerce: true }).optional(),
   cursor: z.number({ coerce: true }).optional(),
 });
 
-export type SearchByNameDto = z.infer<typeof searchByNameSchemma>
+export type SearchEventByNameDto = z.infer<typeof searchEventByNameSchemma>

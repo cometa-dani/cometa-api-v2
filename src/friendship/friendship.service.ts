@@ -8,7 +8,7 @@ import { ErrorMessage } from '../helpers/errorMessages';
 
 @Service()
 export class FriendshipService {
-  private _prisma = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
 
   public async searchFriendsByUsername(
     loggedInUserID: number, paginatedQueries: GetFriendshipsDto
@@ -34,8 +34,8 @@ export class FriendshipService {
     const [totalFriendships, friendships] = (
       await
         Promise.all([
-          this._prisma.friendship.count({ where: whereCondition }),
-          this._prisma.friendship.findMany(query)
+          this._prismaService.friendship.count({ where: whereCondition }),
+          this._prismaService.friendship.findMany(query)
         ])
     );
     const newFriends = (friendships as Array<NewFriend>).map(
@@ -77,8 +77,8 @@ export class FriendshipService {
     const [totalFriendshipsCount, friendships] = (
       await
         Promise.all([
-          this._prisma.friendship.count({ where: whereCondition }),
-          this._prisma.friendship.findMany(query)
+          this._prismaService.friendship.count({ where: whereCondition }),
+          this._prismaService.friendship.findMany(query)
         ])
     );
     const newFriends = (friendships as Array<NewFriend>).map(
@@ -93,12 +93,12 @@ export class FriendshipService {
   }
 
   public async getFriendshipByTargetUser(targetUserUUID: string, loggedInUserID: number) {
-    const targetUser = await this._prisma.user.findUnique({ where: { uid: targetUserUUID } });
+    const targetUser = await this._prismaService.user.findUnique({ where: { uid: targetUserUUID } });
     if (!targetUser) {
       throw new HttpError(404, 'user not found');
     }
     // Check if the friendship already exists by querying the database
-    const friendship = await this._prisma.friendship.findFirst({
+    const friendship = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
           { receiverId: targetUser.id, senderId: loggedInUserID, status: 'ACCEPTED' },
@@ -117,7 +117,7 @@ export class FriendshipService {
   }
 
   public async sentFrienshipInvitation(targetUserId: number, loggedInUserID: number) {
-    const friendshipExists = await this._prisma.friendship.findFirst({
+    const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
           { senderId: targetUserId, receiverId: loggedInUserID },
@@ -129,7 +129,7 @@ export class FriendshipService {
     if (friendshipExists && friendshipExists.status === 'PENDING') {
       throw new HttpError(409, ErrorMessage.INVITATION_ALREADY_PENDING);
     }
-    const newFriendshipInvitation = await this._prisma.friendship.create({
+    const newFriendshipInvitation = await this._prismaService.friendship.create({
       data: {
         senderId: loggedInUserID,
         receiverId: targetUserId,
@@ -140,7 +140,7 @@ export class FriendshipService {
   }
 
   public async acceptFrienshipInvitation(targetUserID: number, loggedInUser: User) {
-    const friendshipExists = await this._prisma.friendship.findFirst({
+    const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
           { senderId: targetUserID, receiverId: loggedInUser.id },
@@ -151,7 +151,7 @@ export class FriendshipService {
     });
     // first time
     if (friendshipExists && friendshipExists.status === 'PENDING') {
-      const friendShip = await this._prisma.friendship.update({
+      const friendShip = await this._prismaService.friendship.update({
         where: {
           id: friendshipExists.id
         },
@@ -164,7 +164,7 @@ export class FriendshipService {
     }
     // atfer first time
     if (friendshipExists && friendshipExists.status === 'PENDING') {
-      const friendShip = await this._prisma.friendship.update({
+      const friendShip = await this._prismaService.friendship.update({
         where: {
           id: friendshipExists.id
         },
@@ -178,7 +178,7 @@ export class FriendshipService {
   }
 
   public async resetFrienshipInvitation(targetUserID: number, loggedInUser: User) {
-    const friendshipExists = await this._prisma.friendship.findFirst({
+    const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
           { senderId: targetUserID, receiverId: loggedInUser.id },
@@ -188,7 +188,7 @@ export class FriendshipService {
     });
     if (friendshipExists && friendshipExists.status === 'ACCEPTED') {
       const updatedFriendship =
-        await this._prisma.friendship.update({
+        await this._prismaService.friendship.update({
           where: { id: friendshipExists.id },
           data: { status: 'PENDING' }
         });
@@ -198,7 +198,7 @@ export class FriendshipService {
   }
 
   public async deleteFriendshipBySenderOrReceiver(tagetUserID: number, loggedInUserID: number) {
-    const friendshipExists = await this._prisma.friendship.findFirst({
+    const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
           { senderId: tagetUserID, receiverId: loggedInUserID },
@@ -207,7 +207,7 @@ export class FriendshipService {
       }
     });
     if (friendshipExists) {
-      await this._prisma.friendship.delete({
+      await this._prismaService.friendship.delete({
         where: {
           id: friendshipExists.id
         }

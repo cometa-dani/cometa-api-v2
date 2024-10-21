@@ -13,14 +13,14 @@ export const getFriendshipByFieldSchemma = z.object({
   receiverid: z.number({ coerce: true })
 });
 
-export const getFriendshipsSchemma = z.object({
+export const getAllFriendshipsSchemma = z.object({
   limit: z.number({ coerce: true }),
   cursor: z.number({ coerce: true }).optional(),
   page: z.number({ coerce: true }).optional(),
   friendUserName: z.string().transform(str => str.startsWith('@') ? str : `@${str}`).optional()
 });
 
-export type GetFriendshipsDto = z.infer<typeof getFriendshipsSchemma>;
+export type GetFriendshipsDto = z.infer<typeof getAllFriendshipsSchemma>;
 
 export const updateFrienshipSchemma = z.object({
   status: z.enum(['ACCEPTED', 'PENDING', 'BLOCKED'])

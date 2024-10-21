@@ -8,7 +8,7 @@ import { configCursor } from '../helpers/configCursor';
 
 @Service()
 export class UserService {
-  private _prisma = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
   private _imageStorageService = Container.get(ImageStorageService);
 
   public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userUUID: string): Promise<string[]> {
@@ -47,7 +47,7 @@ export class UserService {
   }
 
   public async findAll(): Promise<User[]> {
-    return this._prisma.user.findMany({
+    return this._prismaService.user.findMany({
       include: {
         photos: true,
         likedEvents: true,
@@ -58,11 +58,11 @@ export class UserService {
     });
   }
 
-  public async searchAllByUsername(searchUsersByUsernameDTO: SearchByUsernameDTO, loggedInUserID: number): Promise<[User[], number]> {
-    const { username, limit, cursor } = searchUsersByUsernameDTO;
+  public async searchAllByUsername(queryParams: SearchByUsernameDTO, loggedInUserID: number): Promise<[User[], number]> {
+    const { username, limit, cursor } = queryParams;
     return (
       Promise.all([
-        this._prisma.user.findMany({
+        this._prismaService.user.findMany({
           ...configCursor(limit, cursor),
           where: {
             username: {
@@ -76,7 +76,7 @@ export class UserService {
           }
         }),
 
-        this._prisma.user.count({
+        this._prismaService.user.count({
           where: {
             username: {
               startsWith: username,
@@ -90,7 +90,7 @@ export class UserService {
 
   public async findByID(id: number, includePhotos = false) {
     return (
-      await this._prisma.user.findUnique({
+      await this._prismaService.user.findUnique({
         where: { id },
         include: { photos: includePhotos }
       })
@@ -98,7 +98,7 @@ export class UserService {
   }
 
   public async create(usertDto: CreateUserDTO): Promise<User> {
-    return await this._prisma.user.create({
+    return await this._prismaService.user.create({
       data: {
         username: usertDto.username,
         email: usertDto.email,
@@ -110,7 +110,7 @@ export class UserService {
   }
 
   public async update(userID: number, userDto: UpdateUserDTO): Promise<User> {
-    return await this._prisma.user.update({
+    return await this._prismaService.user.update({
       where: { id: userID },
       data: {
         ...userDto
@@ -119,7 +119,7 @@ export class UserService {
   }
 
   public async updateUserPhotos(userPhotos: UserPhotoDTO[], userID: number): Promise<User> {
-    return await this._prisma.user.update({
+    return await this._prismaService.user.update({
       where: { id: userID },
       data: {
         photos: {
@@ -137,9 +137,9 @@ export class UserService {
   public async deletePhoto(userId: number, photoToDelete: UserPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
     await this._imageStorageService.deletePhoto(destinationPath);
-    await this._prisma.userPhoto.delete({ where: { id: photoToDelete.id } });
+    await this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } });
 
-    return this._prisma.userPhoto.updateMany({
+    return this._prismaService.userPhoto.updateMany({
       where: {
         userId: photoToDelete.userId,
         order: { gte: photoToDelete.order } // reorders the remaining photos
@@ -152,14 +152,14 @@ export class UserService {
 
   public async findUniqueByField(queryParams: SearchByQueryParamsDTO) {
     if (queryParams.email) {
-      return await this._prisma.user.findFirst({
+      return await this._prismaService.user.findFirst({
         where: {
           email: queryParams.email
         }
       });
     }
     if (queryParams.username) {
-      return await this._prisma.user.findFirst({
+      return await this._prismaService.user.findFirst({
         where: {
           username: queryParams.username
         }
@@ -169,7 +169,7 @@ export class UserService {
 
   public async findTargetUserWithFriendship(targetUuid: string, loggedInUserID: number) {
     try {
-      const userFound = await this._prisma.user.findUnique({
+      const userFound = await this._prismaService.user.findUnique({
         where: { uid: targetUuid },
         include: {
           photos: true,
@@ -210,7 +210,7 @@ export class UserService {
   }
 
   public async findUniqueWithLikeEvents(uuid: string) {
-    return await this._prisma.user.findUnique({
+    return await this._prismaService.user.findUnique({
       where: { uid: uuid },
       include: {
         photos: true,
