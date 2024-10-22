@@ -7,64 +7,83 @@ import { getEventIdSchemma, getAllEventsSchemma, searchEventByNameSchemma, searc
 import { EventController } from './event.controller';
 
 
-export const eventRouter = Router();
-const newEventController = Container.get(EventController);
-
-
-eventRouter
-  .route('/')
-  .get(
-    authMiddleware,
-    validateRequestMiddleware({ query: searchEventsSchemma }),
-    newEventController.searchLatestEventsWithPagination
-  );
-
-
-eventRouter
-  .route('/search')
-  .get(
-    authMiddleware,
-    validateRequestMiddleware({ query: searchEventByNameSchemma }),
-    newEventController.searchEventsByName
-  );
-
-
-eventRouter
-  .route('/liked/:id')
-  .get(authMiddleware, oldController.getEventByID);
-
-
-eventRouter
-  .route('/liked')
-  .get(authMiddleware, oldController.getLikedEventsForBucketListWithPagination);
-
-
-// for meeting new people
-eventRouter
-  .route('/liked/:id/users') // eventId
-  .get(
-    authMiddleware,
-    validateRequestMiddleware({ query: getAllEventsSchemma, params: getEventIdSchemma }),
-    newEventController.getUsersWhoLikedSameEventWithPagination
-  );
-
-
-eventRouter
-  .route('/liked/matches/:uid')
-  .get(authMiddleware, oldController.getMatchedEventsByTwoUsersWithPagination);
-
-
-eventRouter
-  .route('/:id/like') // creates a like for the given eventID
-  .post(authMiddleware, oldController.createOrDeleteLikeByEventId);
-
-
 /**
  *
  * *********************************************
  * TODO: connect sub router
  * *********************************************
+ *  Sub-feature routes
+ * eventRouter.use('/likes', likeRouter);  // Connect the likes router
+ * eventRouter.use('/shares', shareRouter);  // Connect the shares router
  */
-// Sub-feature routes
-// eventRouter.use('/likes', likeRouter);  // Connect the likes router
-// eventRouter.use('/shares', shareRouter);  // Connect the shares router
+class EventRouter {
+
+  private _router: Router = Router();
+  private _eventController = Container.get(EventController);
+
+  constructor() {
+    this._initializeRoutes();
+  }
+
+  private _initializeRoutes(): void {
+    this._router
+      .route('/')
+      .get(
+        authMiddleware,
+        validateRequestMiddleware({ query: searchEventsSchemma }),
+        this._eventController.searchLatestEventsWithPagination
+      );
+
+    this._router
+      .route('/search')
+      .get(
+        authMiddleware,
+        validateRequestMiddleware({ query: searchEventByNameSchemma }),
+        this._eventController.searchEventsByName
+      );
+
+    this._router
+      .route('/liked')
+      .get(
+        authMiddleware,
+        this._eventController.getLikedEventsForBucketListWithPagination
+      );
+
+    this._router
+      .route('/liked/:id')
+      .get(
+        authMiddleware,
+        validateRequestMiddleware({ params: getEventIdSchemma }),
+        this._eventController.getEventByID
+      );
+
+    this._router
+      .route('/liked/:id/users')
+      .get(
+        authMiddleware,
+        validateRequestMiddleware({ query: getAllEventsSchemma, params: getEventIdSchemma }),
+        this._eventController.getUsersWhoLikedSameEventWithPagination
+      );
+
+    this._router
+      .route('/liked/matches/:uid')
+      .get(
+        authMiddleware,
+        oldController.getMatchedEventsByTwoUsersWithPagination
+      );
+
+    this._router
+      .route('/:id/like') // creates a like for the given eventID
+      .post(
+        authMiddleware,
+        oldController.createOrDeleteLikeByEventId
+      );
+  }
+
+  public getRouter(): Router {
+    return this._router;
+  }
+}
+
+
+export default new EventRouter().getRouter();

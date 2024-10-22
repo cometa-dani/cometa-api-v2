@@ -1,6 +1,6 @@
 import { Container, Service } from 'typedi';
 import { EventParamsDto, GetAllEventsDTO, SearchEventByNameDto, SearchEventsDTO } from './event.dto';
-import { RequestHandlerBody, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
+import { RequestHandlerBody, RequestHandlerQuery, RequestHandlerParams } from '../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
 import { BaseController } from '../helpers/basecontroller';
 
@@ -37,7 +37,7 @@ export class EventController extends BaseController {
     async (req, res, next) => {
       try {
         const { limit = 10, cursor = 0 } = req.query;
-        const [events, count] = await this._eventService.searchEventsByName(req.query);
+        const [events, count] = await this._eventService.searchPaginatedEventsByName(req.query);
         const nextCursor: number = events.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
         const paginatedEvents = {
           events: cursor > 0 ? events.slice(1) : events,
@@ -56,7 +56,7 @@ export class EventController extends BaseController {
     async (req, res, next) => {
       try {
         const { limit = 10, cursor = 0 } = req.query;
-        const [events, count] = await this._eventService.searchLatestEventsWithPagination(req.query, req.user.id);
+        const [events, count] = await this._eventService.searchLatestPaginatedEvents(req.query, req.user.id);
         const nextCursor: number = events?.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
         const paginatedEvents = {
           events: cursor > 0 ? events.slice(1) : events,
@@ -71,6 +71,36 @@ export class EventController extends BaseController {
         next(error);
       }
     };
+
+  public getEventByID: RequestHandlerParams<EventParamsDto> = async (req, res, next) => {
+    try {
+      const foundEvent = await this._eventService.getEventById(req.params.id);
+      if (!foundEvent) {
+        return this.notFound(res, 'Event not found');
+      }
+      return this.ok(res, foundEvent);
+    }
+    catch (error) {
+      next(error);
+    }
+  };
+
+  public getLikedEventsForBucketListWithPagination: RequestHandlerQuery<GetAllEventsDTO> = async (req, res, next) => {
+    try {
+      const { limit, cursor, userId: targetUserId } = req.query;
+      const [latestLikedEvents, totalEventsCount] = await this._eventService.getLikedEvents(req.user.id, limit, cursor, targetUserId);
+      const nextCursor = latestLikedEvents.at(-1)?.id === 1 ? null : latestLikedEvents.at(-1)?.id ?? null;
+      return this.ok(res, {
+        events: cursor > 0 ? latestLikedEvents.slice(1) : latestLikedEvents,
+        totalEvents: totalEventsCount,
+        nextCursor,
+        eventsPerPage: limit,
+      });
+    }
+    catch (error) {
+      next(error);
+    }
+  };
 
   public createEventByLocation: RequestHandlerBody = async (req, res, next) => {
     try {

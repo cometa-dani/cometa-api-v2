@@ -3,16 +3,14 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import { nodeEnv } from './vars';
-// middlewares
 import { defaultErrorMiddleware } from './middlewares/defaultErrorMiddleware';
 // routers
-import { eventRouter } from './event/event.router';
 import { organizationRouter } from './organization/router';
 import { worldCitiesRouter } from './worldcities/router';
-// with new architecture
 import chatGroupRouter from './chatGroup/chat-group.router';
 import userRouter from './user/user.router';
 import friendShipRouter from './friendship/friendship.router';
+import eventRouter from './event/event.router';
 
 
 export const app = express();

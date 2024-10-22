@@ -97,7 +97,7 @@ export class EventService {
     return [totalusersCount, usersList];
   }
 
-  public async searchLatestEventsWithPagination(
+  public async searchLatestPaginatedEvents(
     { categories, cursor, limit, name = '' }: SearchEventsDTO, userID: number
   )
     : Promise<[ILikeableEvent[], number]> {
@@ -150,7 +150,7 @@ export class EventService {
     return [latestLikabledEvents, totalEventsCount];
   }
 
-  public async searchEventsByName(searchDto: SearchEventByNameDto) {
+  public async searchPaginatedEventsByName(searchDto: SearchEventByNameDto) {
     return (
       Promise.all([
         this._prismaService.event
@@ -174,6 +174,98 @@ export class EventService {
           })
       ])
     );
+  }
+
+  public async getEventById(eventId: number) {
+    return (
+      this._prismaService.event
+        .findUnique({
+          where: { id: eventId },
+          include: { location: true, photos: { take: 1, where: { order: 0 } } }
+        })
+    );
+  }
+
+  public async getLikedEvents(
+    loggedInUserID: number, limit: number, cursor: number, targetUserID?: number
+  )
+    : Promise<[ILikeableEvent[], number]> {
+    const lookForSecondUserById = loggedInUserID && targetUserID ? true : false;
+    const userIdToLookFor = lookForSecondUserById ? targetUserID : loggedInUserID;
+    const whereCondition = { userId: userIdToLookFor };
+
+    let latestLikedEvents: ILikeableEvent[];
+    let totalEventsCount: number;
+
+    if (lookForSecondUserById) {
+      const [eventsWithAllPhotos, eventsCount] = await Promise.all([
+        this._prismaService.eventLike.findMany({
+          ...configCursor(limit, cursor),
+          where: whereCondition,
+          select: {
+            event: {
+              include: {
+                location: true,
+                likes: { where: { userId: loggedInUserID } },
+                photos: true,
+                _count: {
+                  select: {
+                    likes: true,
+                    shares: true
+                  }
+                }
+              },
+            }
+          },
+        }),
+        this._prismaService.eventLike.count({ where: whereCondition }),
+      ]);
+      latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
+        return {
+          ...event,
+          isLiked: event.likes?.length === 1, // because we are getting only the liked events
+        };
+      });
+      totalEventsCount = eventsCount;
+    }
+    else {
+      const [eventsWithAllPhotos, eventsCount] = await Promise.all([
+        this._prismaService.eventLike.findMany({
+          orderBy: { id: 'desc' },
+          take: cursor > 0 ? limit + 1 : limit, // only adds 1 when limit is greater than 0
+          cursor: cursor > 0 ? { id: cursor } : undefined, // makes pagination
+          where: whereCondition,
+          select: {
+            event: {
+              include: {
+                photos: { take: 1, where: { order: 0 } },
+                likes: {
+                  take: 3,
+                  where: {
+                    // get all the users's likes except the authenticated user's
+                    NOT: whereCondition
+                  },
+                  select: {
+                    user: {
+                      select: { photos: { take: 1, where: { order: 0 } } }
+                    }
+                  }
+                }
+              },
+            }
+          },
+        }),
+        this._prismaService.eventLike.count({ where: whereCondition }),
+      ]);
+      latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
+        return {
+          ...event,
+          isLiked: true, // because we are getting only the liked events by a same user
+        };
+      });
+      totalEventsCount = eventsCount;
+    }
+    return [latestLikedEvents, totalEventsCount];
   }
 
   public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number): Promise<string[]> {
