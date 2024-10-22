@@ -132,14 +132,13 @@ model Organization {
   id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  uuid        String?
+  uid         String?  @unique
   avatarUrl   String?  @map("avatar_url")
   name        String   @unique @db.VarChar(255)
   email       String   @unique
   password    String
   phone       String?
   description String?
-  // locations   Location[]
   events      Event[]
 
   webPage       String? @map("web_page")
@@ -149,15 +148,10 @@ model Organization {
 
 model Location {
   // represents event locations
-  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Delete this relation
-  // organization   Organization @relation(fields: [organizationId], references: [id])
-  // organizationId Int          @map("organization_id")
-
-  name        String  @unique @db.VarChar(255)
+  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  name        String   @unique @db.VarChar(255)
   description String?
   latitude    Float
   longitude   Float

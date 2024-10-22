@@ -45,7 +45,6 @@ export const createUserSchemma = z.object({
         :
         str
     ),
-
   email: z.string().email(),
   name: z.string().min(3).max(26),
   uid: z.string(),
@@ -63,16 +62,13 @@ export const updateUserSchemma = z.object({
         :
         str
     ),
-
   name: z.string().min(3).max(26).optional(),
   email: z.string().email().optional(),
   uid: z.string().optional(),
   phone: z.string().optional(),
-
   biography: z.string().max(120).optional(),
   birthday: z.string().optional().transform(date => date ? new Date(date) : date),
   activateNotifications: z.boolean().optional(),
-
   lookingFor: z.enum([
     'MEET_NEW_PEOPLE',
     'DISCOVER_NEW_EVENTS',
@@ -82,9 +78,7 @@ export const updateUserSchemma = z.object({
     'NETWORKING',
   ])
     .optional(),
-
   occupation: z.string().optional(),
-
   educationLevel: z.enum([
     'SECONDARY',
     'UNIVERSITY',
@@ -96,20 +90,16 @@ export const updateUserSchemma = z.object({
     'OTHER',
   ])
     .optional(),
-
   currentLocation: z.string().optional(),
   homeTown: z.string().optional(),
-
   languages:
     z.string()
       .transform(value => value.split(','))
       .optional(),
-
   height: z.number().optional(),
   weight: z.number().optional(),
   favoriteSports: z.array(z.string()).optional(),
   music: z.array(z.string()).optional(),
-
   relationshipStatus: z.enum([
     'SINGLE',
     'IN_A_RELATIONSHIP',
@@ -119,25 +109,10 @@ export const updateUserSchemma = z.object({
     'OTHER',
   ])
     .optional(),
-
   pets: z.array(z.string()).optional(),
   smoking: z.boolean().optional(),
   drinking: z.boolean().optional(),
-
-  religion: z.enum([
-    'CHRISTIANITY',
-    'ISLAM',
-    'HINDUISM',
-    'BUDDHISM',
-    'SIKHISM',
-    'JUDAISM',
-    'ATHEISM',
-    'AGNOSTICISM',
-    'OTHER',
-  ])
-    .optional(),
-
-  ethinicity: z.enum([
+  ethnicity: z.enum([
     'WHITE',
     'HISPANIC',
     'LATINO',
@@ -150,7 +125,6 @@ export const updateUserSchemma = z.object({
     'OTHER',
   ])
     .optional(),
-
   children: z.boolean().optional(),
   company: z.string().optional(),
   verified: z.boolean().optional(),
@@ -164,15 +138,6 @@ export const updateUserSchemma = z.object({
     'OTHER',
   ])
     .optional(),
-
-  diet: z.enum([
-    'OMNIVORE',
-    'VEGETARIAN',
-    'VEGAN',
-    'PESCATARIAN',
-  ])
-    .optional(),
-
   exerciseFrequency: z.enum([
     'NEVER',
     'RARELY',
@@ -181,7 +146,6 @@ export const updateUserSchemma = z.object({
     'DAILY',
   ])
     .optional(),
-
   interests: z.string()
     .transform(value => value.split(','))
     .transform(arr => arr
