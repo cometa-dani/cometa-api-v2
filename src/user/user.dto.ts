@@ -221,6 +221,7 @@ export type UpdateUserDTO = z.infer<typeof updateUserSchemma>
 export const urlParamsSchemma = z.object({
   id: z.number({ coerce: true }).optional(),
   uid: z.string().optional(),
+  photoId: z.number({ coerce: true }).optional(),
 });
 
 export type UrlParamsDTO = z.infer<typeof urlParamsSchemma>

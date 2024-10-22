@@ -138,7 +138,6 @@ export class UserController extends BaseController {
       if (userFound.photos.length > this._maxNumPhotos) {
         return this.conflict(res, 'Max number of photos already reached the limit');
       }
-
       /**
        *
        * ************************************************************
@@ -152,17 +151,16 @@ export class UserController extends BaseController {
       if (incommingImgFiles.length > remainingPhotos) {
         return this.conflict(res, 'Max number of photos exceeds the limit');
       }
+      const startCount = userFound.photos.length ?? 0;
       const ImageHashed: string[] = await this._userService.generatePhotoHashes(incommingImgFiles);
-      const photosUrls: string[] = await this._userService.uploadPhotos(incommingImgFiles, userFound.id);
-      const userPhotosDto = incommingImgFiles.map((file, index) => {
+      const photosUrls: string[] = await this._userService.uploadPhotos(incommingImgFiles, userFound.id, startCount);
+      const userPhotosDto = incommingImgFiles.map((_, index) => {
         return {
           url: photosUrls[index],
           placeholder: ImageHashed[index],
-          uuid: file.filename,
-          order: userFound.photos.length + index
+          order: startCount + index
         };
       });
-
       const updatedUser = await this._userService.updateUserPhotos(userPhotosDto, userFound.id);
       if (!updatedUser) {
         return this.conflict(res, 'Could not update user photos');
@@ -180,7 +178,7 @@ export class UserController extends BaseController {
       if (!userFound) {
         return this.notFound(res, 'User not found');
       }
-      const photoToDelete = userFound.photos.find(photo => photo.order === req.params.id);
+      const photoToDelete = userFound.photos.find(photo => photo.order === req.params.photoId);
       if (!photoToDelete) {
         return this.notFound(res, 'Photo not found');
       }

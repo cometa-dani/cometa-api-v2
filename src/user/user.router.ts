@@ -43,7 +43,7 @@ class UserRouter {
       this._userController.uploadUserPhotos
     );
 
-    this._router.delete('/:id/photos/:uid',
+    this._router.delete('/:id/photos/:photoId',
       imageUploadMiddleware.any(),
       validateRequestMiddleware({ params: urlParamsSchemma }),
       this._userController.deleteUserPhotoById

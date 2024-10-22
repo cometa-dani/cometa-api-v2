@@ -11,10 +11,10 @@ export class UserService {
   private _prismaService = Container.get(PrismaService);
   private _imageStorageService = Container.get(ImageStorageService);
 
-  public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number): Promise<string[]> {
+  public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number, startCount: number): Promise<string[]> {
     const filesToUpload =
       incommingImgFiles.map((file, index) => {
-        const destinationPath = `users/${userId}/photos/${index}`;  // instead of filename should be the order
+        const destinationPath = `users/${userId}/photos/${startCount + index}`;  // instead of filename should be the order
         return this._imageStorageService.uploadPhotos(destinationPath, file);
       });
     return Promise.all(filesToUpload);
