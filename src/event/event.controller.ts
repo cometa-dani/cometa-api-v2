@@ -10,6 +10,7 @@ export class EventController extends BaseController {
 
   private _eventService = Container.get(EventService);
 
+  // TODO remove to user folder
   public getUsersWhoLikedSameEventWithPagination: RequestHandlerQuery<GetAllEventsDTO, object, EventParamsDto> =
     async (req, res, next) => {
       try {

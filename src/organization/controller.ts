@@ -46,9 +46,9 @@ export const getOrganizationById: RequestHandler<{ id: string }> = async (req, r
       where: {
         id: +id,
       },
-      include: {
-        locations: true,
-      }
+      // include: {
+      //   locations: true,
+      // }
     });
 
     res.status(200).json(organization);

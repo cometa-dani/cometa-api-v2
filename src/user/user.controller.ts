@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Service, Container } from 'typedi';
 import { BaseController } from '../helpers/basecontroller';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
@@ -129,7 +128,7 @@ export class UserController extends BaseController {
       next(error);
     }
   };
-  x;
+
   public uploadUserPhotos: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
@@ -154,7 +153,7 @@ export class UserController extends BaseController {
         return this.conflict(res, 'Max number of photos exceeds the limit');
       }
       const ImageHashed: string[] = await this._userService.generatePhotoHashes(incommingImgFiles);
-      const photosUrls: string[] = await this._userService.uploadPhotos(incommingImgFiles, userFound.uid);
+      const photosUrls: string[] = await this._userService.uploadPhotos(incommingImgFiles, userFound.id);
       const userPhotosDto = incommingImgFiles.map((file, index) => {
         return {
           url: photosUrls[index],

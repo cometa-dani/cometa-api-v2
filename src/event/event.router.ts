@@ -18,9 +18,6 @@ eventRouter
     validateRequestMiddleware({ query: searchEventsSchemma }),
     newEventController.searchLatestEventsWithPagination
   );
-// change to 'locations/:id/events' in location model
-// or pass a ?locationID=1 as queryParam
-// .post(newEventController.createEventByLocation);
 
 
 eventRouter
