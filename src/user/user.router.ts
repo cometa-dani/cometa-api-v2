@@ -32,10 +32,34 @@ class UserRouter {
         this._userController.createUser
       );
 
-    this._router.patch('/:id',
-      validateRequestMiddleware({ params: urlParamsSchemma, body: updateUserSchemma }),
-      this._userController.updateUserByID
+    this._router.route('/:id')
+      .patch(
+        validateRequestMiddleware({ params: urlParamsSchemma, body: updateUserSchemma }),
+        this._userController.updateUserByID
+      );
+    /**
+     * ******************************************
+     * TODO:
+     *  urlPram should be userId
+     *  ?likes=true,  so we can remove this endpoint
+     *  ?friends=true
+     * ?targetUser=123
+     * ******************************************
+     */
+    this._router.get('/:uid',
+      validateRequestMiddleware({ params: urlParamsSchemma }),
+      this._userController.getloggedInUserWithLikeEvents
     );
+    this._router.get('/:uid/targets',
+      authMiddleware,
+      validateRequestMiddleware({ params: urlParamsSchemma }),
+      this._userController.getTargetUserWithFriendship
+    );
+    /**
+     * ******************************************
+     * TODO
+     * ******************************************
+     */
 
     this._router.post('/:id/photos',
       imageUploadMiddleware.any(),
@@ -44,24 +68,8 @@ class UserRouter {
     );
 
     this._router.delete('/:id/photos/:photoId',
-      imageUploadMiddleware.any(),
       validateRequestMiddleware({ params: urlParamsSchemma }),
       this._userController.deleteUserPhotoById
-    );
-
-    // ********************************************
-    // TODO:
-    // there is difference between getting loggedInUser info and targetUser info
-    // ********************************************
-    this._router.get('/:uid',
-      validateRequestMiddleware({ params: urlParamsSchemma }),
-      this._userController.getloggedInUserWithLikeEvents
-    );
-
-    this._router.get('/:uid/targets',
-      authMiddleware,
-      validateRequestMiddleware({ params: urlParamsSchemma }),
-      this._userController.getTargetUserWithFriendship
     );
   }
 

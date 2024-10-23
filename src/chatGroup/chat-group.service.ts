@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Service, Container } from 'typedi';
-import { ImageStorageService } from '../shared/imageStorage/image-storage.service';
+import { CloudStorageService } from '../shared/cloudStorage/cloud-storage.service';
 import { ChatGroupRepository } from './chat-group.repository';
 import { CreateChatGroupDTO } from './chat-group.dto';
 
 
 @Service()
 export class ChatGroupService {
-  private _imageUploadService = Container.get(ImageStorageService);
+  private _imageUploadService = Container.get(CloudStorageService);
   private _chatGroupRepository = Container.get(ChatGroupRepository);
 
   async createChatGroup(body: CreateChatGroupDTO, imgfile: Express.Multer.File) {
@@ -15,7 +15,7 @@ export class ChatGroupService {
     this._chatGroupRepository.create(body, '', 1);
     const imageHash = await this._imageUploadService.generatePhotoHashes(imgfile.buffer, 200, 200);
     const imageDestinationPath = `chatGroups/${'chatGroupUUID'}/photos/${imgfile.filename}`;
-    const imageUpload = await this._imageUploadService.uploadPhotos('', imgfile);
+    const imageUpload = await this._imageUploadService.uploadPhotoToBucket('', imgfile);
     // 3. create image register in DB, and connect that image with the chatGroup ID
     // return the updated chatGroup with the image url and placeholder
     return;

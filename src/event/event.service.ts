@@ -3,7 +3,8 @@ import { Service, Container } from 'typedi';
 import { PrismaService } from '../config/dataBase';
 import { configCursor } from '../helpers/configCursor';
 import { GetAllEventsDTO, SearchEventByNameDto, SearchEventsDTO } from './event.dto';
-import { ImageStorageService } from '../shared/imageStorage/image-storage.service';
+import { CloudStorageService } from '../shared/cloudStorage/cloud-storage.service';
+import { HttpError } from 'src/helpers/httpError';
 
 
 interface ILikeableEvent extends Event {
@@ -13,7 +14,7 @@ interface ILikeableEvent extends Event {
 @Service()
 export class EventService {
   private _prismaService = Container.get(PrismaService);
-  private _imageStorageService = Container.get(ImageStorageService);
+  private _cloudStorageService = Container.get(CloudStorageService);
 
   public async getUsersWhoLikedSameEvent(
     eventID: number, loggedInUserID: number, { limit, cursor }: GetAllEventsDTO
@@ -268,26 +269,44 @@ export class EventService {
     return [latestLikedEvents, totalEventsCount];
   }
 
-  public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number): Promise<string[]> {
-    const filesToUpload =
-      incommingImgFiles.map((file) => {
-        const destinationPath = `events/${userId}/photos/${file.filename}`;
-        return this._imageStorageService.uploadPhotos(destinationPath, file);
-      });
-    return Promise.all(filesToUpload);
+  public async createEvent() {
+    //
   }
 
-  public async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
-    const filesToHash =
-      incommingImgFiles.map((file) => {
-        return this._imageStorageService.generatePhotoHashes(file.buffer);
+  public async updateEvent() {
+    //
+  }
+
+  public async uploadEventPhotos(incommingImgFiles: Express.Multer.File[], eventID: number, startCount: number) {
+    try {
+      const eventPhotos = (
+        await this._cloudStorageService.uploadManyPhotosToBucket(`events/${eventID}`, incommingImgFiles, startCount)
+      );
+      return this._prismaService.event.update({
+        where: { id: eventID },
+        data: {
+          photos: {
+            createMany: {
+              data: eventPhotos
+            }
+          }
+        },
+        include: {
+          photos: true
+        }
       });
-    return Promise.all(filesToHash);
+    } catch (error) {
+      throw new HttpError(500, 'Uploading event photos failed' + error.message);
+    }
+  }
+
+  public async deleteEvent() {
+    //
   }
 
   public async deletePhoto(userId: number, photoToDelete: EventPhoto) {
     const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
-    await this._imageStorageService.deletePhoto(destinationPath);
+    await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
     await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
     return (
       this._prismaService.eventPhoto.updateMany({

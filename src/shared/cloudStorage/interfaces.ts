@@ -14,3 +14,9 @@ export type ImageHashed = {
   data: Buffer;
   info: sharp.OutputInfo;
 }
+
+export type UploadedPhoto = {
+  url: string;
+  placeholder: string;
+  order: number;
+}

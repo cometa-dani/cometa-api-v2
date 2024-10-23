@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { Service } from 'typedi';
-import { ImageHashed, ThumbHash } from './interfaces';
+import { ImageHashed, ThumbHash, UploadedPhoto } from './interfaces';
 import sharp from 'sharp';
 import { bucket } from '../../firebase-admin/firebaseAdmin';
 
 
 @Service()
-export class ImageStorageService {
+export class CloudStorageService {
   private _thumbHash: ThumbHash;
   private _bucket = bucket;
 
@@ -29,7 +29,7 @@ export class ImageStorageService {
     }
   }
 
-  public async uploadPhotos(destinationPath: string, imgFile: Express.Multer.File) {
+  public async uploadPhotoToBucket(destinationPath: string, imgFile: Express.Multer.File) {
     await this._bucket.file(destinationPath).save(imgFile.buffer, {
       contentType: imgFile.mimetype,
       public: true,
@@ -42,7 +42,37 @@ export class ImageStorageService {
     return this._getPublicUrl(destinationPath, imgFile.filename);
   }
 
-  public deletePhoto(destinationPath: string) {
+  /**
+   *
+   * @description upload many photos to bucket
+   * @param {string} modulePath where to upload
+   * @param {Express.Multer.File[]} incommingImgFiles
+   * @param {number} startCount
+   * @return {UploadedPhoto[]}  where placeholder is base64 string for thumbhash
+   */
+  public async uploadManyPhotosToBucket(modulePath: string, incommingImgFiles: Express.Multer.File[], startCount: number): Promise<UploadedPhoto[]> {
+    const filesToUpload =
+      incommingImgFiles.map((file, index) => {
+        const destinationPath = `${modulePath}/photos/${startCount + index}`;  // instead of filename should be the order
+        return this.uploadPhotoToBucket(destinationPath, file);
+      });
+    const filesToHash =
+      incommingImgFiles.map((file) => {
+        return this.generatePhotoHashes(file.buffer);
+      });
+    const ImageHashed: string[] = await Promise.all(filesToHash);
+    const photosUrls: string[] = await Promise.all(filesToUpload);
+    const eventPhotosDto: UploadedPhoto[] = incommingImgFiles.map((_, index) => {
+      return {
+        url: photosUrls[index],
+        placeholder: ImageHashed[index],
+        order: startCount + index
+      };
+    });
+    return eventPhotosDto;
+  }
+
+  public deletePhotoFromBucket(destinationPath: string) {
     return (
       this._bucket.file(destinationPath).delete()
     );

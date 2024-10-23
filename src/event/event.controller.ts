@@ -9,6 +9,7 @@ import { BaseController } from '../helpers/basecontroller';
 export class EventController extends BaseController {
 
   private _eventService = Container.get(EventService);
+  private _maxNumPhotos = 3;
 
   // TODO remove to user folder
   public getUsersWhoLikedSameEventWithPagination: RequestHandlerQuery<GetAllEventsDTO, object, EventParamsDto> =
@@ -102,7 +103,7 @@ export class EventController extends BaseController {
     }
   };
 
-  public createEventByLocation: RequestHandlerBody = async (req, res, next) => {
+  public createEvent: RequestHandlerBody = async (req, res, next) => {
     try {
       // ThumbHash = !ThumbHash ? await import('thumbhash') : ThumbHash;
 
@@ -188,6 +189,60 @@ export class EventController extends BaseController {
       // });
 
       // res.status(201).json(updatedEvent);
+    }
+    catch (error) {
+      next(error);
+    }
+  };
+
+  public updateEvent: RequestHandlerBody = async (req, res, next) => {
+    try {
+      //
+    }
+    catch (error) {
+      next(error);
+    }
+  };
+
+  public uploadEventPhotos: RequestHandlerParams<EventParamsDto> = async (req, res, next) => {
+    try {
+      const eventFound = await this._eventService.getEventById(req.params.id);
+      if (!eventFound) {
+        return this.notFound(res, 'Event not found');
+      }
+      if (eventFound.photos.length > this._maxNumPhotos) {
+        return this.conflict(res, 'Max number of photos already reached the limit');
+      }
+      const incommingImgFiles = req.files as Express.Multer.File[];
+      const remainingPhotos: number = this._maxNumPhotos - eventFound.photos.length;
+
+      if (incommingImgFiles.length > remainingPhotos) {
+        return this.conflict(res, 'Max number of photos exceeds the limit');
+      }
+      const startCount = eventFound.photos.length ?? 0;
+      const uploadedEventPhotos = await this._eventService.uploadEventPhotos(incommingImgFiles, eventFound.id, startCount);
+      if (!uploadedEventPhotos) {
+        return this.conflict(res, 'Could not update eventr photos');
+      }
+      return this.ok(res, uploadedEventPhotos);
+    }
+    catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteEventPhotosById: RequestHandlerBody = async (req, res, next) => {
+    try {
+      //
+    }
+    catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteEvent: RequestHandlerBody = async (req, res, next) => {
+    try {
+      //
     }
     catch (error) {
       next(error);

@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  extensions = [pgcrypto]
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // https://www.prisma.io/docs/orm/prisma-schema/data-model/unsupported-database-features

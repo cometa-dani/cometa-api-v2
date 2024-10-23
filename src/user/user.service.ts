@@ -1,32 +1,16 @@
 import { Service, Container } from 'typedi';
-import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO, UserPhotoDTO } from './user.dto';
-import { ImageStorageService } from '../shared/imageStorage/image-storage.service';
+import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO } from './user.dto';
+import { CloudStorageService } from '../shared/cloudStorage/cloud-storage.service';
 import { UserPhoto, User, Friendship } from '@prisma/client';
 import { PrismaService } from '../config/dataBase';
 import { configCursor } from '../helpers/configCursor';
+import { HttpError } from '../helpers/httpError';
 
 
 @Service()
 export class UserService {
   private _prismaService = Container.get(PrismaService);
-  private _imageStorageService = Container.get(ImageStorageService);
-
-  public async uploadPhotos(incommingImgFiles: Express.Multer.File[], userId: number, startCount: number): Promise<string[]> {
-    const filesToUpload =
-      incommingImgFiles.map((file, index) => {
-        const destinationPath = `users/${userId}/photos/${startCount + index}`;  // instead of filename should be the order
-        return this._imageStorageService.uploadPhotos(destinationPath, file);
-      });
-    return Promise.all(filesToUpload);
-  }
-
-  public async generatePhotoHashes(incommingImgFiles: Express.Multer.File[]): Promise<string[]> {
-    const filesToHash =
-      incommingImgFiles.map((file) => {
-        return this._imageStorageService.generatePhotoHashes(file.buffer);
-      });
-    return Promise.all(filesToHash);
-  }
+  private _cloudStorageService = Container.get(CloudStorageService);
 
   private _areFriends(
     user: {
@@ -95,59 +79,6 @@ export class UserService {
         include: { photos: includePhotos }
       })
     );
-  }
-
-  public async create(usertDto: CreateUserDTO): Promise<User> {
-    return await this._prismaService.user.create({
-      data: {
-        username: usertDto.username,
-        email: usertDto.email,
-        name: usertDto.name,
-        uid: usertDto.uid,
-        birthday: usertDto.birthday,
-      }
-    });
-  }
-
-  public async update(userID: number, userDto: UpdateUserDTO): Promise<User> {
-    return await this._prismaService.user.update({
-      where: { id: userID },
-      data: {
-        ...userDto
-      }
-    });
-  }
-
-  public async updateUserPhotos(userPhotos: UserPhotoDTO[], userID: number): Promise<User> {
-    return await this._prismaService.user.update({
-      where: { id: userID },
-      data: {
-        photos: {
-          createMany: {
-            data: userPhotos
-          }
-        }
-      },
-      include: {
-        photos: true
-      }
-    });
-  }
-
-  public async deletePhoto(userId: number, photoToDelete: UserPhoto) {
-    const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
-    await this._imageStorageService.deletePhoto(destinationPath);
-    await this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } });
-
-    return this._prismaService.userPhoto.updateMany({
-      where: {
-        userId: photoToDelete.userId,
-        order: { gte: photoToDelete.order } // reorders the remaining photos
-      },
-      data: {
-        order: { decrement: 1 }  // reorders the remaining photos
-      }
-    });
   }
 
   public async findUniqueByField(queryParams: SearchByQueryParamsDTO) {
@@ -225,6 +156,65 @@ export class UserService {
           orderBy: { id: 'desc' },
           take: 5
         }
+      }
+    });
+  }
+
+  public async create(usertDto: CreateUserDTO): Promise<User> {
+    return await this._prismaService.user.create({
+      data: {
+        username: usertDto.username,
+        email: usertDto.email,
+        name: usertDto.name,
+        uid: usertDto.uid,
+        birthday: usertDto.birthday,
+      }
+    });
+  }
+
+  public async update(userID: number, userDto: UpdateUserDTO): Promise<User> {
+    return await this._prismaService.user.update({
+      where: { id: userID },
+      data: {
+        ...userDto
+      }
+    });
+  }
+
+  public async saveUserPhotos(incommingImgFiles: Express.Multer.File[], userID: number, startCount: number): Promise<User> {
+    try {
+      const userPhotos = (
+        await this._cloudStorageService.uploadManyPhotosToBucket(`users/${userID}`, incommingImgFiles, startCount)
+      );
+      return this._prismaService.user.update({
+        where: { id: userID },
+        data: {
+          photos: {
+            createMany: {
+              data: userPhotos,
+            }
+          }
+        },
+        include: {
+          photos: true
+        }
+      });
+    } catch (error) {
+      throw new HttpError(500, 'Uploading user photos failed' + error.message);
+    }
+  }
+
+  public async deleteUserPhoto(userId: number, photoToDelete: UserPhoto) {
+    const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
+    await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
+    await this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } });
+    return this._prismaService.userPhoto.updateMany({
+      where: {
+        userId: photoToDelete.userId,
+        order: { gte: photoToDelete.order } // reorders the remaining photos
+      },
+      data: {
+        order: { decrement: 1 }  // reorders the remaining photos
       }
     });
   }

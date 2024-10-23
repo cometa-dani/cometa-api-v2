@@ -15,7 +15,7 @@ export class UserController extends BaseController {
     super();
   }
 
-  public getAllUsers: RequestHandler = async (req, res, next) => {
+  public getAllUsers: RequestHandler = async (_, res, next) => {
     try {
       const users = await this._userService.findAll();
       return this.ok(res, users);
@@ -138,13 +138,6 @@ export class UserController extends BaseController {
       if (userFound.photos.length > this._maxNumPhotos) {
         return this.conflict(res, 'Max number of photos already reached the limit');
       }
-      /**
-       *
-       * ************************************************************
-       * TODO: bulk the uploading mulitple images into one single
-       * operation
-       * ************************************************************
-       */
       const incommingImgFiles = req.files as Express.Multer.File[];
       const remainingPhotos: number = this._maxNumPhotos - userFound.photos.length;
 
@@ -152,22 +145,21 @@ export class UserController extends BaseController {
         return this.conflict(res, 'Max number of photos exceeds the limit');
       }
       const startCount = userFound.photos.length ?? 0;
-      const ImageHashed: string[] = await this._userService.generatePhotoHashes(incommingImgFiles);
-      const photosUrls: string[] = await this._userService.uploadPhotos(incommingImgFiles, userFound.id, startCount);
-      const userPhotosDto = incommingImgFiles.map((_, index) => {
-        return {
-          url: photosUrls[index],
-          placeholder: ImageHashed[index],
-          order: startCount + index
-        };
-      });
-      const updatedUser = await this._userService.updateUserPhotos(userPhotosDto, userFound.id);
-      if (!updatedUser) {
+      const updatedUserPhotos = await this._userService.saveUserPhotos(incommingImgFiles, userFound.id, startCount);
+      if (!updatedUserPhotos) {
         return this.conflict(res, 'Could not update user photos');
       }
-      return this.ok(res, updatedUser);
+      return this.ok(res, updatedUserPhotos);
     }
     catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteUserById: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+    try {
+      //
+    } catch (error) {
       next(error);
     }
   };
@@ -182,7 +174,7 @@ export class UserController extends BaseController {
       if (!photoToDelete) {
         return this.notFound(res, 'Photo not found');
       }
-      await this._userService.deletePhoto(userFound.id, photoToDelete);
+      await this._userService.deleteUserPhoto(userFound.id, photoToDelete);
 
       return this.noContent(res);
     }
