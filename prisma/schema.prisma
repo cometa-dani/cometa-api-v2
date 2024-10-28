@@ -135,7 +135,6 @@ model Organization {
   avatarUrl   String?  @map("avatar_url")
   name        String   @unique @db.VarChar(255)
   email       String   @unique
-  password    String
   phone       String?
   description String?
   events      Event[]
@@ -175,7 +174,7 @@ model Event {
   // one to one relations
   location       Location      @relation(fields: [locationId], references: [id])
   locationId     Int           @map("location_id")
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId Int?          @map("organization_id")
 
   // Unique constraint to prevent events at the same date and location
@@ -193,7 +192,7 @@ model EventPhoto {
 
   // Relations
   eventId Int   @map("event_id")
-  event   Event @relation(fields: [eventId], references: [id])
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model EventLike {
@@ -202,7 +201,7 @@ model EventLike {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  event   Event @relation(fields: [eventId], references: [id])
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int   @map("event_id")
   user    User  @relation(fields: [userId], references: [id])
   userId  Int   @map("user_id")
@@ -216,7 +215,7 @@ model EventShare {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  event   Event @relation(fields: [eventId], references: [id])
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int   @map("event_id")
   user    User  @relation(fields: [userId], references: [id])
   userId  Int   @map("user_id")
@@ -233,7 +232,7 @@ model UserPhoto {
 
   // Relations
   userId Int  @map("user_id")
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -297,12 +296,12 @@ model Friendship {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // sends invitations
-  sender   User @relation("SenderFriendship", fields: [senderId], references: [id])
+  sender   User @relation("SenderFriendship", fields: [senderId], references: [id], onDelete: Cascade)
   // if senderID equal the user's id then friendship will be in outgoingFriendships array
   senderId Int  @map("sender_id")
 
   // receives inivitation
-  receiver   User @relation("ReceiverFriendship", fields: [receiverId], references: [id])
+  receiver   User @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
   // if receiverID equal the user's id then friendship will be in incommingFriendships array
   receiverId Int  @map("receiver_id")
 
@@ -339,8 +338,8 @@ model Notification {
   type       String // Define the type of notification (e.g., like, comment, friend request)
   message    String // The content of the notification, such as the message or event @map("content")
   read       Boolean  @default(false) // Indicates whether the notification has been read
-  sender     User     @relation("SentNotifications", fields: [senderId], references: [id])
+  sender     User     @relation("SentNotifications", fields: [senderId], references: [id], onDelete: Cascade)
   senderId   Int      @map("sender_id")
-  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id])
+  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId Int      @map("receiver_id")
 }

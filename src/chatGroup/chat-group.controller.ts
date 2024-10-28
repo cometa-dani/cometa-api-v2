@@ -1,6 +1,6 @@
 import { Container, Service } from 'typedi';
 import { ChatGroupService } from './chat-group.service';
-import { BaseController } from '../helpers/basecontroller';
+import { BaseController } from '../helpers/baseController';
 import { CreateChatGroupDTO } from './chat-group.dto';
 import { RequestHandlerBody, RequestHandlerParams } from '../helpers/typeRequestHandlers';
 

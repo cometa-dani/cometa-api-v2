@@ -1,10 +1,8 @@
-import { EventLike, EventPhoto, Prisma, Event } from '@prisma/client';
+import { EventLike, Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
 import { PrismaService } from '../config/dataBase';
 import { configCursor } from '../helpers/configCursor';
-import { GetAllEventsDTO, SearchEventByNameDto, SearchEventsDTO } from './event.dto';
-import { CloudStorageService } from '../shared/cloudStorage/cloud-storage.service';
-import { HttpError } from 'src/helpers/httpError';
+import { CreateEventDto, GetTargetUserEventsDTO, SearchEventsDTO, UpdateEventDto } from './event.dto';
 
 
 interface ILikeableEvent extends Event {
@@ -14,10 +12,10 @@ interface ILikeableEvent extends Event {
 @Service()
 export class EventService {
   private _prismaService = Container.get(PrismaService);
-  private _cloudStorageService = Container.get(CloudStorageService);
 
+  // TODO: remove in the future into the users folder
   public async getUsersWhoLikedSameEvent(
-    eventID: number, loggedInUserID: number, { limit, cursor }: GetAllEventsDTO
+    eventID: number, loggedInUserID: number, { limit, cursor }: GetTargetUserEventsDTO
   )
     : Promise<[number, EventLike[]]> {
     // EventLike model
@@ -43,6 +41,7 @@ export class EventService {
     };
     const query: Prisma.EventLikeFindManyArgs = {
       ...configCursor(limit, cursor),
+      // cursor: {},
       where: whereCondition,
       include: {
         user: {
@@ -151,7 +150,7 @@ export class EventService {
     return [latestLikabledEvents, totalEventsCount];
   }
 
-  public async searchPaginatedEventsByName(searchDto: SearchEventByNameDto) {
+  public async searchPaginatedEventsByName(searchDto: SearchEventsDTO) {
     return (
       Promise.all([
         this._prismaService.event
@@ -187,6 +186,7 @@ export class EventService {
     );
   }
 
+  // TODO: remove in the future into the likes folder
   public async getLikedEvents(
     loggedInUserID: number, limit: number, cursor: number, targetUserID?: number
   )
@@ -269,55 +269,27 @@ export class EventService {
     return [latestLikedEvents, totalEventsCount];
   }
 
-  public async createEvent() {
-    //
+  public async createEvent(createEventDto: CreateEventDto): Promise<Event> {
+    return this._prismaService.event.create({
+      data: {
+        name: createEventDto.name,
+        categories: createEventDto.categories,
+        description: createEventDto.description,
+        date: createEventDto.date,
+        locationId: createEventDto.locationId,
+        organizationId: createEventDto.organizationId
+      }
+    });
   }
 
-  public async updateEvent() {
-    //
+  public async updateEvent(eventId: number, updateEventDto: UpdateEventDto): Promise<Event> {
+    return this._prismaService.event.update({
+      where: { id: eventId },
+      data: updateEventDto
+    });
   }
 
-  public async uploadEventPhotos(incommingImgFiles: Express.Multer.File[], eventID: number, startCount: number) {
-    try {
-      const eventPhotos = (
-        await this._cloudStorageService.uploadManyPhotosToBucket(`events/${eventID}`, incommingImgFiles, startCount)
-      );
-      return this._prismaService.event.update({
-        where: { id: eventID },
-        data: {
-          photos: {
-            createMany: {
-              data: eventPhotos
-            }
-          }
-        },
-        include: {
-          photos: true
-        }
-      });
-    } catch (error) {
-      throw new HttpError(500, 'Uploading event photos failed' + error.message);
-    }
-  }
-
-  public async deleteEvent() {
-    //
-  }
-
-  public async deletePhoto(userId: number, photoToDelete: EventPhoto) {
-    const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
-    await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
-    await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
-    return (
-      this._prismaService.eventPhoto.updateMany({
-        where: {
-          eventId: photoToDelete.eventId,
-          order: { gte: photoToDelete.order } // reorders the remaining photos
-        },
-        data: {
-          order: { decrement: 1 }  // reorders the remaining photos
-        }
-      })
-    );
+  public async deleteEvent(eventId: number): Promise<Event> {
+    return this._prismaService.event.delete({ where: { id: eventId } });
   }
 }

@@ -1,88 +1,93 @@
 import { z } from 'zod';
 import { EventCategory, EventPhoto } from '@prisma/client';
+import { paginationSchemma } from '../shared/dto/baseDTOs';
 
 
-export const searchEventsSchemma = z.object({
-  cursor: z.number({ coerce: true }).default(0).optional(), // default value -1 or 0
-  limit: z.number({ coerce: true }).default(10).optional(),
-  name: z.string().optional(),
-  categories:
-    z.string()
-      .transform(value => value.split(','))
-      .transform(arr => arr
-        .map((str) => (
-          z.enum([
-            'RESTAURANT',
-            'BAR',
-            'CLUB',
-            'CAFE',
-            'CONCERT',
-            'FESTIVAL',
-            'THEATRE',
-            'MUSEUM',
-            'EXHIBITION',
-            'PARK',
-            'BRUNCH',
-            'SHOWS',
-            'SPORTS',
-            'GALLERY',
-            'PARTY',
-            'CINEMA',
-            'CONFERENCE',
-            'FOOD_AND_DRINK',
-            'SEMINAR',
-            'WORKSHOP',
-            'EDUCATIONAL',
-            'CULTURAL',
-          ])
-        ).parse(str)) as EventCategory[]
-      )
-      .optional()
-});
+export const searchEventsSchemma =
+  z.object({
+    isLiked: z.boolean({ coerce: true }).default(false).optional(),
+    likes: z.boolean({ coerce: true }).default(false).optional(),
+    shares: z.boolean({ coerce: true }).default(false).optional(),
+    photos: z.boolean({ coerce: true }).default(false).optional(),
+    targetUserId: z.number({ coerce: true }).optional(),
+    name: z.string().optional(),
+    categories:
+      z.string()
+        .transform(value => value.split(','))
+        .transform(arr => arr
+          .map((str) => (
+            z.enum([
+              'RESTAURANT',
+              'BAR',
+              'CLUB',
+              'CAFE',
+              'CONCERT',
+              'FESTIVAL',
+              'THEATRE',
+              'MUSEUM',
+              'EXHIBITION',
+              'PARK',
+              'BRUNCH',
+              'SHOWS',
+              'SPORTS',
+              'GALLERY',
+              'PARTY',
+              'CINEMA',
+              'CONFERENCE',
+              'FOOD_AND_DRINK',
+              'SEMINAR',
+              'WORKSHOP',
+              'EDUCATIONAL',
+              'CULTURAL',
+            ])
+          ).parse(str)) as EventCategory[]
+        )
+        .optional()
+  })
+    .merge(paginationSchemma);
 
 export type SearchEventsDTO = z.infer<typeof searchEventsSchemma>
 
-export const getAllEventsSchemma = z.object({
-  cursor: z.number({ coerce: true }).default(0).optional(), // default value -1 or 0
-  limit: z.number({ coerce: true }).default(10).optional(),
+export const getTargetUserEventsSchemma =
+  z.object({
+    allPhotos: z.boolean({ coerce: true }).default(false).optional(),
+    userId: z.number({ coerce: true }).optional(),
+    categories:
+      z.string()
+        .transform(value => value.split(','))
+        .transform(arr => arr
+          .map((str) => (
+            z.enum([
+              'RESTAURANT',
+              'BAR',
+              'CLUB',
+              'CAFE',
+              'CONCERT',
+              'FESTIVAL',
+              'THEATRE',
+              'MUSEUM',
+              'EXHIBITION',
+              'PARK',
+              'BRUNCH',
+              'SHOWS',
+              'SPORTS',
+              'GALLERY',
+              'PARTY',
+              'CINEMA',
+              'CONFERENCE',
+              'FOOD_AND_DRINK',
+              'SEMINAR',
+              'WORKSHOP',
+              'EDUCATIONAL',
+              'CULTURAL',
+            ])
+          ).parse(str)) as EventCategory[]
+        )
+        .optional(),
+  })
+    .merge(paginationSchemma);
 
-  allPhotos: z.boolean({ coerce: true }).default(false).optional(),
-  userId: z.number({ coerce: true }).optional(),
-  categories:
-    z.string()
-      .transform(value => value.split(','))
-      .transform(arr => arr
-        .map((str) => (
-          z.enum([
-            'RESTAURANT',
-            'BAR',
-            'CLUB',
-            'CAFE',
-            'CONCERT',
-            'FESTIVAL',
-            'THEATRE',
-            'MUSEUM',
-            'EXHIBITION',
-            'PARK',
-            'BRUNCH',
-            'SHOWS',
-            'SPORTS',
-            'GALLERY',
-            'PARTY',
-            'CINEMA',
-            'CONFERENCE',
-            'FOOD_AND_DRINK',
-            'SEMINAR',
-            'WORKSHOP',
-            'EDUCATIONAL',
-            'CULTURAL',
-          ])
-        ).parse(str)) as EventCategory[]
-      )
-      .optional(),
-});
-
-export type GetAllEventsDTO = z.infer<typeof getAllEventsSchemma>
+export type GetTargetUserEventsDTO = z.infer<typeof getTargetUserEventsSchemma>
 
 export const createEventSchemma = z.object({
   name: z.string().default(''),
@@ -125,61 +130,9 @@ export const createEventSchemma = z.object({
 
 export type CreateEventDto = z.infer<typeof createEventSchemma>
 
-export const updateEventSchemma = z.object({
-  name: z.string().optional(),
-  description: z.string().min(5).max(200).optional(),
-  locationId: z.number({ coerce: true }).optional(),
-  organizationId: z.number({ coerce: true }).optional(),
-  date: z.string().transform(date => new Date(date)).optional(),
-  categories:
-    z.string()
-      .transform(value => value.split(','))
-      .transform(arr => arr
-        .map((str) => (
-          z.enum([
-            'RESTAURANT',
-            'BAR',
-            'CLUB',
-            'CAFE',
-            'CONCERT',
-            'FESTIVAL',
-            'THEATRE',
-            'MUSEUM',
-            'EXHIBITION',
-            'PARK',
-            'BRUNCH',
-            'SHOWS',
-            'SPORTS',
-            'GALLERY',
-            'PARTY',
-            'CINEMA',
-            'CONFERENCE',
-            'FOOD_AND_DRINK',
-            'SEMINAR',
-            'WORKSHOP',
-            'EDUCATIONAL',
-            'CULTURAL',
-          ])
-        ).parse(str)) as EventCategory[]
-      )
-      .optional()
-});
+export const updateEventSchemma = (
+  createEventSchemma.omit({ organizationId: true }).partial()
+);
 
 export type UpdateEventDto = z.infer<typeof updateEventSchemma>
-
-export const getEventIdSchemma = z.object({
-  id: z.number({ coerce: true }).optional(),
-  uid: z.string().optional()
-});
-
-export type EventParamsDto = z.infer<typeof getEventIdSchemma>
-
-export const searchEventByNameSchemma = z.object({
-  name: z.string(),
-  limit: z.number({ coerce: true }).optional(),
-  cursor: z.number({ coerce: true }).optional(),
-});
-
-export type SearchEventByNameDto = z.infer<typeof searchEventByNameSchemma>
-
 export type EventPhotoDTO = Pick<EventPhoto, 'url' | 'order' | 'placeholder'>

@@ -3,8 +3,12 @@ import { Container } from 'typedi';
 import * as oldController from './_legacy/old.controller';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
-import { getEventIdSchemma, getAllEventsSchemma, searchEventByNameSchemma, searchEventsSchemma, } from './event.dto';
+import { createEventSchemma, getTargetUserEventsSchemma, searchEventsSchemma, updateEventSchemma, } from './event.dto';
 import { EventController } from './event.controller';
+import { BaseRouter } from '../helpers/baseRouter';
+import photoRouter from './photo/photo.router';
+import { idsSchemma } from '../shared/dto/baseDTOs';
+import locationRouter from './location/location.router';
 
 
 /**
@@ -16,72 +20,75 @@ import { EventController } from './event.controller';
  * eventRouter.use('/likes', likeRouter);  // Connect the likes router
  * eventRouter.use('/shares', shareRouter);  // Connect the shares router
  */
-class EventRouter {
-
-  private _router: Router = Router();
-  private _eventController = Container.get(EventController);
+class EventRouter extends BaseRouter {
+  protected _router: Router = Router();
+  protected _eventController = Container.get(EventController);
 
   constructor() {
-    this._initializeRoutes();
+    super();
+    this._router.use('/:eventId?/photos', photoRouter);
+    this._router.use('/:eventId?/locations', locationRouter);
+    // this._router.use('/likes', likesRouter);
   }
 
-  private _initializeRoutes(): void {
-    this._router
-      .route('/')
+  protected _initializeRoutes(): void {
+    this._router.use(authMiddleware);
+
+    this._router.route('/')
       .get(
-        authMiddleware,
         validateRequestMiddleware({ query: searchEventsSchemma }),
         this._eventController.searchLatestEventsWithPagination
+      )
+      .post(
+        validateRequestMiddleware({ body: createEventSchemma }),
+        this._eventController.createEvent
       );
 
-    this._router
-      .route('/search')
+    this._router.route('/:eventId')
+      .patch(
+        validateRequestMiddleware({ body: updateEventSchemma, params: idsSchemma }),
+        this._eventController.updateEvent
+      )
+      .delete(
+        validateRequestMiddleware({ params: idsSchemma }),
+        this._eventController.deleteEvent
+      );
+
+    this._router.route('/search')
       .get(
-        authMiddleware,
-        validateRequestMiddleware({ query: searchEventByNameSchemma }),
+        validateRequestMiddleware({ query: searchEventsSchemma }),
         this._eventController.searchEventsByName
       );
 
-    this._router
-      .route('/liked')
+    this._router.route('/liked')  // change to ?liked=true&targetUser=123
       .get(
-        authMiddleware,
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma }),
         this._eventController.getLikedEventsForBucketListWithPagination
       );
 
     this._router
-      .route('/liked/:id')
+      .route('/liked/:eventId') // /:eventId?likes=true
       .get(
-        authMiddleware,
-        validateRequestMiddleware({ params: getEventIdSchemma }),
+        validateRequestMiddleware({ params: idsSchemma }),
         this._eventController.getEventByID
       );
 
-    this._router
-      .route('/liked/:id/users')
+    // TODO: move to users folder
+    this._router.route('/liked/:eventId/users') // ? liked-same-event=8772
       .get(
-        authMiddleware,
-        validateRequestMiddleware({ query: getAllEventsSchemma, params: getEventIdSchemma }),
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
         this._eventController.getUsersWhoLikedSameEventWithPagination
       );
 
-    this._router
-      .route('/liked/matches/:uid')
+    this._router.route('/liked/matches/:uid')   // ?matches=true&targetUser=123
       .get(
-        authMiddleware,
         oldController.getMatchedEventsByTwoUsersWithPagination
       );
 
-    this._router
-      .route('/:id/like') // creates a like for the given eventID
+    this._router.route('/:eventId/like') // creates a like for the given eventID
       .post(
-        authMiddleware,
         oldController.createOrDeleteLikeByEventId
       );
-  }
-
-  public getRouter(): Router {
-    return this._router;
   }
 }
 

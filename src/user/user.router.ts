@@ -1,21 +1,23 @@
 import { Router, } from 'express';
+import { Container } from 'typedi';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { imageUploadMiddleware } from '../middlewares/imageUploadMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
+import { BaseRouter } from '../helpers/baseRouter';
 import { UserController } from './user.controller';
-import { searchQueryParamsSchemma, createUserSchemma, updateUserSchemma, urlParamsSchemma, searchByUsernameSchemma } from './user.dto';
-import { Container } from 'typedi';
+import { idsSchemma } from '../shared/dto/baseDTOs';
+import { searchQueryParamsSchemma, createUserSchemma, updateUserSchemma, searchByUsernameSchemma } from './user.dto';
 
 
-class UserRouter {
-  private _router = Router();
-  private _userController = Container.get(UserController);
+class UserRouter extends BaseRouter {
+  protected _router = Router();
+  protected _userController = Container.get(UserController);
 
   constructor() {
-    this._initializeRoutes();
+    super();
   }
 
-  private _initializeRoutes(): void {
+  protected _initializeRoutes(): void {
     this._router.get('/search',
       authMiddleware,
       validateRequestMiddleware({ query: searchByUsernameSchemma }),
@@ -34,7 +36,7 @@ class UserRouter {
 
     this._router.route('/:id')
       .patch(
-        validateRequestMiddleware({ params: urlParamsSchemma, body: updateUserSchemma }),
+        validateRequestMiddleware({ params: idsSchemma, body: updateUserSchemma }),
         this._userController.updateUserByID
       );
     /**
@@ -47,12 +49,13 @@ class UserRouter {
      * ******************************************
      */
     this._router.get('/:uid',
-      validateRequestMiddleware({ params: urlParamsSchemma }),
+      // authMiddleware,
+      validateRequestMiddleware({ params: idsSchemma }),
       this._userController.getloggedInUserWithLikeEvents
     );
     this._router.get('/:uid/targets',
       authMiddleware,
-      validateRequestMiddleware({ params: urlParamsSchemma }),
+      validateRequestMiddleware({ params: idsSchemma }),
       this._userController.getTargetUserWithFriendship
     );
     /**
@@ -62,19 +65,17 @@ class UserRouter {
      */
 
     this._router.post('/:id/photos',
+      authMiddleware,
       imageUploadMiddleware.any(),
-      validateRequestMiddleware({ params: urlParamsSchemma }),
+      validateRequestMiddleware({ params: idsSchemma }),
       this._userController.uploadUserPhotos
     );
 
     this._router.delete('/:id/photos/:photoId',
-      validateRequestMiddleware({ params: urlParamsSchemma }),
+      authMiddleware,
+      validateRequestMiddleware({ params: idsSchemma }),
       this._userController.deleteUserPhotoById
     );
-  }
-
-  public getRouter(): Router {
-    return this._router;
   }
 }
 

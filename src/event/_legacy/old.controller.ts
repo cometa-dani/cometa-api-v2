@@ -3,6 +3,7 @@ import { RequestHandler } from 'express';
 import * as schemma from '../event.dto';
 import { Prisma, Event } from '@prisma/client';
 import { configCursor } from '../../helpers/configCursor';
+import { idsSchemma } from '../../shared/dto/baseDTOs';
 
 
 interface ILikeableEvent extends Event {
@@ -25,7 +26,7 @@ interface ILikeableEvent extends Event {
 export const getAllLatestEventsWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // parsing queryParams
-    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
+    const reqQueryParams = schemma.getTargetUserEventsSchemma.safeParse(req.query);
 
     // handles validation
     if (!reqQueryParams.success) {
@@ -103,7 +104,7 @@ export const getAllLatestEventsWithPagination: RequestHandler = async (req, res,
 export const getLikedEventsForBucketListWithPagination: RequestHandler = async (req, res, next) => {
   try {
     // parsing queryParams
-    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
+    const reqQueryParams = schemma.getTargetUserEventsSchemma.safeParse(req.query);
 
     // handles validation
     if (!reqQueryParams.success) {
@@ -224,7 +225,7 @@ export const getLikedEventsForBucketListWithPagination: RequestHandler = async (
  */
 export const getEventByID: RequestHandler = async (req, res, next) => {
   try {
-    const eventID = schemma.getEventIdSchemma.safeParse(req.params);
+    const eventID = idsSchemma.safeParse(req.params);
 
     if (!eventID.success) {
       return res.status(400).json({ error: 'validation error', issues: eventID['error']?.issues });
@@ -266,8 +267,8 @@ export const getEventByID: RequestHandler = async (req, res, next) => {
  */
 export const getAllUsersWhoLikedSameEventWithPagination: RequestHandler = async (req, res, next) => {
   try {
-    const eventID = schemma.getEventIdSchemma.safeParse(req.params);
-    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
+    const eventID = idsSchemma.safeParse(req.params);
+    const reqQueryParams = schemma.getTargetUserEventsSchemma.safeParse(req.query);
 
     // handles validation
     if (!reqQueryParams.success) {
@@ -389,8 +390,8 @@ export const getAllUsersWhoLikedSameEventWithPagination: RequestHandler = async 
  */
 export const getMatchedEventsByTwoUsersWithPagination: RequestHandler = async (req, res, next) => {
   try {
-    const urlParam = schemma.getEventIdSchemma.safeParse(req.params);
-    const reqQueryParams = schemma.getAllEventsSchemma.safeParse(req.query);
+    const urlParam = idsSchemma.safeParse(req.params);
+    const reqQueryParams = schemma.getTargetUserEventsSchemma.safeParse(req.query);
 
     if (!urlParam.success) {
       return res.status(400).json({ error: 'Validation error', issues: urlParam['error']?.issues });
@@ -511,7 +512,7 @@ export const getMatchedEventsByTwoUsersWithPagination: RequestHandler = async (r
 export const createOrDeleteLikeByEventId: RequestHandler = async (req, res, next) => {
   try {
     // Try to parse the event ID from the request parameters
-    const event = schemma.getEventIdSchemma.safeParse(req.params);
+    const event = idsSchemma.safeParse(req.params);
 
     // Check if the parsing was successful
     if (!event.success) {
@@ -521,7 +522,7 @@ export const createOrDeleteLikeByEventId: RequestHandler = async (req, res, next
     // Check if a like for this event by the current user already exists
     const likeExist = await prisma.eventLike.findUnique({
       where: {
-        eventId_userId: { eventId: event.data.id, userId: req.user.id }
+        eventId_userId: { eventId: event.data.eventId, userId: req.user.id }
       },
     });
     // If a like already exists

@@ -1,23 +1,24 @@
 import { Container, Service } from 'typedi';
-import { EventParamsDto, GetAllEventsDTO, SearchEventByNameDto, SearchEventsDTO } from './event.dto';
+import { CreateEventDto, GetTargetUserEventsDTO, SearchEventsDTO, UpdateEventDto } from './event.dto';
 import { RequestHandlerBody, RequestHandlerQuery, RequestHandlerParams } from '../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
-import { BaseController } from '../helpers/basecontroller';
+import { BaseController } from '../helpers/baseController';
+import { IdsDto } from '../shared/dto/baseDTOs';
+import { ErrorMessage } from '../helpers/errorMessages';
 
 
 @Service()
 export class EventController extends BaseController {
 
   private _eventService = Container.get(EventService);
-  private _maxNumPhotos = 3;
 
   // TODO remove to user folder
-  public getUsersWhoLikedSameEventWithPagination: RequestHandlerQuery<GetAllEventsDTO, object, EventParamsDto> =
+  public getUsersWhoLikedSameEventWithPagination: RequestHandlerQuery<GetTargetUserEventsDTO, object, IdsDto> =
     async (req, res, next) => {
       try {
         const { limit, cursor } = req.query;
         const [totalCount, usersList] =
-          await this._eventService.getUsersWhoLikedSameEvent(req.params.id, req.user.id, req.query);
+          await this._eventService.getUsersWhoLikedSameEvent(req.params.eventId, req.user.id, req.query);
         // since we are counting down from the latest items in the table,
         // when we reach the first item, we should stop looking for the next cursor.
         const nextCursor = usersList.at(-1)?.id === 1 ? null : usersList.at(-1)?.id ?? null;
@@ -34,7 +35,7 @@ export class EventController extends BaseController {
       }
     };
 
-  public searchEventsByName: RequestHandlerQuery<SearchEventByNameDto> =
+  public searchEventsByName: RequestHandlerQuery<SearchEventsDTO> =
     async (req, res, next) => {
       try {
         const { limit = 10, cursor = 0 } = req.query;
@@ -73,11 +74,11 @@ export class EventController extends BaseController {
       }
     };
 
-  public getEventByID: RequestHandlerParams<EventParamsDto> = async (req, res, next) => {
+  public getEventByID: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const foundEvent = await this._eventService.getEventById(req.params.id);
+      const foundEvent = await this._eventService.getEventById(req.params.eventId);
       if (!foundEvent) {
-        return this.notFound(res, 'Event not found');
+        return this.notFound(res, ErrorMessage.EVENT_NOT_FOUND);
       }
       return this.ok(res, foundEvent);
     }
@@ -86,7 +87,7 @@ export class EventController extends BaseController {
     }
   };
 
-  public getLikedEventsForBucketListWithPagination: RequestHandlerQuery<GetAllEventsDTO> = async (req, res, next) => {
+  public getLikedEventsForBucketListWithPagination: RequestHandlerQuery<GetTargetUserEventsDTO> = async (req, res, next) => {
     try {
       const { limit, cursor, userId: targetUserId } = req.query;
       const [latestLikedEvents, totalEventsCount] = await this._eventService.getLikedEvents(req.user.id, limit, cursor, targetUserId);
@@ -103,146 +104,41 @@ export class EventController extends BaseController {
     }
   };
 
-  public createEvent: RequestHandlerBody = async (req, res, next) => {
+  public createEvent: RequestHandlerBody<CreateEventDto> = async (req, res, next) => {
     try {
-      // ThumbHash = !ThumbHash ? await import('thumbhash') : ThumbHash;
-
-      // Parse and validate the event data from the request body
-      // const eventData = schemma.createEvent.safeParse(req.body);
-
-      // Check if data validation was successful
-      // if (!eventData.success) {
-      //   return res.status(400).json({ error: 'Validation failed', issues: eventData['error'].issues });
-      // }
-
-      // const incommingImgFiles = req.files as IFile[];
-      // const totalPhotosToProcess: number = incommingImgFiles.length;
-
-      // // the number of photos to be uploaded exceeds the allowed limit
-      // if (totalPhotosToProcess > maxNumPhotosPerEvent) {
-      //   return res.status(409).json({ error: 'Max number of photos exceeds the limit' });
-      // }
-
-      // const createdEvent = await prisma.event.create({
-      //   data: ({
-      //     name: eventData.data.name,
-      //     description: eventData.data.description,
-      //     date: new Date(eventData.data.date),
-      //     // later on, only athenticated organizations can create events
-      //     // at a given locationID
-      //     locationId: eventData.data.locationId,
-      //     organizationId: eventData.data.organizationId,
-      //     categories: eventData.data.categories,
-      //   }),
-      // });
-
-      // // const uuidFile = randomUUID();
-      // const filesToUpload = incommingImgFiles.map(imgFile => {
-      //   return bucket.upload(imgFile.path, {
-      //     contentType: imgFile.mimetype,
-      //     public: true,
-      //     destination: `organizations/${createdEvent.organizationId}/events/${createdEvent.id}/${imgFile.filename}`,
-      //     metadata: {
-      //       firebaseStorageDownloadTokens: imgFile.filename,
-      //       cacheControl: 'public, max-age=315360000',
-      //       contentType: imgFile.mimetype,
-      //     },
-      //   });
-      // });
-
-      // // uploads images
-      // const uploadedFiles = await Promise.all(filesToUpload);
-
-      // // get public download urls for images
-      // const downloadUrls = await Promise.all(uploadedFiles.map(file => getDownloadURL(file[0])));
-
-      // // generate the newPhotos object
-      // const newPhotosPromises = downloadUrls.map(async (url, i) => {
-      //   // const image = (await Jimp.read(incommingImgFiles[i].path)).resize(100, 100).quality(60); // set JPEG quality;
-      //   const { data, width, height } = image.bitmap;
-      //   const binaryThumbHash = ThumbHash.rgbaToThumbHash(width, height, data);
-      //   const thumbHashToBase64 = Buffer.from(binaryThumbHash).toString('base64');
-
-      //   // delete image from diskstorage
-      //   await fs.unlink(incommingImgFiles[i].path);
-
-      //   return {
-      //     url,
-      //     uuid: incommingImgFiles[i].filename,
-      //     placeholder: thumbHashToBase64,
-      //     order: i
-      //   };
-      // });
-
-      // const newPhotos = await Promise.all(newPhotosPromises);
-
-      // // update the event record with the new photos
-      // const updatedEvent = await prisma.event.update({
-      //   data: {
-      //     photos: {
-      //       createMany: { data: newPhotos }
-      //     }
-      //   },
-      //   where: {
-      //     id: createdEvent.id
-      //   }
-      // });
-
-      // res.status(201).json(updatedEvent);
+      const createdEvent = await this._eventService.createEvent(req.body);
+      if (!createdEvent) {
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_EVENT);
+      }
+      return this.ok(res, createdEvent);
     }
     catch (error) {
       next(error);
     }
   };
 
-  public updateEvent: RequestHandlerBody = async (req, res, next) => {
+  public updateEvent: RequestHandlerBody<UpdateEventDto, IdsDto> = async (req, res, next) => {
     try {
-      //
+      const createdEvent = await this._eventService.updateEvent(req.params.eventId, req.body);
+      if (!createdEvent) {
+        return this.conflict(res);
+      }
+      return this.ok(res, createdEvent);
     }
     catch (error) {
       next(error);
     }
   };
 
-  public uploadEventPhotos: RequestHandlerParams<EventParamsDto> = async (req, res, next) => {
+  public deleteEvent: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const eventFound = await this._eventService.getEventById(req.params.id);
-      if (!eventFound) {
-        return this.notFound(res, 'Event not found');
+      const createdEvent = await this._eventService.deleteEvent(req.params.eventId);
+      // 2. we should delete images as well
+      // 3. should deletes likes, shares and location
+      if (!createdEvent) {
+        return this.conflict(res);
       }
-      if (eventFound.photos.length > this._maxNumPhotos) {
-        return this.conflict(res, 'Max number of photos already reached the limit');
-      }
-      const incommingImgFiles = req.files as Express.Multer.File[];
-      const remainingPhotos: number = this._maxNumPhotos - eventFound.photos.length;
-
-      if (incommingImgFiles.length > remainingPhotos) {
-        return this.conflict(res, 'Max number of photos exceeds the limit');
-      }
-      const startCount = eventFound.photos.length ?? 0;
-      const uploadedEventPhotos = await this._eventService.uploadEventPhotos(incommingImgFiles, eventFound.id, startCount);
-      if (!uploadedEventPhotos) {
-        return this.conflict(res, 'Could not update eventr photos');
-      }
-      return this.ok(res, uploadedEventPhotos);
-    }
-    catch (error) {
-      next(error);
-    }
-  };
-
-  public deleteEventPhotosById: RequestHandlerBody = async (req, res, next) => {
-    try {
-      //
-    }
-    catch (error) {
-      next(error);
-    }
-  };
-
-  public deleteEvent: RequestHandlerBody = async (req, res, next) => {
-    try {
-      //
+      return this.noContent(res);
     }
     catch (error) {
       next(error);

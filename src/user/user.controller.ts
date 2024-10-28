@@ -1,9 +1,10 @@
 import { Service, Container } from 'typedi';
-import { BaseController } from '../helpers/basecontroller';
+import { BaseController } from '../helpers/baseController';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { UserService } from './user.service';
-import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO, UrlParamsDTO } from './user.dto';
-import { RequestHandler } from 'express';
+import { IdsDto } from '../shared/dto/baseDTOs';
+import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO } from './user.dto';
+import { ErrorMessage } from 'src/helpers/errorMessages';
 
 
 @Service()
@@ -15,7 +16,7 @@ export class UserController extends BaseController {
     super();
   }
 
-  public getAllUsers: RequestHandler = async (_, res, next) => {
+  public getAllUsers: RequestHandlerQuery = async (_, res, next) => {
     try {
       const users = await this._userService.findAll();
       return this.ok(res, users);
@@ -61,7 +62,7 @@ export class UserController extends BaseController {
         }
         return this.ok(res, userFound);
       }
-      return this.badRequest(res, 'No query params provided');
+      return this.badRequest(res, ErrorMessage.NO_QUERY_PARAMS_PROVIDED);
     }
     catch (error) {
       next(error);
@@ -69,7 +70,7 @@ export class UserController extends BaseController {
   };
 
   //TODO: specify two different methods for loggedInUser and targetUser
-  public getloggedInUserWithLikeEvents: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public getloggedInUserWithLikeEvents: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findUniqueWithLikeEvents(req.params.uid); // authMiddleware should be remove
       if (!userFound) {
@@ -82,7 +83,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public getTargetUserWithFriendship: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public getTargetUserWithFriendship: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findTargetUserWithFriendship(req.params.uid, req.user.id);
       if (!userFound) {
@@ -99,11 +100,11 @@ export class UserController extends BaseController {
     try {
       const userFound = await this._userService.findUniqueByField({ email: req.body.email });
       if (userFound) {
-        return this.conflict(res, 'User already exists');
+        return this.conflict(res, ErrorMessage.USER_ALREADY_EXISTS);
       }
       const userCreated = await this._userService.create(req.body);
       if (!userCreated) {
-        return this.conflict(res, 'Could not create user');
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_USER);
       }
       return this.created(res, userCreated);
     }
@@ -112,7 +113,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public updateUserByID: RequestHandlerParams<UrlParamsDTO, UpdateUserDTO> = async (req, res, next) => {
+  public updateUserByID: RequestHandlerParams<IdsDto, UpdateUserDTO> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id);
       if (!userFound) {
@@ -129,25 +130,25 @@ export class UserController extends BaseController {
     }
   };
 
-  public uploadUserPhotos: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public uploadUserPhotos: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {
-        return this.notFound(res, 'User not found');
+        return this.notFound(res, ErrorMessage.USER_NOT_FOUND);
       }
       if (userFound.photos.length > this._maxNumPhotos) {
-        return this.conflict(res, 'Max number of photos already reached the limit');
+        return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
       const incommingImgFiles = req.files as Express.Multer.File[];
       const remainingPhotos: number = this._maxNumPhotos - userFound.photos.length;
 
       if (incommingImgFiles.length > remainingPhotos) {
-        return this.conflict(res, 'Max number of photos exceeds the limit');
+        return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
       const startCount = userFound.photos.length ?? 0;
       const updatedUserPhotos = await this._userService.saveUserPhotos(incommingImgFiles, userFound.id, startCount);
       if (!updatedUserPhotos) {
-        return this.conflict(res, 'Could not update user photos');
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_PHOTO);
       }
       return this.ok(res, updatedUserPhotos);
     }
@@ -156,7 +157,7 @@ export class UserController extends BaseController {
     }
   };
 
-  public deleteUserById: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public deleteUserById: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       //
     } catch (error) {
@@ -164,15 +165,15 @@ export class UserController extends BaseController {
     }
   };
 
-  public deleteUserPhotoById: RequestHandlerParams<UrlParamsDTO> = async (req, res, next) => {
+  public deleteUserPhotoById: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {
-        return this.notFound(res, 'User not found');
+        return this.notFound(res, ErrorMessage.USER_NOT_FOUND);
       }
       const photoToDelete = userFound.photos.find(photo => photo.order === req.params.photoId);
       if (!photoToDelete) {
-        return this.notFound(res, 'Photo not found');
+        return this.notFound(res, ErrorMessage.PHOTO_NOT_FOUND);
       }
       await this._userService.deleteUserPhoto(userFound.id, photoToDelete);
 

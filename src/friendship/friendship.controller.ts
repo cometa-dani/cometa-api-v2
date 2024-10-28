@@ -1,8 +1,9 @@
 import { Container, Service } from 'typedi';
-import { GetFriendshipsDto, FrienshipParamsDTo as FriendIdsDTo, UpdateFriendshipDto, FrienshipParamsDTo } from './frienship.dto';
+import { GetFriendshipsDto, UpdateFriendshipDto } from './frienship.dto';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
-import { BaseController } from '../helpers/basecontroller';
+import { BaseController } from '../helpers/baseController';
 import { FriendshipService } from './friendship.service';
+import { IdsDto } from '../shared/dto/baseDTOs';
 
 
 @Service()
@@ -51,10 +52,10 @@ export class FrienshipController extends BaseController {
       }
     };
 
-  public getFriendshipByTargetUserUUID: RequestHandlerParams<FrienshipParamsDTo> =
+  public getFriendshipByTargetUserUUID: RequestHandlerParams<IdsDto> =
     async (req, res, next) => {
       try {
-        const foundFrienship = await this._friendshipService.getFriendshipByTargetUser(req.params.uuid, req.user.id);
+        const foundFrienship = await this._friendshipService.getFriendshipByTargetUser(req.params.uid, req.user.id);
         if (!foundFrienship) {
           return this.conflict(res);
         }
@@ -65,7 +66,7 @@ export class FrienshipController extends BaseController {
       }
     };
 
-  public sentFriendShipInvitation: RequestHandlerBody<FriendIdsDTo> =
+  public sentFriendShipInvitation: RequestHandlerBody<IdsDto> =
     async (req, res, next) => {
       try {
         const newFriendshipInvitation = await this._friendshipService.sentFrienshipInvitation(req.body.id, req.user.id);
@@ -80,7 +81,7 @@ export class FrienshipController extends BaseController {
    *
    * @description follows or unfollows a friendship
    */
-  public updateFriendShipInvitation: RequestHandlerParams<FriendIdsDTo, UpdateFriendshipDto> =
+  public updateFriendShipInvitation: RequestHandlerParams<IdsDto, UpdateFriendshipDto> =
     async (req, res, next) => {
       try {
         const { status } = req.body;
@@ -99,7 +100,7 @@ export class FrienshipController extends BaseController {
       }
     };
 
-  public deleteFriendship: RequestHandlerParams<FriendIdsDTo> = async (req, res, next) => {
+  public deleteFriendship: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const noContent =
         await this._friendshipService.deleteFriendshipBySenderOrReceiver(req.params.id, req.user.id);
