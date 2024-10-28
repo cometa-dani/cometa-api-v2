@@ -16,13 +16,13 @@ export class FrienshipController extends BaseController {
       try {
         const { cursor = 0, limit = 10 } = req.query;
         const [newFriends, totalFriends] = await this._friendshipService.searchFriendsByUsername(req.user.id, req.query);
-        const nextCursor = newFriends.at(-1)?.id === 1 ? null : newFriends.at(-1)?.id ?? null;
+        const nextCursor = newFriends.at(-1)?.id ?? null;
         const paginatedFriends = {
-          friendships: cursor > 0 ? newFriends.slice(1) : newFriends,
+          items: cursor > 0 ? newFriends.slice(1) : newFriends,
           nextCursor,
-          totalFriendships: totalFriends,
-          hasNextCursor: nextCursor !== null || newFriends.length < limit,
-          friendshipsPerPage: limit
+          totalItems: totalFriends,
+          hasNextCursor: newFriends.length === limit,
+          itemsPerPage: limit
         };
         this.ok(res, paginatedFriends);
       }
@@ -37,13 +37,13 @@ export class FrienshipController extends BaseController {
         const { cursor = 0, limit = 10 } = req.query;
         const [newFriends, totalFriendshipsCount] =
           await this._friendshipService.getFriendsWithPagination(req.query, req.user.id);
-        const nextCursor = newFriends.at(-1)?.id === 1 ? null : newFriends.at(-1)?.id ?? null;
+        const nextCursor = newFriends.at(-1)?.id ?? null;
         const paginatedFriends = {
-          friendships: cursor > 0 ? newFriends.slice(1) : newFriends,
+          items: cursor > 0 ? newFriends.slice(1) : newFriends,
           nextCursor,
-          totalFriendships: totalFriendshipsCount,
-          hasNextCursor: nextCursor !== null || newFriends.length < limit,
-          friendshipsPerPage: limit
+          totalItems: totalFriendshipsCount,
+          hasNextCursor: newFriends.length === limit,
+          itemsPerPage: limit
         };
         return this.ok(res, paginatedFriends);
       }

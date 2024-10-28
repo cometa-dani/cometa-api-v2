@@ -203,7 +203,7 @@ model EventLike {
   // Relations
   event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int   @map("event_id")
-  user    User  @relation(fields: [userId], references: [id])
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int   @map("user_id")
 
   @@unique([eventId, userId]) // no repeated records with same eventID & userID
@@ -217,7 +217,7 @@ model EventShare {
   // Relations
   event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int   @map("event_id")
-  user    User  @relation(fields: [userId], references: [id])
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int   @map("user_id")
 }
 

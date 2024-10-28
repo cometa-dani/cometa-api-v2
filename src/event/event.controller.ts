@@ -21,13 +21,13 @@ export class EventController extends BaseController {
           await this._eventService.getUsersWhoLikedSameEvent(req.params.eventId, req.user.id, req.query);
         // since we are counting down from the latest items in the table,
         // when we reach the first item, we should stop looking for the next cursor.
-        const nextCursor = usersList.at(-1)?.id === 1 ? null : usersList.at(-1)?.id ?? null;
+        const nextCursor = usersList.at(-1)?.id ?? null;
         return this.ok(res, {
-          usersWhoLikedEvent: cursor > 0 ? usersList.slice(1) : usersList,
+          items: cursor > 0 ? usersList.slice(1) : usersList,
           nextCursor,
-          totalUsers: totalCount,
-          hasNextCursor: nextCursor !== null || usersList.length < limit,
-          usersPerPage: limit,
+          totalItems: totalCount,
+          hasNextCursor: usersList.length === limit,
+          itemsPerPage: limit,
         });
       }
       catch (error) {
@@ -40,12 +40,13 @@ export class EventController extends BaseController {
       try {
         const { limit = 10, cursor = 0 } = req.query;
         const [events, count] = await this._eventService.searchPaginatedEventsByName(req.query);
-        const nextCursor: number = events.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
+        const nextCursor: number = events.at(-1)?.id ?? null;
         const paginatedEvents = {
-          events: cursor > 0 ? events.slice(1) : events,
-          totalEvents: count,
+          items: cursor > 0 ? events.slice(1) : events,
+          totalItems: count,
           nextCursor,
-          eventsPerPage: limit,
+          hasNextCursor: events.length === limit,
+          itemsPerPage: limit,
         };
         return this.ok(res, paginatedEvents);
       }
@@ -59,13 +60,13 @@ export class EventController extends BaseController {
       try {
         const { limit = 10, cursor = 0 } = req.query;
         const [events, count] = await this._eventService.searchLatestPaginatedEvents(req.query, req.user.id);
-        const nextCursor: number = events?.at(-1)?.id === 1 ? null : events.at(-1)?.id ?? null;
+        const nextCursor: number = events?.at(-1)?.id ?? null;
         const paginatedEvents = {
-          events: cursor > 0 ? events.slice(1) : events,
-          totalEvents: count,
+          items: cursor > 0 ? events.slice(1) : events,
+          totalItems: count,
           nextCursor,
-          hasNextCursor: nextCursor !== null || events.length < limit,
-          eventsPerPage: limit,
+          hasNextCursor: events.length === limit,
+          itemsPerPage: limit,
         };
         return this.ok(res, paginatedEvents);
       }
@@ -91,12 +92,13 @@ export class EventController extends BaseController {
     try {
       const { limit, cursor, userId: targetUserId } = req.query;
       const [latestLikedEvents, totalEventsCount] = await this._eventService.getLikedEvents(req.user.id, limit, cursor, targetUserId);
-      const nextCursor = latestLikedEvents.at(-1)?.id === 1 ? null : latestLikedEvents.at(-1)?.id ?? null;
+      const nextCursor = latestLikedEvents.at(-1)?.id ?? null;
       return this.ok(res, {
-        events: cursor > 0 ? latestLikedEvents.slice(1) : latestLikedEvents,
-        totalEvents: totalEventsCount,
+        items: cursor > 0 ? latestLikedEvents.slice(1) : latestLikedEvents,
+        totalItems: totalEventsCount,
         nextCursor,
-        eventsPerPage: limit,
+        hasNextCursor: latestLikedEvents.length === limit,
+        itemsPerPage: limit,
       });
     }
     catch (error) {

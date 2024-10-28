@@ -20,8 +20,8 @@ export type IdsDto = z.infer<typeof idsSchemma>;
 
 
 export const paginationSchemma = z.object({
-  limit: z.number({ coerce: true }).default(0).optional(),
-  cursor: z.number({ coerce: true }).default(10).optional(),
+  limit: z.number({ coerce: true }).default(10).optional(),
+  cursor: z.number({ coerce: true }).default(0).optional(),
   page: z.number({ coerce: true }).optional(),
 });
 

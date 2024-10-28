@@ -34,14 +34,15 @@ export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
         prismaService.worldCities.count()
       ]);
 
-    const nextCursor = cities.at(-1)?.id === 1 ? null : cities.at(-1)?.id ?? null;
+    const nextCursor = cities.at(-1)?.id ?? null;
     res
       .status(200)
       .json({
-        cities: cursor > 0 ? cities.slice(1) : cities,
-        totalcities: citiesCount,
+        items: cursor > 0 ? cities.slice(1) : cities,
+        totalItems: citiesCount,
         nextCursor,
-        citiesPerPage: limit,
+        hasNextCursor: cities.length === limit,
+        itemsPerPage: limit,
       });
   }
   catch (error) {

@@ -30,13 +30,13 @@ export class UserController extends BaseController {
     try {
       const { cursor = 0, limit = 10 } = req.query;
       const [users, count] = await this._userService.searchAllByUsername(req.query, req.user.id);
-      const nextCursor = users.at(-1)?.id === 1 ? null : users.at(-1)?.id ?? null;
+      const nextCursor = users.at(-1)?.id ?? null;
       const paginatedUsers = {
-        users: cursor > 0 ? users.slice(1) : users,
-        totalUsers: count,
+        items: cursor > 0 ? users.slice(1) : users,
+        totalItems: count,
         nextCursor,
-        hasNextCursor: nextCursor !== null || users.length < limit,
-        usersPerPage: limit,
+        hasNextCursor: users.length === limit,
+        itemsPerPage: limit,
       };
       return this.ok(res, paginatedUsers);
     }
