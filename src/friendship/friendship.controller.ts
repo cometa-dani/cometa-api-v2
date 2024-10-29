@@ -1,9 +1,9 @@
 import { Container, Service } from 'typedi';
-import { GetFriendshipsDto, UpdateFriendshipDto } from './frienship.dto';
+import { GetFriendshipsDto, INewFriend, UpdateFriendshipDto } from './frienship.dto';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { BaseController } from '../helpers/baseController';
 import { FriendshipService } from './friendship.service';
-import { IdsDto } from '../shared/dto/baseDTOs';
+import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
 
 
 @Service()
@@ -11,14 +11,16 @@ export class FrienshipController extends BaseController {
 
   private _friendshipService = Container.get(FriendshipService);
 
-  public searchFriendsWithPagination: RequestHandlerQuery<GetFriendshipsDto> =
+  public searchPaginatedFriends: RequestHandlerQuery<GetFriendshipsDto> =
     async (req, res, next) => {
       try {
-        const { cursor = 0, limit = 10 } = req.query;
-        const [newFriends, totalFriends] = await this._friendshipService.searchFriendsByUsername(req.user.id, req.query);
+        const { limit = 10 } = req.query;
+        const [newFriends, totalFriends] = (
+          await this._friendshipService.searchPaginatedFriendsByUsername(req.user.id, req.query)
+        );
         const nextCursor = newFriends.at(-1)?.id ?? null;
-        const paginatedFriends = {
-          items: cursor > 0 ? newFriends.slice(1) : newFriends,
+        const paginatedFriends: PaginatedResult<INewFriend> = {
+          items: newFriends,
           nextCursor,
           totalItems: totalFriends,
           hasNextCursor: newFriends.length === limit,
@@ -31,15 +33,15 @@ export class FrienshipController extends BaseController {
       }
     };
 
-  public getNewestFriendsWithPagination: RequestHandlerQuery<GetFriendshipsDto> =
+  public getPaginatedNewestFriends: RequestHandlerQuery<GetFriendshipsDto> =
     async (req, res, next) => {
       try {
-        const { cursor = 0, limit = 10 } = req.query;
+        const { limit = 10 } = req.query;
         const [newFriends, totalFriendshipsCount] =
-          await this._friendshipService.getFriendsWithPagination(req.query, req.user.id);
+          await this._friendshipService.getPaginatedNewestFriends(req.query, req.user.id);
         const nextCursor = newFriends.at(-1)?.id ?? null;
-        const paginatedFriends = {
-          items: cursor > 0 ? newFriends.slice(1) : newFriends,
+        const paginatedFriends: PaginatedResult<INewFriend> = {
+          items: newFriends,
           nextCursor,
           totalItems: totalFriendshipsCount,
           hasNextCursor: newFriends.length === limit,
@@ -55,7 +57,9 @@ export class FrienshipController extends BaseController {
   public getFriendshipByTargetUserUUID: RequestHandlerParams<IdsDto> =
     async (req, res, next) => {
       try {
-        const foundFrienship = await this._friendshipService.getFriendshipByTargetUser(req.params.uid, req.user.id);
+        const foundFrienship = (
+          await this._friendshipService.getFriendshipByTargetUser(req.params.uid, req.user.id)
+        );
         if (!foundFrienship) {
           return this.conflict(res);
         }
@@ -69,7 +73,9 @@ export class FrienshipController extends BaseController {
   public sentFriendShipInvitation: RequestHandlerBody<IdsDto> =
     async (req, res, next) => {
       try {
-        const newFriendshipInvitation = await this._friendshipService.sentFrienshipInvitation(req.body.id, req.user.id);
+        const newFriendshipInvitation = (
+          await this._friendshipService.sentFrienshipInvitation(req.body.id, req.user.id)
+        );
         this.created(res, newFriendshipInvitation);
       }
       catch (error) {
@@ -86,11 +92,13 @@ export class FrienshipController extends BaseController {
       try {
         const { status } = req.body;
         if (status === 'ACCEPTED') {
-          const acceptedFrienship = await this._friendshipService.acceptFrienshipInvitation(req.params.id, req.user);
+          const acceptedFrienship =
+            await this._friendshipService.acceptFrienshipInvitation(req.params.id, req.user);
           return this.ok(res, acceptedFrienship);
         }
         if (status === 'PENDING') {
-          const pendingFriendship = await this._friendshipService.resetFrienshipInvitation(req.params.id, req.user);
+          const pendingFriendship =
+            await this._friendshipService.resetFrienshipInvitation(req.params.id, req.user);
           return this.ok(res, pendingFriendship);
         }
         return this.badRequest(res);
@@ -103,7 +111,7 @@ export class FrienshipController extends BaseController {
   public deleteFriendship: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const noContent =
-        await this._friendshipService.deleteFriendshipBySenderOrReceiver(req.params.id, req.user.id);
+        await this._friendshipService.deleteBySenderOrReceiver(req.params.id, req.user.id);
       if (!noContent) {
         return this.noContent(res, noContent);
       }

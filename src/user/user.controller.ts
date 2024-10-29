@@ -2,9 +2,10 @@ import { Service, Container } from 'typedi';
 import { BaseController } from '../helpers/baseController';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../helpers/typeRequestHandlers';
 import { UserService } from './user.service';
-import { IdsDto } from '../shared/dto/baseDTOs';
+import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
 import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO } from './user.dto';
-import { ErrorMessage } from 'src/helpers/errorMessages';
+import { ErrorMessage } from '../helpers/errorMessages';
+import { User } from '@prisma/client';
 
 
 @Service()
@@ -26,13 +27,13 @@ export class UserController extends BaseController {
     }
   };
 
-  public searchAllByUsernameWithPagination: RequestHandlerQuery<SearchByUsernameDTO> = async (req, res, next) => {
+  public searchPaginatedUsersByUsername: RequestHandlerQuery<SearchByUsernameDTO> = async (req, res, next) => {
     try {
-      const { cursor = 0, limit = 10 } = req.query;
+      const { limit = 10 } = req.query;
       const [users, count] = await this._userService.searchAllByUsername(req.query, req.user.id);
       const nextCursor = users.at(-1)?.id ?? null;
-      const paginatedUsers = {
-        items: cursor > 0 ? users.slice(1) : users,
+      const paginatedUsers: PaginatedResult<User> = {
+        items: users,
         totalItems: count,
         nextCursor,
         hasNextCursor: users.length === limit,

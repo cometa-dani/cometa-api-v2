@@ -21,7 +21,7 @@ class UserRouter extends BaseRouter {
     this._router.get('/search',
       authMiddleware,
       validateRequestMiddleware({ query: searchByUsernameSchemma }),
-      this._userController.searchAllByUsernameWithPagination
+      this._userController.searchPaginatedUsersByUsername
     );
 
     this._router.route('/')

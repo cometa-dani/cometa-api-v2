@@ -26,3 +26,11 @@ export const paginationSchemma = z.object({
 });
 
 export type PaginationDto = z.infer<typeof paginationSchemma>;
+
+export type PaginatedResult<T> = {
+  items: T[],
+  nextCursor: number
+  hasNextCursor: boolean
+  itemsPerPage: number
+  totalItems: number
+}

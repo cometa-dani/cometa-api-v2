@@ -1,10 +1,11 @@
 import { Container, Service } from 'typedi';
-import { CreateEventDto, GetTargetUserEventsDTO, SearchEventsDTO, UpdateEventDto } from './event.dto';
+import { CreateEventDto, GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO, UpdateEventDto } from './event.dto';
 import { RequestHandlerBody, RequestHandlerQuery, RequestHandlerParams } from '../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
 import { BaseController } from '../helpers/baseController';
-import { IdsDto } from '../shared/dto/baseDTOs';
+import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
 import { ErrorMessage } from '../helpers/errorMessages';
+import { Event } from '@prisma/client';
 
 
 @Service()
@@ -13,36 +14,38 @@ export class EventController extends BaseController {
   private _eventService = Container.get(EventService);
 
   // TODO remove to user folder
-  public getUsersWhoLikedSameEventWithPagination: RequestHandlerQuery<GetTargetUserEventsDTO, object, IdsDto> =
+  public getPaginatedUsersWhoLikedSameEvent: RequestHandlerQuery<GetTargetUserEventsDTO, object, IdsDto> =
     async (req, res, next) => {
       try {
-        const { limit, cursor } = req.query;
-        const [totalCount, usersList] =
-          await this._eventService.getUsersWhoLikedSameEvent(req.params.eventId, req.user.id, req.query);
-        // since we are counting down from the latest items in the table,
-        // when we reach the first item, we should stop looking for the next cursor.
-        const nextCursor = usersList.at(-1)?.id ?? null;
-        return this.ok(res, {
-          items: cursor > 0 ? usersList.slice(1) : usersList,
+        const { limit } = req.query;
+        const [users, totalCount] = (
+          await this._eventService.getUsersWhoLikedSameEvent(req.params.eventId, req.user.id, req.query)
+        );
+        const nextCursor = users.at(-1)?.id ?? null;
+        const paginatedUsers: PaginatedResult<IUsersLikedSameEvent> = {
+          items: users,
           nextCursor,
           totalItems: totalCount,
-          hasNextCursor: usersList.length === limit,
+          hasNextCursor: users.length === limit,
           itemsPerPage: limit,
-        });
+        };
+        return this.ok(res, paginatedUsers);
       }
       catch (error) {
         next(error);
       }
     };
 
-  public searchEventsByName: RequestHandlerQuery<SearchEventsDTO> =
+  public getPaginatedMatchedEventsByTwoUsers: RequestHandlerQuery<GetTargetUserEventsDTO, object, IdsDto> =
     async (req, res, next) => {
       try {
-        const { limit = 10, cursor = 0 } = req.query;
-        const [events, count] = await this._eventService.searchPaginatedEventsByName(req.query);
-        const nextCursor: number = events.at(-1)?.id ?? null;
-        const paginatedEvents = {
-          items: cursor > 0 ? events.slice(1) : events,
+        const { limit } = req.query;
+        const [events, count] = (
+          await this._eventService.getPaginatedMatchedEventsByTwoUsers(req.user.id, req.params.id, req.query)
+        );
+        const nextCursor = events.at(-1)?.id ?? null;
+        const paginatedEvents: PaginatedResult<ILikeableEvent> = {
+          items: events,
           totalItems: count,
           nextCursor,
           hasNextCursor: events.length === limit,
@@ -55,14 +58,36 @@ export class EventController extends BaseController {
       }
     };
 
-  public searchLatestEventsWithPagination: RequestHandlerQuery<SearchEventsDTO> =
+  public searchPaginatedEventsByName: RequestHandlerQuery<SearchEventsDTO> =
     async (req, res, next) => {
       try {
-        const { limit = 10, cursor = 0 } = req.query;
-        const [events, count] = await this._eventService.searchLatestPaginatedEvents(req.query, req.user.id);
+        const { limit } = req.query;
+        const [events, count] = await this._eventService.searchPaginatedEventsByName(req.query);
+        const nextCursor: number = events.at(-1)?.id ?? null;
+        const paginatedEvents: PaginatedResult<Event> = {
+          items: events,
+          totalItems: count,
+          nextCursor,
+          hasNextCursor: events.length === limit,
+          itemsPerPage: limit,
+        };
+        return this.ok(res, paginatedEvents);
+      }
+      catch (error) {
+        next(error);
+      }
+    };
+
+  public getPaginatedLatestEvent: RequestHandlerQuery<SearchEventsDTO> =
+    async (req, res, next) => {
+      try {
+        const { limit } = req.query;
+        const [events, count] = (
+          await this._eventService.getPaginatedLatestEvents(req.query, req.user.id)
+        );
         const nextCursor: number = events?.at(-1)?.id ?? null;
-        const paginatedEvents = {
-          items: cursor > 0 ? events.slice(1) : events,
+        const paginatedEvents: PaginatedResult<ILikeableEvent> = {
+          items: events,
           totalItems: count,
           nextCursor,
           hasNextCursor: events.length === limit,
@@ -88,23 +113,27 @@ export class EventController extends BaseController {
     }
   };
 
-  public getLikedEventsForBucketListWithPagination: RequestHandlerQuery<GetTargetUserEventsDTO> = async (req, res, next) => {
-    try {
-      const { limit, cursor, userId: targetUserId } = req.query;
-      const [latestLikedEvents, totalEventsCount] = await this._eventService.getLikedEvents(req.user.id, limit, cursor, targetUserId);
-      const nextCursor = latestLikedEvents.at(-1)?.id ?? null;
-      return this.ok(res, {
-        items: cursor > 0 ? latestLikedEvents.slice(1) : latestLikedEvents,
-        totalItems: totalEventsCount,
-        nextCursor,
-        hasNextCursor: latestLikedEvents.length === limit,
-        itemsPerPage: limit,
-      });
-    }
-    catch (error) {
-      next(error);
-    }
-  };
+  public getPaginatedLikedEventsForBucketList: RequestHandlerQuery<GetTargetUserEventsDTO> =
+    async (req, res, next) => {
+      try {
+        const { limit } = req.query;
+        const [events, count] = (
+          await this._eventService.getPaginatedLikedEvents(req.user.id, req.query)
+        );
+        const nextCursor = events.at(-1)?.id ?? null;
+        const paginatedEvents: PaginatedResult<ILikeableEvent> = {
+          items: events,
+          totalItems: count,
+          nextCursor,
+          hasNextCursor: events.length === limit,
+          itemsPerPage: limit,
+        };
+        return this.ok(res, paginatedEvents);
+      }
+      catch (error) {
+        next(error);
+      }
+    };
 
   public createEvent: RequestHandlerBody<CreateEventDto> = async (req, res, next) => {
     try {

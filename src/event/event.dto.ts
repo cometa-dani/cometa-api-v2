@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EventCategory, EventPhoto } from '@prisma/client';
+import { Event, EventCategory, EventLike, EventPhoto, User } from '@prisma/client';
 import { paginationSchemma } from '../shared/dto/baseDTOs';
 
 
@@ -136,3 +136,14 @@ export const updateEventSchemma = (
 
 export type UpdateEventDto = z.infer<typeof updateEventSchemma>
 export type EventPhotoDTO = Pick<EventPhoto, 'url' | 'order' | 'placeholder'>
+
+export interface ILikeableEvent extends Event {
+  isLiked: boolean;
+}
+
+export interface IUsersLikedSameEvent extends EventLike {
+  user: User & {
+    hasIncommingFriendship: boolean;
+    hasOutgoingFriendship: boolean;
+  };
+}

@@ -1,18 +1,19 @@
 import Container, { Service } from 'typedi';
 import { PrismaService } from '../config/dataBase';
 import { Prisma, User } from '@prisma/client';
-import { NewFriend, GetFriendshipsDto } from './frienship.dto';
+import { INewFriend, GetFriendshipsDto } from './frienship.dto';
 import { HttpError } from '../helpers/httpError';
 import { ErrorMessage } from '../helpers/errorMessages';
+import { configCursorBasedPagination } from '../helpers/configCursor';
 
 
 @Service()
 export class FriendshipService {
   private _prismaService = Container.get(PrismaService);
 
-  public async searchFriendsByUsername(
+  public async searchPaginatedFriendsByUsername(
     loggedInUserID: number, paginatedQueries: GetFriendshipsDto
-  ): Promise<[Omit<NewFriend, 'sender' | 'receiver'>[], number]> {
+  ): Promise<[Omit<INewFriend, 'sender' | 'receiver'>[], number]> {
     const { cursor, limit, friendUserName } = paginatedQueries;
 
     const whereCondition: Prisma.FriendshipWhereInput = {
@@ -28,8 +29,7 @@ export class FriendshipService {
         sender: { include: { photos: { take: 1, where: { order: 0 } } } },
       },
       where: whereCondition,
-      cursor: cursor > 0 ? { id: cursor } : undefined,
-      take: cursor > 0 ? limit + 1 : limit,
+      ...configCursorBasedPagination(limit, cursor),
     });
     const [totalFriendships, friendships] = (
       await
@@ -38,7 +38,7 @@ export class FriendshipService {
           this._prismaService.friendship.findMany(query)
         ])
     );
-    const newFriends = (friendships as Array<NewFriend>).map(
+    const newFriends = (friendships as Array<INewFriend>).map(
       ({ receiver, sender, ...rest }) => ({
         ...rest,
         // if the authenticated user's id is equal to senderId then return receiver
@@ -50,11 +50,11 @@ export class FriendshipService {
     return [newFriends, totalFriendships];
   }
 
-  public async getFriendsWithPagination(
+  public async getPaginatedNewestFriends(
     queryParams: GetFriendshipsDto,
     loggedInUserID: number
 
-  ): Promise<[Omit<NewFriend, 'sender' | 'receiver'>[], number]> {
+  ): Promise<[Omit<INewFriend, 'sender' | 'receiver'>[], number]> {
 
     const { cursor, limit } = queryParams;
     const whereCondition: Prisma.FriendshipWhereInput = {
@@ -65,14 +65,12 @@ export class FriendshipService {
     };
     // Query the database to find friends where the current authenticated user is either the sender or receiver
     const query: Prisma.FriendshipFindManyArgs = ({
-      orderBy: { id: 'desc' },
       include: {
         receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
         sender: { include: { photos: { take: 1, where: { order: 0 } } } },
       },
       where: { ...whereCondition },
-      cursor: cursor > 0 ? { id: cursor } : undefined,
-      take: cursor > 0 ? limit + 1 : limit,
+      ...configCursorBasedPagination(limit, cursor),
     });
     const [totalFriendshipsCount, friendships] = (
       await
@@ -81,7 +79,7 @@ export class FriendshipService {
           this._prismaService.friendship.findMany(query)
         ])
     );
-    const newFriends = (friendships as Array<NewFriend>).map(
+    const newFriends = (friendships as Array<INewFriend>).map(
       ({ receiver, sender, ...rest }) => ({
         ...rest,
         // if the authenticated user's id is equal to senderId then return receiver
@@ -197,7 +195,7 @@ export class FriendshipService {
     throw new HttpError(409, ErrorMessage.INVITATION_DOES_NOT_EXIST);
   }
 
-  public async deleteFriendshipBySenderOrReceiver(tagetUserID: number, loggedInUserID: number) {
+  public async deleteBySenderOrReceiver(tagetUserID: number, loggedInUserID: number) {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [

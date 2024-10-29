@@ -6,4 +6,4 @@ export const worldCitiesRouter = Router();
 
 worldCitiesRouter
   .route('/')
-  .get(controller.getWorlCitiesByName);
+  .get(controller.getPaginatedWorlCitiesByName);

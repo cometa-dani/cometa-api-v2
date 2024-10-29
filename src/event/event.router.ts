@@ -11,15 +11,6 @@ import { idsSchemma } from '../shared/dto/baseDTOs';
 import locationRouter from './location/location.router';
 
 
-/**
- *
- * *********************************************
- * TODO: connect sub router
- * *********************************************
- *  Sub-feature routes
- * eventRouter.use('/likes', likeRouter);  // Connect the likes router
- * eventRouter.use('/shares', shareRouter);  // Connect the shares router
- */
 class EventRouter extends BaseRouter {
   protected _router: Router = Router();
   protected _eventController = Container.get(EventController);
@@ -37,7 +28,7 @@ class EventRouter extends BaseRouter {
     this._router.route('/')
       .get(
         validateRequestMiddleware({ query: searchEventsSchemma }),
-        this._eventController.searchLatestEventsWithPagination
+        this._eventController.getPaginatedLatestEvent
       )
       .post(
         validateRequestMiddleware({ body: createEventSchemma }),
@@ -57,37 +48,54 @@ class EventRouter extends BaseRouter {
     this._router.route('/search')
       .get(
         validateRequestMiddleware({ query: searchEventsSchemma }),
-        this._eventController.searchEventsByName
+        this._eventController.searchPaginatedEventsByName
+      );
+
+    /**
+     *
+     * ******************************************
+     * TODO: change query params & (delete 'liked' segment)
+     * ******************************************
+     */
+    this._router.route('/liked/matches/:id')   // ?matches=true&targetUser=123
+      .get(
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
+        this._eventController.getPaginatedMatchedEventsByTwoUsers
       );
 
     this._router.route('/liked')  // change to ?liked=true&targetUser=123
       .get(
         validateRequestMiddleware({ query: getTargetUserEventsSchemma }),
-        this._eventController.getLikedEventsForBucketListWithPagination
+        this._eventController.getPaginatedLikedEventsForBucketList
       );
 
-    this._router
-      .route('/liked/:eventId') // /:eventId?likes=true
+    this._router.route('/liked/:eventId') // /:eventId?likes=true
       .get(
         validateRequestMiddleware({ params: idsSchemma }),
         this._eventController.getEventByID
       );
 
-    // TODO: move to users folder
-    this._router.route('/liked/:eventId/users') // ? liked-same-event=8772
-      .get(
-        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
-        this._eventController.getUsersWhoLikedSameEventWithPagination
-      );
-
-    this._router.route('/liked/matches/:uid')   // ?matches=true&targetUser=123
-      .get(
-        oldController.getMatchedEventsByTwoUsersWithPagination
-      );
-
+    /**
+     *
+     * ******************************************
+     * TODO: move to likes folder
+     * ******************************************
+     */
     this._router.route('/:eventId/like') // creates a like for the given eventID
       .post(
         oldController.createOrDeleteLikeByEventId
+      );
+
+    /**
+     *
+     * ******************************************
+     * TODO: move to users folder
+     * ******************************************
+     */
+    this._router.route('/liked/:eventId/users') // ? liked-same-event=8772
+      .get(
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
+        this._eventController.getPaginatedUsersWhoLikedSameEvent
       );
   }
 }

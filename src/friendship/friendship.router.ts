@@ -19,7 +19,7 @@ class FrienshipRouter extends BaseRouter {
       .route('/')
       .get(
         validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
-        this._frienshipController.getNewestFriendsWithPagination
+        this._frienshipController.getPaginatedNewestFriends
       )
       .post(
         validateRequestMiddleware({ body: idsSchemma }),
@@ -30,7 +30,7 @@ class FrienshipRouter extends BaseRouter {
       .route('/search')
       .get(
         validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
-        this._frienshipController.searchFriendsWithPagination
+        this._frienshipController.searchPaginatedFriends
       );
 
     this._router

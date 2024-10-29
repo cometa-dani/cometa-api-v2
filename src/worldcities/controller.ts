@@ -2,6 +2,9 @@ import { RequestHandler } from 'express';
 import { PrismaService } from '../config/dataBase';
 import * as schemmaValidation from './validations';
 import Container from 'typedi';
+import { configCursorBasedPagination } from '../helpers/configCursor';
+import { PaginatedResult } from '../shared/dto/baseDTOs';
+import { WorldCities } from '@prisma/client';
 
 
 /**
@@ -11,7 +14,7 @@ import Container from 'typedi';
  * @param res - The response object.
  * @param next - The next middleware function.
  */
-export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
+export const getPaginatedWorlCitiesByName: RequestHandler = async (req, res, next) => {
   try {
     const prismaService = Container.get(PrismaService);
     const queries = schemmaValidation.getWorlCitiesSchemma.safeParse(req.query);
@@ -23,9 +26,7 @@ export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
     const [cities, citiesCount] =
       await Promise.all([
         prismaService.worldCities.findMany({
-          orderBy: { city: 'asc' },
-          take: cursor > 0 ? limit + 1 : limit, // only adds 1 when limit is greater than 0
-          cursor: cursor > 0 ? { id: cursor } : undefined, // makes pagination
+          ...configCursorBasedPagination(limit, cursor), // makes pagination
           where: cityName === '' ? { NOT: { city: '' } }
             : {
               city: { contains: cityName, mode: 'insensitive' }
@@ -33,17 +34,16 @@ export const getWorlCitiesByName: RequestHandler = async (req, res, next) => {
         }),
         prismaService.worldCities.count()
       ]);
-
     const nextCursor = cities.at(-1)?.id ?? null;
-    res
-      .status(200)
-      .json({
-        items: cursor > 0 ? cities.slice(1) : cities,
-        totalItems: citiesCount,
-        nextCursor,
-        hasNextCursor: cities.length === limit,
-        itemsPerPage: limit,
-      });
+    const paginatedCities: PaginatedResult<WorldCities> = {
+      items: cities,
+      totalItems: citiesCount,
+      nextCursor,
+      hasNextCursor: cities.length === limit,
+      itemsPerPage: limit,
+    };
+
+    return res.status(200).json(paginatedCities);
   }
   catch (error) {
     next(error);

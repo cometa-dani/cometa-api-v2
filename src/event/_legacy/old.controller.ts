@@ -1,14 +1,9 @@
 import { prisma } from '../../config/dataBase';
 import { RequestHandler } from 'express';
-import * as schemma from '../event.dto';
-import { Event } from '@prisma/client';
-import { configCursor } from '../../helpers/configCursor';
 import { idsSchemma } from '../../shared/dto/baseDTOs';
-
-
-interface ILikeableEvent extends Event {
-  isLiked: boolean;
-}
+// import * as schemma from '../event.dto';
+// import { Event } from '@prisma/client';
+// import { configCursorBasedPagination } from '../../helpers/configCursor';
 
 /**
  * Get the latest events with pagination.
@@ -390,115 +385,115 @@ interface ILikeableEvent extends Event {
  *
  * @returns {void}
  */
-export const getMatchedEventsByTwoUsersWithPagination: RequestHandler = async (req, res, next) => {
-  try {
-    const urlParam = idsSchemma.safeParse(req.params);
-    const reqQueryParams = schemma.getTargetUserEventsSchemma.safeParse(req.query);
+// export const getMatchedEventsByTwoUsersWithPagination: RequestHandler = async (req, res, next) => {
+//   try {
+//     const urlParam = idsSchemma.safeParse(req.params);
+//     const reqQueryParams = schemma.getTargetUserEventsSchemma.safeParse(req.query);
 
-    if (!urlParam.success) {
-      return res.status(400).json({ error: 'Validation error', issues: urlParam['error']?.issues });
-    }
-    if (!reqQueryParams.success) {
-      return res.status(400).json({ error: 'Validation error', issues: reqQueryParams['error']?.issues });
-    }
-    // if the auth user is reading another's user profile true, otherwise false
-    const meetNewPeopleProfile = await prisma.user.findUnique({ where: { uid: urlParam.data.uid } });
-    if (!meetNewPeopleProfile) {
-      return res.status(404).json({ error: 'user not found' });
-    }
+//     if (!urlParam.success) {
+//       return res.status(400).json({ error: 'Validation error', issues: urlParam['error']?.issues });
+//     }
+//     if (!reqQueryParams.success) {
+//       return res.status(400).json({ error: 'Validation error', issues: reqQueryParams['error']?.issues });
+//     }
+//     // if the auth user is reading another's user profile true, otherwise false
+//     const meetNewPeopleProfile = await prisma.user.findUnique({ where: { uid: urlParam.data.uid } });
+//     if (!meetNewPeopleProfile) {
+//       return res.status(404).json({ error: 'user not found' });
+//     }
 
-    const { limit, cursor, allPhotos } = reqQueryParams.data;
+//     const { limit, cursor, allPhotos } = reqQueryParams.data;
 
-    const whereCondition = {
-      // gets all events where two different users share the same likes
-      userId: meetNewPeopleProfile.id,
-      event: { likes: { some: { userId: req.user.id } } },
-    };
+//     const whereCondition = {
+//       // gets all events where two different users share the same likes
+//       userId: meetNewPeopleProfile.id,
+//       event: { likes: { some: { userId: req.user.id } } },
+//     };
 
-    const canGetMacthes: boolean = (req.user.id !== meetNewPeopleProfile.id);
-    let latestLikedEvents: ILikeableEvent[];
-    let totalEventsCount: number;
+//     const canGetMacthes: boolean = (req.user.id !== meetNewPeopleProfile.id);
+//     let latestLikedEvents: ILikeableEvent[];
+//     let totalEventsCount: number;
 
-    if (canGetMacthes) {
-      if (allPhotos) {
-        const [matchedEvents, eventsCount] = await Promise.all([
+//     if (canGetMacthes) {
+//       if (allPhotos) {
+//         const [matchedEvents, eventsCount] = await Promise.all([
 
-          prisma.eventLike.findMany({
-            ...configCursor(limit, cursor),
-            where: whereCondition,
-            select: {
-              event: {
-                include: {
-                  location: true,
-                  photos: true,
-                  _count: {
-                    select: {
-                      likes: true,
-                      shares: true
-                    }
-                  }
-                },
-              }
-            },
-          }),
+//           prisma.eventLike.findMany({
+//             ...configCursorBasedPagination(limit, cursor),
+//             where: whereCondition,
+//             select: {
+//               event: {
+//                 include: {
+//                   location: true,
+//                   photos: true,
+//                   _count: {
+//                     select: {
+//                       likes: true,
+//                       shares: true
+//                     }
+//                   }
+//                 },
+//               }
+//             },
+//           }),
 
-          prisma.eventLike.count({ where: whereCondition }),
-        ]);
+//           prisma.eventLike.count({ where: whereCondition }),
+//         ]);
 
-        latestLikedEvents = matchedEvents.map(({ event }) => {
-          return {
-            ...event,
-            isLiked: true, // because we are getting only the liked events
-          };
-        });
-        totalEventsCount = eventsCount;
-      }
-      else {
-        const [eventsWithAllPhotos, eventsCount] = await Promise.all([
+//         latestLikedEvents = matchedEvents.map(({ event }) => {
+//           return {
+//             ...event,
+//             isLiked: true, // because we are getting only the liked events
+//           };
+//         });
+//         totalEventsCount = eventsCount;
+//       }
+//       else {
+//         const [eventsWithAllPhotos, eventsCount] = await Promise.all([
 
-          prisma.eventLike.findMany({
-            ...configCursor(limit, cursor),
-            where: whereCondition,
-            select: {
-              event: {
-                include: {
-                  photos: { take: 1, where: { order: 0 } },
-                },
-              }
-            },
-          }),
+//           prisma.eventLike.findMany({
+//             ...configCursorBasedPagination(limit, cursor),
+//             where: whereCondition,
+//             select: {
+//               event: {
+//                 include: {
+//                   photos: { take: 1, where: { order: 0 } },
+//                 },
+//               }
+//             },
+//           }),
 
-          prisma.eventLike.count({ where: whereCondition }),
-        ]);
+//           prisma.eventLike.count({ where: whereCondition }),
+//         ]);
 
-        latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
-          return {
-            ...event,
-            isLiked: true, // because we are getting only the liked events
-          };
-        });
-        totalEventsCount = eventsCount;
-      }
+//         latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
+//           return {
+//             ...event,
+//             isLiked: true, // because we are getting only the liked events
+//           };
+//         });
+//         totalEventsCount = eventsCount;
+//       }
 
-      const nextCursor = latestLikedEvents.at(-1)?.id ?? null;
+//       const nextCursor = latestLikedEvents.at(-1)?.id ?? null;
 
-      return res
-        .status(200)
-        .json({
-          items: cursor > 0 ? latestLikedEvents.slice(1) : latestLikedEvents,
-          totalItems: totalEventsCount,
-          nextCursor,
-          hasNextCursor: latestLikedEvents.length === limit,
-          itemsPerPage: limit,
-        });
-    }
+//       return res
+//         .status(200)
+//         .json({
+//           items: cursor > 0 ? latestLikedEvents.slice(1) : latestLikedEvents,
+//           totalItems: totalEventsCount,
+//           nextCursor,
+//           hasNextCursor: latestLikedEvents.length === limit,
+//           itemsPerPage: limit,
+//         });
+//     }
 
-    return res.status(200).json({});
-  }
-  catch (error) {
-    next(error);
-  }
-};
+//     return res.status(200).json({});
+//   }
+//   catch (error) {
+//     next(error);
+//   }
+// };
 
 
 /**

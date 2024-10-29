@@ -3,7 +3,7 @@ import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserD
 import { CloudStorageService } from '../shared/cloudStorage/cloud-storage.service';
 import { UserPhoto, User, Friendship } from '@prisma/client';
 import { PrismaService } from '../config/dataBase';
-import { configCursor } from '../helpers/configCursor';
+import { configCursorBasedPagination } from '../helpers/configCursor';
 import { HttpError } from '../helpers/httpError';
 
 
@@ -47,7 +47,7 @@ export class UserService {
     return (
       Promise.all([
         this._prismaService.user.findMany({
-          ...configCursor(limit, cursor),
+          ...configCursorBasedPagination(limit, cursor),
           where: {
             username: {
               startsWith: username,

@@ -21,7 +21,8 @@ export const updateFrienshipSchemma = z.object({
 
 export type UpdateFriendshipDto = z.infer<typeof updateFrienshipSchemma>
 
-export interface NewFriend extends Friendship {
-  sender: User,
-  receiver: User
+export interface INewFriend extends Friendship {
+  sender?: User,
+  receiver?: User,
+  friend: User
 }

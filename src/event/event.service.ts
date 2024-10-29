@@ -1,23 +1,22 @@
-import { EventLike, Prisma, Event } from '@prisma/client';
+import { Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
 import { PrismaService } from '../config/dataBase';
-import { configCursor } from '../helpers/configCursor';
-import { CreateEventDto, GetTargetUserEventsDTO, SearchEventsDTO, UpdateEventDto } from './event.dto';
+import { configCursorBasedPagination } from '../helpers/configCursor';
+import { CreateEventDto, GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO, UpdateEventDto } from './event.dto';
+import { HttpError } from '../helpers/httpError';
+import { ErrorMessage } from '../helpers/errorMessages';
 
-
-interface ILikeableEvent extends Event {
-  isLiked: boolean;
-}
 
 @Service()
 export class EventService {
   private _prismaService = Container.get(PrismaService);
 
+
   // TODO: remove in the future into the users folder
   public async getUsersWhoLikedSameEvent(
     eventID: number, loggedInUserID: number, { limit, cursor }: GetTargetUserEventsDTO
   )
-    : Promise<[number, EventLike[]]> {
+    : Promise<[IUsersLikedSameEvent[], number]> {
     // EventLike model
     const whereCondition: Prisma.EventLikeWhereInput = {
       eventId: eventID, // all the likes for this event
@@ -40,8 +39,7 @@ export class EventService {
       }
     };
     const query: Prisma.EventLikeFindManyArgs = {
-      ...configCursor(limit, cursor),
-      // cursor: {},
+      ...configCursorBasedPagination(limit, cursor),
       where: whereCondition,
       include: {
         user: {
@@ -74,7 +72,6 @@ export class EventService {
         }
       }
     };
-
     // gets all the likes given to an event
     const [totalusersCount = 0, usersWhoLikedEventList = []] = (
       await
@@ -83,8 +80,7 @@ export class EventService {
           this._prismaService.eventLike.findMany(query)
         ])
     );
-
-    const usersList =
+    const usersList: IUsersLikedSameEvent[] =
       usersWhoLikedEventList.map(likedEvent => ({
         ...likedEvent,
         user: {
@@ -94,10 +90,87 @@ export class EventService {
         }
       }));
 
-    return [totalusersCount, usersList];
+    return [usersList, totalusersCount];
   }
 
-  public async searchLatestPaginatedEvents(
+
+  public async getPaginatedMatchedEventsByTwoUsers(
+    loggedInUserID: number, targetUserId: number, queryParams: GetTargetUserEventsDTO
+  ): Promise<[ILikeableEvent[], number]> {
+    const { limit, cursor, allPhotos } = queryParams;
+    const whereCondition = {
+      // gets all events where two different users share the same likes
+      userId: targetUserId,
+      event: { likes: { some: { userId: loggedInUserID } } },
+    };
+    const areDifferentUsers: boolean = (loggedInUserID !== targetUserId);
+    let latestLikedEvents: ILikeableEvent[];
+    let totalEventsCount: number;
+    if (areDifferentUsers) {
+      if (allPhotos) {
+        const [matchedEvents, eventsCount] = await Promise.all([
+          this._prismaService.eventLike.findMany({
+            ...configCursorBasedPagination(limit, cursor),
+            where: whereCondition,
+            select: {
+              event: {
+                include: {
+                  location: true,
+                  photos: true,
+                  _count: {
+                    select: {
+                      likes: true,
+                      shares: true
+                    }
+                  }
+                },
+              }
+            },
+          }),
+
+          this._prismaService.eventLike.count({ where: whereCondition }),
+        ]);
+
+        latestLikedEvents = matchedEvents.map(({ event }) => {
+          return {
+            ...event,
+            isLiked: true, // because we are getting only the liked events
+          };
+        });
+        totalEventsCount = eventsCount;
+      }
+      else {
+        const [eventsWithAllPhotos, eventsCount] = await Promise.all([
+          this._prismaService.eventLike.findMany({
+            ...configCursorBasedPagination(limit, cursor),
+            where: whereCondition,
+            select: {
+              event: {
+                include: {
+                  photos: { take: 1, where: { order: 0 } },
+                },
+              }
+            },
+          }),
+
+          this._prismaService.eventLike.count({ where: whereCondition }),
+        ]);
+
+        latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
+          return {
+            ...event,
+            isLiked: true, // because we are getting only the liked events
+          };
+        });
+        totalEventsCount = eventsCount;
+      }
+      return [latestLikedEvents, totalEventsCount];
+    }
+    throw new HttpError(404, ErrorMessage.USER_NOT_FOUND);
+  }
+
+
+  public async getPaginatedLatestEvents(
     { categories, cursor, limit, name = '' }: SearchEventsDTO, userID: number
   )
     : Promise<[ILikeableEvent[], number]> {
@@ -112,8 +185,7 @@ export class EventService {
     };
     const where = categories ? whereCategoriesAndName : whereOnlyName;
     const query: Prisma.EventFindManyArgs = {
-      ...configCursor(limit, cursor),
-      // orderBy: { createdAt: 'desc' },
+      ...configCursorBasedPagination(limit, cursor),
       where: where,
       include: {
         // counts all the likes for a given event
@@ -145,17 +217,17 @@ export class EventService {
         // if the users'ID appears once in the likes array, then true otherwise false
         isLiked: event['likes'].length === 1 && event['likes'][0]?.userId === userID,
       };
-
     }) ?? [];
     return [latestLikabledEvents, totalEventsCount];
   }
+
 
   public async searchPaginatedEventsByName(searchDto: SearchEventsDTO) {
     return (
       Promise.all([
         this._prismaService.event
           .findMany({
-            ...configCursor(searchDto.limit, searchDto.cursor),
+            ...configCursorBasedPagination(searchDto.limit, searchDto.cursor),
             where: {
               name: {
                 contains: searchDto.name,
@@ -176,6 +248,7 @@ export class EventService {
     );
   }
 
+
   public async getEventById(eventId: number) {
     return (
       this._prismaService.event
@@ -186,11 +259,13 @@ export class EventService {
     );
   }
 
+
   // TODO: remove in the future into the likes folder
-  public async getLikedEvents(
-    loggedInUserID: number, limit: number, cursor: number, targetUserID?: number
+  public async getPaginatedLikedEvents(
+    loggedInUserID: number, queryParams: GetTargetUserEventsDTO
   )
     : Promise<[ILikeableEvent[], number]> {
+    const { limit, cursor, userId: targetUserID } = queryParams;
     const lookForSecondUserById = loggedInUserID && targetUserID ? true : false;
     const userIdToLookFor = lookForSecondUserById ? targetUserID : loggedInUserID;
     const whereCondition = { userId: userIdToLookFor };
@@ -201,7 +276,7 @@ export class EventService {
     if (lookForSecondUserById) {
       const [eventsWithAllPhotos, eventsCount] = await Promise.all([
         this._prismaService.eventLike.findMany({
-          ...configCursor(limit, cursor),
+          ...configCursorBasedPagination(limit, cursor),
           where: whereCondition,
           select: {
             event: {
@@ -232,9 +307,7 @@ export class EventService {
     else {
       const [eventsWithAllPhotos, eventsCount] = await Promise.all([
         this._prismaService.eventLike.findMany({
-          orderBy: { id: 'desc' },
-          take: cursor > 0 ? limit + 1 : limit, // only adds 1 when limit is greater than 0
-          cursor: cursor > 0 ? { id: cursor } : undefined, // makes pagination
+          ...configCursorBasedPagination(limit, cursor),
           where: whereCondition,
           select: {
             event: {
@@ -269,6 +342,7 @@ export class EventService {
     return [latestLikedEvents, totalEventsCount];
   }
 
+
   public async createEvent(createEventDto: CreateEventDto): Promise<Event> {
     return this._prismaService.event.create({
       data: {
@@ -282,12 +356,14 @@ export class EventService {
     });
   }
 
+
   public async updateEvent(eventId: number, updateEventDto: UpdateEventDto): Promise<Event> {
     return this._prismaService.event.update({
       where: { id: eventId },
       data: updateEventDto
     });
   }
+
 
   public async deleteEvent(eventId: number): Promise<Event> {
     return this._prismaService.event.delete({ where: { id: eventId } });
