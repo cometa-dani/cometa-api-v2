@@ -1,12 +1,12 @@
-import { PrismaService } from '../../config/dataBase';
-import { RequestHandler } from 'express';
-import { idsSchemma } from '../../shared/dto/baseDTOs';
-import Container from 'typedi';
-// import * as schemma from '../event.dto';
-// import { Event } from '@prisma/client';
-// import { configCursorBasedPagination } from '../../helpers/configCursor';
+// import { PrismaService } from '../../config/dataBase';
+// import { RequestHandler } from 'express';
+// import { idsSchemma } from '../../shared/dto/baseDTOs';
+// import Container from 'typedi';
+// // import * as schemma from '../event.dto';
+// // import { Event } from '@prisma/client';
+// // import { configCursorBasedPagination } from '../../helpers/configCursor';
 
-const prismaService = Container.get(PrismaService);
+// const prismaService = Container.get(PrismaService);
 /**
  * Get the latest events with pagination.
  *
@@ -496,62 +496,3 @@ const prismaService = Container.get(PrismaService);
 //     next(error);
 //   }
 // };
-
-
-/**
- * Create or Delete a like for a given event record
- *
- * This function handles the creation of a new event, including data validation and database insertion using Prisma.
- *
- * @function
- * @async
- * @param {Object} req - The Express request object.
- * @param {Object} res - The Express response object.
- * @param {function} next - The Express next middleware function.
- */
-export const createOrDeleteLikeByEventId: RequestHandler = async (req, res, next) => {
-  try {
-    // Try to parse the event ID from the request parameters
-    const event = idsSchemma.safeParse(req.params);
-
-    // Check if the parsing was successful
-    if (!event.success) {
-      // If parsing fails, respond with a validation error
-      return res.status(400).json({ error: 'validation error' });
-    }
-    // Check if a like for this event by the current user already exists
-    const likeExist = await prismaService.eventLike.findUnique({
-      where: {
-        eventId_userId: { eventId: event.data.eventId, userId: req.user.id }
-      },
-    });
-    // If a like already exists
-    if (likeExist) {
-      // Delete the existing like record
-      await prismaService.eventLike.delete({
-        where: {
-          id: likeExist.id
-        }
-      });
-
-      // Respond with a successful deletion status
-      res.status(204).end(null);
-    }
-    else {
-      // If the like doesn't exist, create a new like record
-      const eventLiked = await prismaService.eventLike.create({
-        data: {
-          eventId: event.data.id,
-          userId: req.user.id
-        }
-      });
-
-      // Respond with a successful creation status and the newly created like record
-      res.status(201).json({ eventLiked });
-    }
-  }
-  catch (error) {
-    // If any error occurs during the execution, pass it to the error handling middleware
-    next(error);
-  }
-};

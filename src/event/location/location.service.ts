@@ -6,7 +6,15 @@ import { Location } from "@prisma/client";
 
 @Service()
 export class LocationService {
-  private _prismaService = Container.get(PrismaService);
+  private readonly _prismaService = Container.get(PrismaService);
+
+  public async findAll(eventId: number): Promise<Location[]> {
+    return await this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });
+  }
+
+  public async findByID(id: number): Promise<Location> {
+    return await this._prismaService.location.findUnique({ where: { id } });
+  }
 
   public async create(locationDto: CreateLocationDto): Promise<Location> {
     const newLocation = await this._prismaService.location.create({
@@ -18,14 +26,6 @@ export class LocationService {
       }
     });
     return newLocation;
-  }
-
-  public async findAll(eventId: number): Promise<Location[]> {
-    return await this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });
-  }
-
-  public async findByID(id: number): Promise<Location> {
-    return await this._prismaService.location.findUnique({ where: { id } });
   }
 
   public async update(locationId: number, locationDto: UpdateLocationDto): Promise<Location> {

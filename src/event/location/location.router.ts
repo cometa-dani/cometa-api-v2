@@ -8,8 +8,8 @@ import { createLocationSchemma, updateLocationSchemma } from "./location.dto";
 
 
 class LocationRouter extends BaseRouter {
-  protected _router = Router();
-  protected _locationController = Container.get(LocationController);
+  protected readonly _router = Router();
+  protected readonly _locationController = Container.get(LocationController);
 
   constructor() {
     super();

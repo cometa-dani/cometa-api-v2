@@ -141,7 +141,7 @@ export class EventController extends BaseController {
       if (!createdEvent) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_EVENT);
       }
-      return this.ok(res, createdEvent);
+      return this.created(res, createdEvent);
     }
     catch (error) {
       next(error);

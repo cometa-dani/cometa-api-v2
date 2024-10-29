@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Container } from 'typedi';
-import * as oldController from './_legacy/old.controller';
+import likesRouter from './like/like.router';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import { createEventSchemma, getTargetUserEventsSchemma, searchEventsSchemma, updateEventSchemma, } from './event.dto';
@@ -12,14 +12,14 @@ import locationRouter from './location/location.router';
 
 
 class EventRouter extends BaseRouter {
-  protected _router: Router = Router();
-  protected _eventController = Container.get(EventController);
+  protected readonly _router: Router = Router();
+  protected readonly _eventController = Container.get(EventController);
 
   constructor() {
     super();
     this._router.use('/:eventId?/photos', photoRouter);
     this._router.use('/:eventId?/locations', locationRouter);
-    // this._router.use('/likes', likesRouter);
+    this._router.use('/:eventId?/likes', likesRouter);
   }
 
   protected _initializeRoutes(): void {
@@ -75,16 +75,16 @@ class EventRouter extends BaseRouter {
         this._eventController.getEventByID
       );
 
-    /**
-     *
-     * ******************************************
-     * TODO: move to likes folder
-     * ******************************************
-     */
-    this._router.route('/:eventId/like') // creates a like for the given eventID
-      .post(
-        oldController.createOrDeleteLikeByEventId
-      );
+    // /**
+    //  *
+    //  * ******************************************
+    //  * TODO: move to likes folder
+    //  * ******************************************
+    //  */
+    // this._router.route('/:eventId/like') // creates a like for the given eventID
+    //   .post(
+    //     // oldController.createOrDeleteLikeByEventId
+    //   );
 
     /**
      *

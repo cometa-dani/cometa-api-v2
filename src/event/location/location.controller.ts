@@ -8,7 +8,7 @@ import { IdsDto, PaginationDto } from "../../shared/dto/baseDTOs";
 
 @Service()
 export class LocationController extends BaseController {
-  private _locationService = Container.get(LocationService);
+  private readonly _locationService = Container.get(LocationService);
 
   public getAll: RequestHandlerQuery<PaginationDto, null, IdsDto> = async (req, res, next) => {
     try {
@@ -36,7 +36,7 @@ export class LocationController extends BaseController {
       if (!newLocation) {
         return this.conflict(res);
       }
-      return this.ok(res, newLocation);
+      return this.created(res, newLocation);
     }
     catch (error) {
       next(error);
@@ -62,7 +62,7 @@ export class LocationController extends BaseController {
       if (!deletedLocation) {
         return this.conflict(res);
       }
-      return this.ok(res, deletedLocation);
+      return this.noContent(res);
     }
     catch (error) {
       next(error);

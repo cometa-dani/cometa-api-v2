@@ -10,9 +10,9 @@ import { ErrorMessage } from "../../helpers/errorMessages";
 @Service()
 export class PhotoController extends BaseController {
 
-  private _eventService = Container.get(EventService);
-  private _eventPhotoService = Container.get(EventPhotoService);
-  private _maxNumPhotos = 3;
+  private readonly _eventService = Container.get(EventService);
+  private readonly _eventPhotoService = Container.get(EventPhotoService);
+  private readonly _maxNumPhotos = 3;
 
   public uploadEventPhotos: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
@@ -34,7 +34,7 @@ export class PhotoController extends BaseController {
       if (!uploadedEventPhotos) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_PHOTO);
       }
-      return this.ok(res, uploadedEventPhotos);
+      return this.created(res, uploadedEventPhotos);
     }
     catch (error) {
       next(error);

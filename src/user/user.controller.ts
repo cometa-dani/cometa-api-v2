@@ -10,8 +10,8 @@ import { User } from '@prisma/client';
 
 @Service()
 export class UserController extends BaseController {
-  private _userService = Container.get(UserService);
-  private _maxNumPhotos = 5;
+  private readonly _userService = Container.get(UserService);
+  private readonly _maxNumPhotos = 5;
 
   constructor() {
     super();
@@ -151,7 +151,7 @@ export class UserController extends BaseController {
       if (!updatedUserPhotos) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_PHOTO);
       }
-      return this.ok(res, updatedUserPhotos);
+      return this.created(res, updatedUserPhotos);
     }
     catch (error) {
       next(error);

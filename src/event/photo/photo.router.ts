@@ -8,8 +8,8 @@ import { idsSchemma } from "../../shared/dto/baseDTOs";
 
 
 class PhotoRouter extends BaseRouter {
-  protected _router = Router();
-  protected _eventPhotoController = Container.get(PhotoController);
+  protected readonly _router = Router();
+  protected readonly _eventPhotoController = Container.get(PhotoController);
 
   constructor() {
     super();

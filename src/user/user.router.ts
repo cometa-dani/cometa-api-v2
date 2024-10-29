@@ -10,8 +10,8 @@ import { searchQueryParamsSchemma, createUserSchemma, updateUserSchemma, searchB
 
 
 class UserRouter extends BaseRouter {
-  protected _router = Router();
-  protected _userController = Container.get(UserController);
+  protected readonly _router = Router();
+  protected readonly _userController = Container.get(UserController);
 
   constructor() {
     super();

@@ -9,8 +9,8 @@ import { HttpError } from '../helpers/httpError';
 
 @Service()
 export class UserService {
-  private _prismaService = Container.get(PrismaService);
-  private _cloudStorageService = Container.get(CloudStorageService);
+  private readonly _prismaService = Container.get(PrismaService);
+  private readonly _cloudStorageService = Container.get(CloudStorageService);
 
   private _areFriends(
     user: {

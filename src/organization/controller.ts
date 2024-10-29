@@ -71,7 +71,7 @@ export const getOrganizationById: RequestHandler<{ id: string }> = async (req, r
  */
 export const createOrganization: RequestHandler = async (req, res, next) => {
   try {
-    const organizationBody = schemma.createOrganizationSchemma.safeParse(JSON.parse(req.body['organization']));
+    const organizationBody = schemma.createOrganizationSchemma.safeParse(req.body);
 
     if (!organizationBody.success) {
       return res.status(400).json({ error: 'Invalid body', issues: organizationBody['error'].issues });

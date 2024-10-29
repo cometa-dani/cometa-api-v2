@@ -9,7 +9,7 @@ import { ErrorMessage } from '../helpers/errorMessages';
 
 @Service()
 export class EventService {
-  private _prismaService = Container.get(PrismaService);
+  private readonly _prismaService = Container.get(PrismaService);
 
 
   // TODO: remove in the future into the users folder
@@ -96,7 +96,8 @@ export class EventService {
 
   public async getPaginatedMatchedEventsByTwoUsers(
     loggedInUserID: number, targetUserId: string, queryParams: GetTargetUserEventsDTO
-  ): Promise<[ILikeableEvent[], number]> {
+  )
+    : Promise<[ILikeableEvent[], number]> {
     const targetUser = await this._prismaService.user.findUnique({ where: { uid: targetUserId } });
     const { limit, cursor, allPhotos } = queryParams;
     const whereCondition = {
@@ -223,7 +224,7 @@ export class EventService {
   }
 
 
-  public async searchPaginatedEventsByName(searchDto: SearchEventsDTO) {
+  public async searchPaginatedEventsByName(searchDto: SearchEventsDTO): Promise<[Event[], number]> {
     return (
       Promise.all([
         this._prismaService.event
@@ -267,14 +268,13 @@ export class EventService {
   )
     : Promise<[ILikeableEvent[], number]> {
     const { limit, cursor, userId: targetUserID } = queryParams;
-    const lookForSecondUserById = loggedInUserID && targetUserID ? true : false;
-    const userIdToLookFor = lookForSecondUserById ? targetUserID : loggedInUserID;
+    const hasTargetUser = loggedInUserID && targetUserID ? true : false;
+    const userIdToLookFor = hasTargetUser ? targetUserID : loggedInUserID;
     const whereCondition = { userId: userIdToLookFor };
-
     let latestLikedEvents: ILikeableEvent[];
     let totalEventsCount: number;
 
-    if (lookForSecondUserById) {
+    if (hasTargetUser) {
       const [eventsWithAllPhotos, eventsCount] = await Promise.all([
         this._prismaService.eventLike.findMany({
           ...configCursorBasedPagination(limit, cursor),
