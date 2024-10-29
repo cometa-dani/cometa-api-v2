@@ -57,7 +57,7 @@ class EventRouter extends BaseRouter {
      * TODO: change query params & (delete 'liked' segment)
      * ******************************************
      */
-    this._router.route('/liked/matches/:id')   // ?matches=true&targetUser=123
+    this._router.route('/liked/matches/:uid')   // ?matches=true&targetUser=123
       .get(
         validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
         this._eventController.getPaginatedMatchedEventsByTwoUsers

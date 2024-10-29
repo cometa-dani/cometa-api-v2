@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { prisma } from '../config/dataBase';
+import { PrismaService } from '../config/dataBase';
 import jwt from 'jsonwebtoken';
+import Container from 'typedi';
 
 
 export async function optionalAuthMiddleware(request: Request, response: Response, next: NextFunction) {
@@ -27,7 +28,7 @@ export async function optionalAuthMiddleware(request: Request, response: Respons
     return next();
   }
   const uid = payload['user_id'];
-  const user = await prisma.user.findUnique({ where: { uid } });
+  const user = await Container.get(PrismaService).user.findUnique({ where: { uid } });
   if (!user) {
     // request.user = null;
     return next();

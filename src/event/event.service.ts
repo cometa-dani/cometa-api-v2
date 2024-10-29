@@ -95,15 +95,16 @@ export class EventService {
 
 
   public async getPaginatedMatchedEventsByTwoUsers(
-    loggedInUserID: number, targetUserId: number, queryParams: GetTargetUserEventsDTO
+    loggedInUserID: number, targetUserId: string, queryParams: GetTargetUserEventsDTO
   ): Promise<[ILikeableEvent[], number]> {
+    const targetUser = await this._prismaService.user.findUnique({ where: { uid: targetUserId } });
     const { limit, cursor, allPhotos } = queryParams;
     const whereCondition = {
       // gets all events where two different users share the same likes
-      userId: targetUserId,
+      userId: targetUser.id,
       event: { likes: { some: { userId: loggedInUserID } } },
     };
-    const areDifferentUsers: boolean = (loggedInUserID !== targetUserId);
+    const areDifferentUsers: boolean = (loggedInUserID !== targetUser.id);
     let latestLikedEvents: ILikeableEvent[];
     let totalEventsCount: number;
     if (areDifferentUsers) {

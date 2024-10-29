@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { PrismaService } from '../config/dataBase';
-import * as schemmaValidation from './validations';
+import * as schemmaValidation from './schemma';
 import Container from 'typedi';
 import { configCursorBasedPagination } from '../helpers/configCursor';
 import { PaginatedResult } from '../shared/dto/baseDTOs';

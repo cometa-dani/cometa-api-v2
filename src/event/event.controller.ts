@@ -41,7 +41,7 @@ export class EventController extends BaseController {
       try {
         const { limit } = req.query;
         const [events, count] = (
-          await this._eventService.getPaginatedMatchedEventsByTwoUsers(req.user.id, req.params.id, req.query)
+          await this._eventService.getPaginatedMatchedEventsByTwoUsers(req.user.id, req.params.uid, req.query)
         );
         const nextCursor = events.at(-1)?.id ?? null;
         const paginatedEvents: PaginatedResult<ILikeableEvent> = {
@@ -63,7 +63,7 @@ export class EventController extends BaseController {
       try {
         const { limit } = req.query;
         const [events, count] = await this._eventService.searchPaginatedEventsByName(req.query);
-        const nextCursor: number = events.at(-1)?.id ?? null;
+        const nextCursor = events.at(-1)?.id ?? null;
         const paginatedEvents: PaginatedResult<Event> = {
           items: events,
           totalItems: count,
@@ -163,9 +163,8 @@ export class EventController extends BaseController {
 
   public deleteEvent: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
+      // 1. we should delete images first
       const createdEvent = await this._eventService.deleteEvent(req.params.eventId);
-      // 2. we should delete images as well
-      // 3. should deletes likes, shares and location
       if (!createdEvent) {
         return this.conflict(res);
       }

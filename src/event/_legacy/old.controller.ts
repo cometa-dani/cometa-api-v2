@@ -1,10 +1,12 @@
-import { prisma } from '../../config/dataBase';
+import { PrismaService } from '../../config/dataBase';
 import { RequestHandler } from 'express';
 import { idsSchemma } from '../../shared/dto/baseDTOs';
+import Container from 'typedi';
 // import * as schemma from '../event.dto';
 // import { Event } from '@prisma/client';
 // import { configCursorBasedPagination } from '../../helpers/configCursor';
 
+const prismaService = Container.get(PrismaService);
 /**
  * Get the latest events with pagination.
  *
@@ -518,7 +520,7 @@ export const createOrDeleteLikeByEventId: RequestHandler = async (req, res, next
       return res.status(400).json({ error: 'validation error' });
     }
     // Check if a like for this event by the current user already exists
-    const likeExist = await prisma.eventLike.findUnique({
+    const likeExist = await prismaService.eventLike.findUnique({
       where: {
         eventId_userId: { eventId: event.data.eventId, userId: req.user.id }
       },
@@ -526,7 +528,7 @@ export const createOrDeleteLikeByEventId: RequestHandler = async (req, res, next
     // If a like already exists
     if (likeExist) {
       // Delete the existing like record
-      await prisma.eventLike.delete({
+      await prismaService.eventLike.delete({
         where: {
           id: likeExist.id
         }
@@ -537,7 +539,7 @@ export const createOrDeleteLikeByEventId: RequestHandler = async (req, res, next
     }
     else {
       // If the like doesn't exist, create a new like record
-      const eventLiked = await prisma.eventLike.create({
+      const eventLiked = await prismaService.eventLike.create({
         data: {
           eventId: event.data.id,
           userId: req.user.id

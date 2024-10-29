@@ -1,4 +1,4 @@
-import { prisma } from '../config/dataBase';
+import { PrismaService } from '../config/dataBase';
 import { RequestHandler } from 'express';
 import * as schemma from './schemma';
 import { randomUUID } from 'crypto';
@@ -6,7 +6,10 @@ import { bucket } from '../firebase-admin/firebaseAdmin';
 import { getDownloadURL } from 'firebase-admin/storage';
 import { Organization } from '@prisma/client';
 import fs from 'fs/promises';
+import Container from 'typedi';
 
+
+const prismaService = Container.get(PrismaService);
 
 /**
  * Get the latest events with pagination.
@@ -19,7 +22,7 @@ import fs from 'fs/promises';
  */
 export const getAllOrganizations: RequestHandler = async (req, res, next) => {
   try {
-    const organizations = await prisma.organization.findMany();
+    const organizations = await prismaService.organization.findMany();
 
     res.status(200).json(organizations);
   }
@@ -42,7 +45,7 @@ export const getOrganizationById: RequestHandler<{ id: string }> = async (req, r
   try {
     const { id } = req.params;
 
-    const organization = await prisma.organization.findUnique({
+    const organization = await prismaService.organization.findUnique({
       where: {
         id: +id,
       },
@@ -98,7 +101,7 @@ export const createOrganization: RequestHandler = async (req, res, next) => {
     // Delete the file from the local server
     await fs.unlink(req.file.path);
 
-    const organization = await prisma.organization.create({
+    const organization = await prismaService.organization.create({
       data: {
         ...organizationBody.data as Organization,
         avatarUrl: await getDownloadURL(fileUploaded[0])

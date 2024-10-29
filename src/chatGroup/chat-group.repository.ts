@@ -1,6 +1,6 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { ChatGroup, User } from '@prisma/client';
-import { prisma } from '../config/dataBase';
+import { PrismaService } from '../config/dataBase';
 import { CreateChatGroupDTO } from './chat-group.dto';
 
 
@@ -10,10 +10,10 @@ interface IChatGroupWithMembers extends ChatGroup {
 
 @Service()
 export class ChatGroupRepository {
-  private _prisma = prisma;
+  private _prismaService = Container.get(PrismaService);
 
   async findByID(id: number, loggedInUser: number): Promise<IChatGroupWithMembers | null> {
-    const foundChatGroup = await this._prisma.chatGroup.findUnique({
+    const foundChatGroup = await this._prismaService.chatGroup.findUnique({
       where: { id },
       include: {
         members: {
@@ -26,7 +26,7 @@ export class ChatGroupRepository {
   }
 
   async create(payload: CreateChatGroupDTO, img: string, adminId: number): Promise<ChatGroup | null> {
-    const createdChatGroup = await this._prisma.chatGroup.create({
+    const createdChatGroup = await this._prismaService.chatGroup.create({
       data: {
         name: payload.groupName,
         description: '',
