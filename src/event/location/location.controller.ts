@@ -8,7 +8,7 @@ import { IdsDto, PaginationDto } from "../../shared/dto/baseDTOs";
 
 @Service()
 export class LocationController extends BaseController {
-  private readonly _locationService = Container.get(LocationService);
+  private _locationService = Container.get(LocationService);
 
   public getAll: RequestHandlerQuery<PaginationDto, null, IdsDto> = async (req, res, next) => {
     try {

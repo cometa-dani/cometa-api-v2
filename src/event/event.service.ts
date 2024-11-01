@@ -9,7 +9,7 @@ import { ErrorMessage } from '../helpers/errorMessages';
 
 @Service()
 export class EventService {
-  private readonly _prismaService = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
 
   // TODO: remove in the future into the users folder
   public async getUsersWhoLikedSameEvent(

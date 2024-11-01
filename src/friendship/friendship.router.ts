@@ -8,11 +8,15 @@ import { BaseRouter } from '../helpers/baseRouter';
 
 
 class FriendshipRouter extends BaseRouter {
-  private readonly _friendshipController = Container.get(FrienshipController);
+  private _friendshipController = Container.get(FrienshipController);
+
+  constructor() {
+    super();
+    this._initializeRoutes();
+  }
 
   protected _initializeRoutes() {
     this._router.use(authMiddleware);
-
     this._router
       .route('/')
       .get(

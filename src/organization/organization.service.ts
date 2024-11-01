@@ -6,8 +6,8 @@ import { CloudStorageService } from "../shared/cloudStorage/cloud-storage.servic
 
 @Service()
 export class OrganizationService {
-  private readonly _prismaService = Container.get(PrismaService);
-  private readonly _cloudStorageService = Container.get(CloudStorageService);
+  private _prismaService = Container.get(PrismaService);
+  private _cloudStorageService = Container.get(CloudStorageService);
 
   public async createOrganization(organization: CreateOrganizationDTO) {
     return this._prismaService.organization.create({

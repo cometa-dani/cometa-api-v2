@@ -9,9 +9,9 @@ import { ErrorMessage } from "../../helpers/errorMessages";
 
 @Service()
 export class PhotoController extends BaseController {
-  private readonly _eventService = Container.get(EventService);
-  private readonly _eventPhotoService = Container.get(EventPhotoService);
-  private readonly _maxNumPhotos = 3;
+  private _eventService = Container.get(EventService);
+  private _eventPhotoService = Container.get(EventPhotoService);
+  private _maxNumPhotos = 3;
 
   public uploadEventPhotos: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {

@@ -11,6 +11,11 @@ import { createOrganizationSchemma, updateOrganizationSchemma } from './organiza
 class OrganizationRouter extends BaseRouter {
   private _organizationController = Container.get(OrganizationController);
 
+  constructor() {
+    super();
+    this._initializeRoutes();
+  }
+
   protected _initializeRoutes(): void {
     this._router.route('/')
       .get(

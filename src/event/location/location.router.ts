@@ -7,10 +7,11 @@ import { createLocationSchemma, updateLocationSchemma } from "./location.dto";
 
 
 class LocationRouter extends BaseRouter {
-  protected readonly _locationController = Container.get(LocationController);
+  private _locationController = Container.get(LocationController);
 
   constructor() {
     super();
+    this._initializeRoutes();
   }
 
   protected _initializeRoutes() {

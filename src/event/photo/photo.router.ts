@@ -1,16 +1,17 @@
 import Container from "typedi";
 import { PhotoController } from "./photo.controller";
 import { BaseRouter } from "../../helpers/baseRouter";
-import { imageUploadMiddleware } from "@/middlewares/imageUploadMiddleware";
-import { validateRequestMiddleware } from "@/middlewares/validateRequestMiddleware";
-import { idsSchema } from "@/shared/dto/baseDTOs";
+import { imageUploadMiddleware } from "../../middlewares/imageUploadMiddleware";
+import { validateRequestMiddleware } from "../../middlewares/validateRequestMiddleware";
+import { idsSchema } from "../../shared/dto/baseDTOs";
 
 
 class PhotoRouter extends BaseRouter {
-  private readonly _eventPhotoController = Container.get(PhotoController);
+  private _eventPhotoController = Container.get(PhotoController);
 
   constructor() {
     super();
+    this._initializeRoutes();
   }
 
   protected _initializeRoutes() {

@@ -7,8 +7,8 @@ import { EventPhoto } from "@prisma/client";
 
 @Service()
 export class EventPhotoService {
-  private readonly _prismaService = Container.get(PrismaService);
-  private readonly _cloudStorageService = Container.get(CloudStorageService);
+  private _prismaService = Container.get(PrismaService);
+  private _cloudStorageService = Container.get(CloudStorageService);
 
   public async uploadEventPhotos(incommingImgFiles: Express.Multer.File[], eventID: number, startCount: number) {
     try {

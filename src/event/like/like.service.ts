@@ -5,7 +5,7 @@ import Container, { Service } from "typedi";
 
 @Service()
 export class LikeService {
-  private readonly _prismaService = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
 
   public async findUnique(eventId: number, userId: number): Promise<EventLike | null> {
     return this._prismaService.eventLike.findUnique({

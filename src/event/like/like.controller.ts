@@ -1,13 +1,13 @@
-import { BaseController } from "@/helpers/baseController";
-import { RequestHandlerParams } from "@/helpers/typeRequestHandlers";
-import { IdsDto } from "@shared/dto/baseDTOs";
+import { BaseController } from "../../helpers/baseController";
+import { RequestHandlerParams } from "../../helpers/typeRequestHandlers";
+import { IdsDto } from "../../shared/dto/baseDTOs";
 import Container, { Service } from "typedi";
 import { LikeService } from "./like.service";
 
 
 @Service()
 export class LikeController extends BaseController {
-  private readonly _likeService = Container.get(LikeService);
+  private _likeService = Container.get(LikeService);
 
   public createOrDeleteLikeByEvent: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {

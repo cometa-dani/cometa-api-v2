@@ -9,7 +9,7 @@ import { configCursorBasedPagination } from '../helpers/configCursor';
 
 @Service()
 export class FriendshipService {
-  private readonly _prismaService = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
 
   public async searchPaginatedFriendsByUsername(
     loggedInUserID: number, paginatedQueries: GetFriendshipsDto

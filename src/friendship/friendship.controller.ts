@@ -8,7 +8,7 @@ import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
 
 @Service()
 export class FrienshipController extends BaseController {
-  private readonly _friendshipService = Container.get(FriendshipService);
+  private _friendshipService = Container.get(FriendshipService);
 
   public searchPaginatedFriends: RequestHandlerQuery<GetFriendshipsDto> =
     async (req, res, next) => {

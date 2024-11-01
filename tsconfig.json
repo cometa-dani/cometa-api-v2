@@ -16,14 +16,14 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@shared/*": [
-        "src/shared/*"
-      ]
-    },
+    // "paths": {
+    //   "@/*": [
+    //     "src/*"
+    //   ],
+    //   "@shared/*": [
+    //     "src/shared/*"
+    //   ]
+    // },
     "esModuleInterop": true
   },
   "files": [],

@@ -6,7 +6,7 @@ import { Location } from "@prisma/client";
 
 @Service()
 export class LocationService {
-  private readonly _prismaService = Container.get(PrismaService);
+  private _prismaService = Container.get(PrismaService);
 
   public async findAll(eventId: number): Promise<Location[]> {
     return await this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });

@@ -6,14 +6,14 @@ import { LikeController } from "./like.controller";
 
 
 class LikeRouter extends BaseRouter {
-  private readonly _likeController = Container.get(LikeController);
+  private _likeController = Container.get(LikeController);
 
   constructor() {
     super();
+    this._initializeRoutes();
   }
 
   protected _initializeRoutes(): void {
-
     this._router.route('/')
       .post(
         validateRequestMiddleware({ params: idsSchema }),

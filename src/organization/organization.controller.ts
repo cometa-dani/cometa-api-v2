@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import Container, { Service } from 'typedi';
+import { Service, Container } from 'typedi';
 import { BaseController } from '../helpers/baseController';
 import { RequestHandlerBody, RequestHandlerParams } from '../helpers/typeRequestHandlers';
 import { CreateOrganizationDTO, UpdateOrganizationDTO } from './organizatoin.dto';
@@ -9,7 +9,7 @@ import { IdsDto } from '../shared/dto/baseDTOs';
 
 @Service()
 export class OrganizationController extends BaseController {
-  private readonly _organizationService = Container.get(OrganizationService);
+  private _organizationService = Container.get(OrganizationService);
 
   public getAllOrganizations: RequestHandler = async (_, res, next) => {
     try {

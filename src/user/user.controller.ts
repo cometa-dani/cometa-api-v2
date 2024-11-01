@@ -10,8 +10,8 @@ import { User } from '@prisma/client';
 
 @Service()
 export class UserController extends BaseController {
-  private readonly _userService = Container.get(UserService);
-  private readonly _maxNumPhotos = 5;
+  private _userService = Container.get(UserService);
+  private _maxNumPhotos = 5;
 
   constructor() {
     super();

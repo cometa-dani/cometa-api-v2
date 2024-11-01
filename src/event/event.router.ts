@@ -11,10 +11,11 @@ import locationRouter from './location/location.router';
 
 
 class EventRouter extends BaseRouter {
-  private readonly _eventController = Container.get(EventController);
+  private _eventController = Container.get(EventController);
 
   constructor() {
     super();
+    this._initializeRoutes();
     this._router.use('/:eventId?/photos', photoRouter);
     this._router.use('/:eventId?/locations', locationRouter);
     this._router.use('/:eventId?/likes', likesRouter);
@@ -22,7 +23,6 @@ class EventRouter extends BaseRouter {
 
   protected _initializeRoutes(): void {
     this._router.use(authMiddleware);
-
     this._router.route('/')
       .get(
         validateRequestMiddleware({ query: searchEventsSchemma }),
