@@ -8,8 +8,7 @@ import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
 
 @Service()
 export class FrienshipController extends BaseController {
-
-  private _friendshipService = Container.get(FriendshipService);
+  private readonly _friendshipService = Container.get(FriendshipService);
 
   public searchPaginatedFriends: RequestHandlerQuery<GetFriendshipsDto> =
     async (req, res, next) => {
@@ -74,7 +73,7 @@ export class FrienshipController extends BaseController {
     async (req, res, next) => {
       try {
         const newFriendshipInvitation = (
-          await this._friendshipService.sentFrienshipInvitation(req.body.id, req.user.id)
+          await this._friendshipService.sentFriendshipInvitation(req.body.id, req.user.id)
         );
         this.created(res, newFriendshipInvitation);
       }
@@ -98,7 +97,7 @@ export class FrienshipController extends BaseController {
         }
         if (status === 'PENDING') {
           const pendingFriendship =
-            await this._friendshipService.resetFrienshipInvitation(req.params.id, req.user);
+            await this._friendshipService.resetFriendshipInvitation(req.params.id, req.user);
           return this.ok(res, pendingFriendship);
         }
         return this.badRequest(res);
@@ -110,8 +109,9 @@ export class FrienshipController extends BaseController {
 
   public deleteFriendship: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const noContent =
-        await this._friendshipService.deleteBySenderOrReceiver(req.params.id, req.user.id);
+      const noContent = (
+        await this._friendshipService.deleteBySenderOrReceiver(req.params.id, req.user.id)
+      );
       if (!noContent) {
         return this.noContent(res, noContent);
       }

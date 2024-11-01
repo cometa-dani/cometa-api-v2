@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import Container from 'typedi';
 
 
-export async function authMiddleware(request: Request, response: Response, next: NextFunction) {
+export async function authMiddleware(request: Request, response: Response, next: NextFunction, module: 'user' | 'organization' = 'user') {
   const authHeader = request.headers['authorization'];
   if (!authHeader) {
     return response.status(403).json({
@@ -49,14 +49,27 @@ export async function authMiddleware(request: Request, response: Response, next:
     });
   }
   const uid = payload['user_id'];
-  const user = await Container.get(PrismaService).user.findUnique({ where: { uid } });
-  if (!user) {
-    return response.status(401).json({
-      status: 401,
-      message: 'UNAUTHORIZED'
-    });
-  }
 
-  request.user = user;
-  next();
+  if (module === 'organization') {
+    const organization = await Container.get(PrismaService).organization.findUnique({ where: { uid } });
+    if (!organization) {
+      return response.status(401).json({
+        status: 401,
+        message: 'UNAUTHORIZED'
+      });
+    }
+    request.organization = organization;
+    next();
+  }
+  if (module === 'user') {
+    const user = await Container.get(PrismaService).user.findUnique({ where: { uid } });
+    if (!user) {
+      return response.status(401).json({
+        status: 401,
+        message: 'UNAUTHORIZED'
+      });
+    }
+    request.user = user;
+    next();
+  }
 }

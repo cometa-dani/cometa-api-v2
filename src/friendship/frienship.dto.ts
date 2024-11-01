@@ -1,6 +1,6 @@
 import z from 'zod';
 import { Friendship, User } from '@prisma/client';
-import { paginationSchemma } from '../shared/dto/baseDTOs';
+import { paginationSchema } from '../shared/dto/baseDTOs';
 
 
 export const getFriendshipByFieldSchemma = z.object({
@@ -11,7 +11,7 @@ export const getAllFriendshipsSchemma =
   z.object({
     friendUserName: z.string().transform(str => str.startsWith('@') ? str : `@${str}`).optional()
   })
-    .merge(paginationSchemma);
+    .merge(paginationSchema);
 
 export type GetFriendshipsDto = z.infer<typeof getAllFriendshipsSchemma>;
 

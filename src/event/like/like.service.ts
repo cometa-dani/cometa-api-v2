@@ -7,7 +7,7 @@ import Container, { Service } from "typedi";
 export class LikeService {
   private readonly _prismaService = Container.get(PrismaService);
 
-  async findUnique(eventId: number, userId: number): Promise<EventLike | null> {
+  public async findUnique(eventId: number, userId: number): Promise<EventLike | null> {
     return this._prismaService.eventLike.findUnique({
       where: {
         eventId_userId: { eventId: eventId, userId }
@@ -15,7 +15,7 @@ export class LikeService {
     });
   }
 
-  async createLike(eventId: number, userId: number,): Promise<EventLike> {
+  public async createLike(eventId: number, userId: number,): Promise<EventLike> {
     return this._prismaService.eventLike.create({
       data: {
         userId: userId,
@@ -24,7 +24,7 @@ export class LikeService {
     });
   }
 
-  async deleteLike(id: number): Promise<EventLike> {
+  public async deleteLike(id: number): Promise<EventLike> {
     return this._prismaService.eventLike.delete({
       where: { id }
     });

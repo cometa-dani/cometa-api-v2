@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import { Container } from 'typedi';
 import likesRouter from './like/like.router';
 import { authMiddleware } from '../middlewares/authMiddleware';
@@ -7,13 +6,12 @@ import { createEventSchemma, getTargetUserEventsSchemma, searchEventsSchemma, up
 import { EventController } from './event.controller';
 import { BaseRouter } from '../helpers/baseRouter';
 import photoRouter from './photo/photo.router';
-import { idsSchemma } from '../shared/dto/baseDTOs';
+import { idsSchema } from '../shared/dto/baseDTOs';
 import locationRouter from './location/location.router';
 
 
 class EventRouter extends BaseRouter {
-  protected readonly _router: Router = Router();
-  protected readonly _eventController = Container.get(EventController);
+  private readonly _eventController = Container.get(EventController);
 
   constructor() {
     super();
@@ -37,11 +35,11 @@ class EventRouter extends BaseRouter {
 
     this._router.route('/:eventId')
       .patch(
-        validateRequestMiddleware({ body: updateEventSchemma, params: idsSchemma }),
+        validateRequestMiddleware({ body: updateEventSchemma, params: idsSchema }),
         this._eventController.updateEvent
       )
       .delete(
-        validateRequestMiddleware({ params: idsSchemma }),
+        validateRequestMiddleware({ params: idsSchema }),
         this._eventController.deleteEvent
       );
 
@@ -59,7 +57,7 @@ class EventRouter extends BaseRouter {
      */
     this._router.route('/liked/matches/:uid')   // ?matches=true&targetUser=123
       .get(
-        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchema }),
         this._eventController.getPaginatedMatchedEventsByTwoUsers
       );
 
@@ -71,7 +69,7 @@ class EventRouter extends BaseRouter {
 
     this._router.route('/liked/:eventId') // /:eventId?likes=true
       .get(
-        validateRequestMiddleware({ params: idsSchemma }),
+        validateRequestMiddleware({ params: idsSchema }),
         this._eventController.getEventByID
       );
 
@@ -94,7 +92,7 @@ class EventRouter extends BaseRouter {
      */
     this._router.route('/liked/:eventId/users') // ? liked-same-event=8772
       .get(
-        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchemma }),
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchema }),
         this._eventController.getPaginatedUsersWhoLikedSameEvent
       );
   }

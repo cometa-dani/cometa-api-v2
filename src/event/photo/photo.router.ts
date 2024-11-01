@@ -1,15 +1,13 @@
-import { Router } from "express";
 import Container from "typedi";
 import { PhotoController } from "./photo.controller";
 import { BaseRouter } from "../../helpers/baseRouter";
-import { imageUploadMiddleware } from "../../middlewares/imageUploadMiddleware";
-import { validateRequestMiddleware } from "../../middlewares/validateRequestMiddleware";
-import { idsSchemma } from "../../shared/dto/baseDTOs";
+import { imageUploadMiddleware } from "@/middlewares/imageUploadMiddleware";
+import { validateRequestMiddleware } from "@/middlewares/validateRequestMiddleware";
+import { idsSchema } from "@/shared/dto/baseDTOs";
 
 
 class PhotoRouter extends BaseRouter {
-  protected readonly _router = Router();
-  protected readonly _eventPhotoController = Container.get(PhotoController);
+  private readonly _eventPhotoController = Container.get(PhotoController);
 
   constructor() {
     super();
@@ -20,14 +18,14 @@ class PhotoRouter extends BaseRouter {
       .route('/')
       .post(
         imageUploadMiddleware.any(),
-        validateRequestMiddleware({ params: idsSchemma }),
+        validateRequestMiddleware({ params: idsSchema }),
         this._eventPhotoController.uploadEventPhotos
       );
 
     this._router
       .route('/:photoId')
       .delete(
-        validateRequestMiddleware({ params: idsSchemma }),
+        validateRequestMiddleware({ params: idsSchema }),
         this._eventPhotoController.deleteEventPhotosById
       );
   }

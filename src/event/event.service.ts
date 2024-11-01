@@ -11,7 +11,6 @@ import { ErrorMessage } from '../helpers/errorMessages';
 export class EventService {
   private readonly _prismaService = Container.get(PrismaService);
 
-
   // TODO: remove in the future into the users folder
   public async getUsersWhoLikedSameEvent(
     eventID: number, loggedInUserID: number, { limit, cursor }: GetTargetUserEventsDTO
@@ -93,7 +92,6 @@ export class EventService {
     return [usersList, totalusersCount];
   }
 
-
   public async getPaginatedMatchedEventsByTwoUsers(
     loggedInUserID: number, targetUserId: string, queryParams: GetTargetUserEventsDTO
   )
@@ -157,7 +155,6 @@ export class EventService {
 
           this._prismaService.eventLike.count({ where: whereCondition }),
         ]);
-
         latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
           return {
             ...event,
@@ -170,7 +167,6 @@ export class EventService {
     }
     throw new HttpError(404, ErrorMessage.USER_NOT_FOUND);
   }
-
 
   public async getPaginatedLatestEvents(
     { categories, cursor, limit, name = '' }: SearchEventsDTO, userID: number
@@ -250,7 +246,6 @@ export class EventService {
     );
   }
 
-
   public async getEventById(eventId: number) {
     return (
       this._prismaService.event
@@ -260,7 +255,6 @@ export class EventService {
         })
     );
   }
-
 
   // TODO: remove in the future into the likes folder
   public async getPaginatedLikedEvents(
@@ -343,7 +337,6 @@ export class EventService {
     return [latestLikedEvents, totalEventsCount];
   }
 
-
   public async createEvent(createEventDto: CreateEventDto): Promise<Event> {
     return this._prismaService.event.create({
       data: {
@@ -357,14 +350,12 @@ export class EventService {
     });
   }
 
-
   public async updateEvent(eventId: number, updateEventDto: UpdateEventDto): Promise<Event> {
     return this._prismaService.event.update({
       where: { id: eventId },
       data: updateEventDto
     });
   }
-
 
   public async deleteEvent(eventId: number): Promise<Event> {
     return this._prismaService.event.delete({ where: { id: eventId } });

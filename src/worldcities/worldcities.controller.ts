@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { PrismaService } from '../config/dataBase';
-import * as schemmaValidation from './schemma';
+import * as schemmaValidation from './worldcities.dto';
 import Container from 'typedi';
 import { configCursorBasedPagination } from '../helpers/configCursor';
 import { PaginatedResult } from '../shared/dto/baseDTOs';
@@ -42,7 +42,6 @@ export const getPaginatedWorlCitiesByName: RequestHandler = async (req, res, nex
       hasNextCursor: cities.length === limit,
       itemsPerPage: limit,
     };
-
     return res.status(200).json(paginatedCities);
   }
   catch (error) {

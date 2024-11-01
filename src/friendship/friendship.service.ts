@@ -9,7 +9,7 @@ import { configCursorBasedPagination } from '../helpers/configCursor';
 
 @Service()
 export class FriendshipService {
-  private _prismaService = Container.get(PrismaService);
+  private readonly _prismaService = Container.get(PrismaService);
 
   public async searchPaginatedFriendsByUsername(
     loggedInUserID: number, paginatedQueries: GetFriendshipsDto
@@ -114,7 +114,7 @@ export class FriendshipService {
     return friendship;
   }
 
-  public async sentFrienshipInvitation(targetUserId: number, loggedInUserID: number) {
+  public async sentFriendshipInvitation(targetUserId: number, loggedInUserID: number) {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
@@ -123,18 +123,18 @@ export class FriendshipService {
         ]
       }
     });
-
     if (friendshipExists && friendshipExists.status === 'PENDING') {
       throw new HttpError(409, ErrorMessage.INVITATION_ALREADY_PENDING);
     }
-    const newFriendshipInvitation = await this._prismaService.friendship.create({
-      data: {
-        senderId: loggedInUserID,
-        receiverId: targetUserId,
-        status: 'PENDING'
-      }
-    });
-    return newFriendshipInvitation;
+    return (
+      this._prismaService.friendship.create({
+        data: {
+          senderId: loggedInUserID,
+          receiverId: targetUserId,
+          status: 'PENDING'
+        }
+      })
+    );
   }
 
   public async acceptFrienshipInvitation(targetUserID: number, loggedInUser: User) {
@@ -175,7 +175,7 @@ export class FriendshipService {
     throw new HttpError(409, ErrorMessage.INVITATION_DOES_NOT_EXIST);
   }
 
-  public async resetFrienshipInvitation(targetUserID: number, loggedInUser: User) {
+  public async resetFriendshipInvitation(targetUserID: number, loggedInUser: User) {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [

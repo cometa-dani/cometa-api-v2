@@ -2,7 +2,7 @@ import { Router } from "express";
 
 
 export abstract class BaseRouter {
-  protected abstract _router: Router;
+  protected _router = Router();
 
   constructor() {
     this._initializeRoutes();

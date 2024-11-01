@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 
-export const idsSchemma = (
+export const idsSchema = (
   z.object({
     id: z.number({ coerce: true }),
     uid: z.string(),
@@ -16,16 +16,16 @@ export const idsSchemma = (
     .partial()
 );
 
-export type IdsDto = z.infer<typeof idsSchemma>;
+export type IdsDto = z.infer<typeof idsSchema>;
 
 
-export const paginationSchemma = z.object({
+export const paginationSchema = z.object({
   limit: z.number({ coerce: true }).default(10).optional(),
   cursor: z.number({ coerce: true }).default(0).optional(),
   page: z.number({ coerce: true }).optional(),
 });
 
-export type PaginationDto = z.infer<typeof paginationSchemma>;
+export type PaginationDto = z.infer<typeof paginationSchema>;
 
 export type PaginatedResult<T> = {
   items: T[],

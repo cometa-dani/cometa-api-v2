@@ -1,15 +1,12 @@
-import { Router } from "express";
 import { BaseRouter } from "../../helpers/baseRouter";
 import { validateRequestMiddleware } from "../../middlewares/validateRequestMiddleware";
-import { idsSchemma } from "../../shared/dto/baseDTOs";
+import { idsSchema } from "../../shared/dto/baseDTOs";
 import Container from "typedi";
 import { LikeController } from "./like.controller";
 
 
 class LikeRouter extends BaseRouter {
-  protected readonly _router = Router();
-  protected readonly _likeController = Container.get(LikeController);
-
+  private readonly _likeController = Container.get(LikeController);
 
   constructor() {
     super();
@@ -19,7 +16,7 @@ class LikeRouter extends BaseRouter {
 
     this._router.route('/')
       .post(
-        validateRequestMiddleware({ params: idsSchemma }),
+        validateRequestMiddleware({ params: idsSchema }),
         this._likeController.createOrDeleteLikeByEvent
       );
   }

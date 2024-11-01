@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Event, EventCategory, EventLike, EventPhoto, User } from '@prisma/client';
-import { paginationSchemma } from '../shared/dto/baseDTOs';
+import { paginationSchema } from '../shared/dto/baseDTOs';
 
 
 export const searchEventsSchemma =
@@ -44,7 +44,7 @@ export const searchEventsSchemma =
         )
         .optional()
   })
-    .merge(paginationSchemma);
+    .merge(paginationSchema);
 
 export type SearchEventsDTO = z.infer<typeof searchEventsSchemma>
 
@@ -85,7 +85,7 @@ export const getTargetUserEventsSchemma =
         )
         .optional(),
   })
-    .merge(paginationSchemma);
+    .merge(paginationSchema);
 
 export type GetTargetUserEventsDTO = z.infer<typeof getTargetUserEventsSchemma>
 

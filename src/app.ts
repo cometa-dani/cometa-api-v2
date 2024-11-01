@@ -5,8 +5,8 @@ import cors from 'cors';
 import { nodeEnv } from './vars';
 import { defaultErrorMiddleware } from './middlewares/defaultErrorMiddleware';
 // routers
-import { organizationRouter } from './organization/router';
-import { worldCitiesRouter } from './worldcities/router';
+import { worldCitiesRouter } from './worldcities/worldcities.router';
+import organizationRouter from './organization/organization.router';
 import chatGroupRouter from './chatGroup/chat-group.router';
 import userRouter from './user/user.router';
 import friendShipRouter from './friendship/friendship.router';
@@ -29,8 +29,8 @@ app.use('/api/v1/events', eventRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/friendships', friendShipRouter);
 app.use('/api/v1/organizations', organizationRouter);
-app.use('/api/v1/world-cities', worldCitiesRouter);
 app.use('/api/v1/chat-groups', chatGroupRouter);
+app.use('/api/v1/world-cities', worldCitiesRouter);
 
 // 3. defaultErrorHandler middleware
 app.use('/api/v1/', defaultErrorMiddleware);

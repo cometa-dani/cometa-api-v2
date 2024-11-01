@@ -1,17 +1,15 @@
-import { Router, } from 'express';
 import { Container } from 'typedi';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { imageUploadMiddleware } from '../middlewares/imageUploadMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import { BaseRouter } from '../helpers/baseRouter';
 import { UserController } from './user.controller';
-import { idsSchemma } from '../shared/dto/baseDTOs';
+import { idsSchema } from '../shared/dto/baseDTOs';
 import { searchQueryParamsSchemma, createUserSchemma, updateUserSchemma, searchByUsernameSchemma } from './user.dto';
 
 
 class UserRouter extends BaseRouter {
-  protected readonly _router = Router();
-  protected readonly _userController = Container.get(UserController);
+  private readonly _userController = Container.get(UserController);
 
   constructor() {
     super();
@@ -36,7 +34,7 @@ class UserRouter extends BaseRouter {
 
     this._router.route('/:id')
       .patch(
-        validateRequestMiddleware({ params: idsSchemma, body: updateUserSchemma }),
+        validateRequestMiddleware({ params: idsSchema, body: updateUserSchemma }),
         this._userController.updateUserByID
       );
     /**
@@ -50,12 +48,12 @@ class UserRouter extends BaseRouter {
      */
     this._router.get('/:uid',
       // authMiddleware,
-      validateRequestMiddleware({ params: idsSchemma }),
+      validateRequestMiddleware({ params: idsSchema }),
       this._userController.getloggedInUserWithLikeEvents
     );
     this._router.get('/:uid/targets',
       authMiddleware,
-      validateRequestMiddleware({ params: idsSchemma }),
+      validateRequestMiddleware({ params: idsSchema }),
       this._userController.getTargetUserWithFriendship
     );
     /**
@@ -67,13 +65,13 @@ class UserRouter extends BaseRouter {
     this._router.post('/:id/photos',
       authMiddleware,
       imageUploadMiddleware.any(),
-      validateRequestMiddleware({ params: idsSchemma }),
+      validateRequestMiddleware({ params: idsSchema }),
       this._userController.uploadUserPhotos
     );
 
     this._router.delete('/:id/photos/:photoId',
       authMiddleware,
-      validateRequestMiddleware({ params: idsSchemma }),
+      validateRequestMiddleware({ params: idsSchema }),
       this._userController.deleteUserPhotoById
     );
   }

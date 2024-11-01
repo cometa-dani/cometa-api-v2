@@ -1,20 +1,19 @@
 import { Container, Service } from 'typedi';
 import { CreateEventDto, GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO, UpdateEventDto } from './event.dto';
-import { RequestHandlerBody, RequestHandlerQuery, RequestHandlerParams } from '../helpers/typeRequestHandlers';
+import { RequestHandlerBody, RequestHandlerQuery, RequestHandlerParams } from '@/helpers/typeRequestHandlers';
 import { EventService } from './event.service';
-import { BaseController } from '../helpers/baseController';
-import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
-import { ErrorMessage } from '../helpers/errorMessages';
+import { BaseController } from '@/helpers/baseController';
+import { IdsDto, PaginatedResult } from '@shared/dto/baseDTOs';
+import { ErrorMessage } from '@/helpers/errorMessages';
 import { Event } from '@prisma/client';
 
 
 @Service()
 export class EventController extends BaseController {
-
-  private _eventService = Container.get(EventService);
+  private readonly _eventService = Container.get(EventService);
 
   // TODO remove to user folder
-  public getPaginatedUsersWhoLikedSameEvent: RequestHandlerQuery<GetTargetUserEventsDTO, object, IdsDto> =
+  public getPaginatedUsersWhoLikedSameEvent: RequestHandlerQuery<GetTargetUserEventsDTO, null, IdsDto> =
     async (req, res, next) => {
       try {
         const { limit } = req.query;
@@ -36,7 +35,7 @@ export class EventController extends BaseController {
       }
     };
 
-  public getPaginatedMatchedEventsByTwoUsers: RequestHandlerQuery<GetTargetUserEventsDTO, object, IdsDto> =
+  public getPaginatedMatchedEventsByTwoUsers: RequestHandlerQuery<GetTargetUserEventsDTO, null, IdsDto> =
     async (req, res, next) => {
       try {
         const { limit } = req.query;

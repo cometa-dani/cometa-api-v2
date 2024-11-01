@@ -1,6 +1,6 @@
 import z from 'zod';
 import { EventCategory, UserPhoto } from '@prisma/client';
-import { paginationSchemma } from '../shared/dto/baseDTOs';
+import { paginationSchema } from '../shared/dto/baseDTOs';
 
 
 export const searchQueryParamsSchemma = z.object({
@@ -32,7 +32,7 @@ export const searchByUsernameSchemma =
             str?.length === 0 ? '@' : str
         )
   })
-    .merge(paginationSchemma);
+    .merge(paginationSchema);
 
 export type SearchByUsernameDTO = z.infer<typeof searchByUsernameSchemma>
 

@@ -9,7 +9,6 @@ import { ErrorMessage } from "../../helpers/errorMessages";
 
 @Service()
 export class PhotoController extends BaseController {
-
   private readonly _eventService = Container.get(EventService);
   private readonly _eventPhotoService = Container.get(EventPhotoService);
   private readonly _maxNumPhotos = 3;

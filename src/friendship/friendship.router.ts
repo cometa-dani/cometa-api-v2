@@ -1,16 +1,14 @@
-import { Router } from 'express';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { FrienshipController } from './friendship.controller';
 import { Container } from 'typedi';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import { updateFrienshipSchemma, getAllFriendshipsSchemma } from './frienship.dto';
-import { idsSchemma } from '../shared/dto/baseDTOs';
+import { idsSchema } from '../shared/dto/baseDTOs';
 import { BaseRouter } from '../helpers/baseRouter';
 
 
-class FrienshipRouter extends BaseRouter {
-  protected _router = Router();
-  protected _frienshipController = Container.get(FrienshipController);
+class FriendshipRouter extends BaseRouter {
+  private readonly _friendshipController = Container.get(FrienshipController);
 
   protected _initializeRoutes() {
     this._router.use(authMiddleware);
@@ -19,39 +17,39 @@ class FrienshipRouter extends BaseRouter {
       .route('/')
       .get(
         validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
-        this._frienshipController.getPaginatedNewestFriends
+        this._friendshipController.getPaginatedNewestFriends
       )
       .post(
-        validateRequestMiddleware({ body: idsSchemma }),
-        this._frienshipController.sentFriendShipInvitation
+        validateRequestMiddleware({ body: idsSchema }),
+        this._friendshipController.sentFriendShipInvitation
       );
 
     this._router
       .route('/search')
       .get(
         validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
-        this._frienshipController.searchPaginatedFriends
+        this._friendshipController.searchPaginatedFriends
       );
 
     this._router
       .route('/:id')
       .patch(
-        validateRequestMiddleware({ params: idsSchemma, body: updateFrienshipSchemma }),
-        this._frienshipController.updateFriendShipInvitation
+        validateRequestMiddleware({ params: idsSchema, body: updateFrienshipSchemma }),
+        this._friendshipController.updateFriendShipInvitation
       )
       .delete(
-        validateRequestMiddleware({ params: idsSchemma }),
-        this._frienshipController.deleteFriendship
+        validateRequestMiddleware({ params: idsSchema }),
+        this._friendshipController.deleteFriendship
       );
 
     //TODO: change the route to /:id/
     this._router
       .route('/:uid')
       .get(
-        validateRequestMiddleware({ params: idsSchemma }),
-        this._frienshipController.getFriendshipByTargetUserUUID
+        validateRequestMiddleware({ params: idsSchema }),
+        this._friendshipController.getFriendshipByTargetUserUUID
       ); // used in the chat
   }
 }
 
-export default new FrienshipRouter().getRouter();
+export default new FriendshipRouter().getRouter();
