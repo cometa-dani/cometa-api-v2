@@ -1,10 +1,15 @@
 /* eslint-disable */
 
 import axios from 'axios';
+import {app} from "../../../src/app";
+import Container from "typedi";
+import {PrismaService} from "../../../src/config/dataBase";
+import {host, port} from "../../../src/vars";
+
 
 module.exports = async function () {
   // Configure axios for tests to use.
-  const host = process.env.HOST ?? 'localhost';
-  const port = process.env.PORT ?? '3000';
+  // const host = process.env.HOST ?? 'localhost';
+  // const port = process.env.PORT ?? 3000;
   axios.defaults.baseURL = `http://${host}:${port}/api/v1`;
 };

@@ -48,7 +48,7 @@ export const createUserSchemma = z.object({
   email: z.string().email(),
   name: z.string().min(3).max(26),
   uid: z.string(),
-  birthday: z.string().transform(date => new Date(date)),
+  birthday: z.string().transform(date => new Date(date))
 });
 
 export type CreateUserDTO = z.infer<typeof createUserSchemma>
