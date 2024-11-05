@@ -50,7 +50,7 @@ class UserRouter extends BaseRouter {
     this._router.get('/:uid',
       // authMiddleware,
       validateRequestMiddleware({ params: idsSchema }),
-      this._userController.getloggedInUserWithLikeEvents
+      this._userController.getLoggedInUserWithLikeEvents
     );
     this._router.get('/:uid/targets',
       authMiddleware,

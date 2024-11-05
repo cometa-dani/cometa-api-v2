@@ -71,7 +71,7 @@ export class UserController extends BaseController {
   };
 
   //TODO: specify two different methods for loggedInUser and targetUser
-  public getloggedInUserWithLikeEvents: RequestHandlerParams<IdsDto> = async (req, res, next) => {
+  public getLoggedInUserWithLikeEvents: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findUniqueWithLikeEvents(req.params.uid); // authMiddleware should be remove
       if (!userFound) {

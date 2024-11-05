@@ -42,7 +42,10 @@ export class UserService {
     });
   }
 
-  public async searchAllByUsername(queryParams: SearchByUsernameDTO, loggedInUserID: number): Promise<[User[], number]> {
+  public async searchAllByUsername(
+      queryParams: SearchByUsernameDTO, loggedInUserID: number
+  )
+      : Promise<[User[], number]> {
     const { username, limit, cursor } = queryParams;
     return (
       Promise.all([
@@ -59,7 +62,6 @@ export class UserService {
             photos: { where: { order: 0 }, take: 1 },
           }
         }),
-
         this._prismaService.user.count({
           where: {
             username: {
@@ -74,7 +76,7 @@ export class UserService {
 
   public async findByID(id: number, includePhotos = false) {
     return (
-      await this._prismaService.user.findUnique({
+        this._prismaService.user.findUnique({
         where: { id },
         include: { photos: includePhotos }
       })
@@ -83,14 +85,14 @@ export class UserService {
 
   public async findUniqueByField(queryParams: SearchByQueryParamsDTO) {
     if (queryParams.email) {
-      return await this._prismaService.user.findFirst({
+      return this._prismaService.user.findFirst({
         where: {
           email: queryParams.email
         }
       });
     }
     if (queryParams.username) {
-      return await this._prismaService.user.findFirst({
+      return this._prismaService.user.findFirst({
         where: {
           username: queryParams.username
         }
@@ -141,7 +143,7 @@ export class UserService {
   }
 
   public async findUniqueWithLikeEvents(uuid: string) {
-    return await this._prismaService.user.findUnique({
+    return this._prismaService.user.findUnique({
       where: { uid: uuid },
       include: {
         photos: true,
@@ -160,20 +162,20 @@ export class UserService {
     });
   }
 
-  public async create(usertDto: CreateUserDTO): Promise<User> {
-    return await this._prismaService.user.create({
+  public async create(userDto: CreateUserDTO): Promise<User> {
+    return this._prismaService.user.create({
       data: {
-        username: usertDto.username,
-        email: usertDto.email,
-        name: usertDto.name,
-        uid: usertDto.uid,
-        birthday: usertDto.birthday,
+        username: userDto.username,
+        email: userDto.email,
+        name: userDto.name,
+        uid: userDto.uid,
+        birthday: userDto.birthday,
       }
     });
   }
 
   public async update(userID: number, userDto: UpdateUserDTO): Promise<User> {
-    return await this._prismaService.user.update({
+    return this._prismaService.user.update({
       where: { id: userID },
       data: {
         ...userDto
@@ -181,10 +183,10 @@ export class UserService {
     });
   }
 
-  public async saveUserPhotos(incommingImgFiles: Express.Multer.File[], userID: number, startCount: number): Promise<User> {
+  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userID: number, startCount: number): Promise<User> {
     try {
       const userPhotos = (
-        await this._cloudStorageService.uploadManyPhotosToBucket(`users/${userID}`, incommingImgFiles, startCount)
+        await this._cloudStorageService.uploadManyPhotosToBucket(`users/${userID}`, incomingImgFiles, startCount)
       );
       return this._prismaService.user.update({
         where: { id: userID },
