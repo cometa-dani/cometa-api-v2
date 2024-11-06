@@ -24,15 +24,16 @@ export const searchByUsernameSchemma =
   z.object({
     username:
       z.string()
-        .optional()
-        .transform(
-          (str) => str ?
-            str?.startsWith('@') ? str : '@' + str
-            :
-            str?.length === 0 ? '@' : str
+        .default('')
+        .transform((str) => {
+            // If `str` is undefined or empty, default to '@'
+            if (!str) return '@';
+            // Ensure it starts with '@'
+            return str.startsWith('@') ? str : '@' + str;
+          }
         )
   })
-    .merge(paginationSchema);
+    .extend(paginationSchema.shape);
 
 export type SearchByUsernameDTO = z.infer<typeof searchByUsernameSchemma>
 

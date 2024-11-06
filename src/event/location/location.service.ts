@@ -9,11 +9,11 @@ export class LocationService {
   private _prismaService = Container.get(PrismaService);
 
   public async findAll(eventId: number): Promise<Location[]> {
-    return await this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });
+    return this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });
   }
 
   public async findByID(id: number): Promise<Location> {
-    return await this._prismaService.location.findUnique({ where: { id } });
+    return this._prismaService.location.findUnique({ where: { id } });
   }
 
   public async create(locationDto: CreateLocationDto): Promise<Location> {
@@ -29,14 +29,14 @@ export class LocationService {
   }
 
   public async update(locationId: number, locationDto: UpdateLocationDto): Promise<Location> {
-    return await this._prismaService.location.update({
+    return this._prismaService.location.update({
       where: { id: locationId },
       data: locationDto
     });
   }
 
   public async delete(locationId: number): Promise<Location> {
-    return await this._prismaService.location.delete({
+    return this._prismaService.location.delete({
       where: { id: locationId },
     });
   }

@@ -1,5 +1,7 @@
 import axios from 'axios';
 import {PrismaClient, User} from "@prisma/client";
+import {testUser1, testUser2, tokenUser1} from "./userData";
+
 
 const prisma = new PrismaClient()
 const endpoint = 'users'
@@ -17,25 +19,18 @@ afterAll(async () => {
 
 describe(`POST api/v1/${endpoint}`, () => {
   it('should create a new user', async () => {
-    const userData = {
-      username: "jhondoe",
-      email: "jhondoe@gmail.com",
-      uid: "OtTTIQmyHYb9cEHufTt542YWaZS2",
-      name: "Jhon Doe",
-      birthday: "Mon Oct 16 1989"
-    }
-    const response = await axios.post(`/${endpoint}`, userData);
+    const response = await axios.post(`/${endpoint}`, testUser1);
     
     expect(response.status).toBe(201);
     expect(response.data).toMatchObject({
-      username: '@' + userData.username,
-      name: userData.name,
-      email: userData.email,
-      uid: userData.uid,
+      username: '@' + testUser1.username,
+      name: testUser1.name,
+      email: testUser1.email,
+      uid: testUser1.uid,
     });
     // Verify database state
     const user = await prisma.user.findUnique({
-      where: {email: userData.email}
+      where: {email: testUser1.email}
     });
     expect(user).toBeTruthy();
   });
@@ -57,15 +52,8 @@ describe(`POST api/v1/${endpoint}`, () => {
 describe(`PATCH api/v1/${endpoint}/:id`, () => {
   let testUser: User;
   it('should update an existing user', async () => {
-    const userData = {
-      username: "jhondoe",
-      email: "jhondoe@gmail.com",
-      uid: "OtTTIQmyHYb9cEHufTt542YWaZS2",
-      name: "Jhon Doe",
-      birthday: "Mon Oct 16 1989"
-    }
     // First, create the user so that there is a user to update
-    const res = await axios.post(`/${endpoint}`, userData);
+    const res = await axios.post(`/${endpoint}`, testUser1);
     testUser = res.data
     const updatedData = {
       currentLocation: 'Doha',
@@ -117,24 +105,16 @@ describe(`PATCH api/v1/${endpoint}/:id`, () => {
 });
 
 
-describe(`GET /api/${endpoint}/:uid`, () => {
+describe(`GET /api/v1/${endpoint}/:uid`, () => {
   it('should return user by id', async () => {
-    // Create test user
-    const testUser = {
-      username: "@jhondoe",
-      email: "jhondoe@gmail.com",
-      uid: "OtTTIQmyHYb9cEHufTt542YWaZS2",
-      name: "Jhon Doe",
-      birthday: "Mon Oct 16 1989"
-    }
-    await axios.post(`/${endpoint}`, testUser);
-    const response = await axios.get(`/${endpoint}/${testUser.uid}`)
+    await axios.post(`/${endpoint}`, testUser1);
+    const response = await axios.get(`/${endpoint}/${testUser1.uid}`)
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject({
-      username: testUser.username,
-      name: testUser.name,
-      email: testUser.email,
-      uid: testUser.uid,
+      username: '@'+ testUser1.username,
+      name: testUser1.name,
+      email: testUser1.email,
+      uid: testUser1.uid,
     });
   });
   
@@ -146,3 +126,27 @@ describe(`GET /api/${endpoint}/:uid`, () => {
     }
   });
 });
+
+
+describe(`GET /api/v1/${endpoint}/search?username=@jho`, () => {
+  it('should search for users by username with pagination', async () => {
+    await Promise.all([
+      axios.post(`/${endpoint}`, testUser1),
+      axios.post(`/${endpoint}`, testUser2)
+    ]);
+    const response = (
+      await axios.get(
+        `/${endpoint}/search?username=@jho&limit=10&cursor=0`, // Search for users with username starting with @jho
+        {headers: {Authorization: `Bearer ${tokenUser1}`}}
+      )
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject({
+      items: expect.any(Array),
+      totalItems: expect.any(Number),
+      nextCursor: expect.any(Number),
+      hasNextCursor: expect.any(Boolean),
+      itemsPerPage: expect.any(Number),
+    });
+  });
+})

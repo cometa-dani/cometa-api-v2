@@ -1,3 +1,4 @@
+// https://www.prisma.io/docs/orm/prisma-schema/data-model/unsupported-database-features
 generator client {
   provider        = "prisma-client-js"
   output          = "../node_modules/.prisma/client"
@@ -9,8 +10,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// https://www.prisma.io/docs/orm/prisma-schema/data-model/unsupported-database-features
 
 enum EventCategory {
   RESTAURANT
@@ -37,11 +36,6 @@ enum EventCategory {
   CULTURAL
 }
 
-enum MediaType {
-  IMAGE
-  VIDEO
-}
-
 enum FriendshipStatus {
   PENDING
   ACCEPTED
@@ -64,25 +58,6 @@ enum RelationshipStatus {
   MARRIED
   DIVORCED
   WIDOWED
-  OTHER
-}
-
-enum Diet {
-  OMNIVORE
-  VEGETARIAN
-  VEGAN
-  PESCATARIAN
-}
-
-enum Religion {
-  CHRISTIANITY
-  ISLAM
-  HINDUISM
-  BUDDHISM
-  SIKHISM
-  JUDAISM
-  ATHEISM
-  AGNOSTICISM
   OTHER
 }
 

@@ -43,10 +43,10 @@ export class UserService {
   }
 
   public async searchAllByUsername(
-      queryParams: SearchByUsernameDTO, loggedInUserID: number
+    queryParams: SearchByUsernameDTO, loggedInUserID: number
   )
-      : Promise<[User[], number]> {
-    const { username, limit, cursor } = queryParams;
+    : Promise<[User[], number]> {
+    const { username, limit= 10, cursor =0 } = queryParams;
     return (
       Promise.all([
         this._prismaService.user.findMany({
