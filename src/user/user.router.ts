@@ -64,7 +64,7 @@ class UserRouter extends BaseRouter {
      */
 
     this._router.post('/:id/photos',
-      authMiddleware,
+      // authMiddleware,
       imageUploadMiddleware.any(),
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.uploadUserPhotos

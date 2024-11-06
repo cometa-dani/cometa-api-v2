@@ -220,4 +220,13 @@ export class UserService {
       }
     });
   }
+  
+  public async deleteAllUserPhotos(userId: number) {
+    const destinationPath = `users/${userId}/photos`;
+    await Promise.all([
+      await this._prismaService.userPhoto.deleteMany({ where: { userId } }),
+      await this._cloudStorageService.deletePhotoFromBucket(destinationPath)
+    ]);
+    return null;
+  }
 }

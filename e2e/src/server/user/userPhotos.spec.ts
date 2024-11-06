@@ -6,8 +6,8 @@ import path from 'path';
 import {testUser1, tokenUser1} from "./userData";
 
 const prisma = new PrismaClient()
-const endpoint1 = 'users'
-const endpoint2 = 'photos'
+const urlSegment1 = 'users'
+const urlSegment2 = 'photos'
 
 
 beforeEach(async () => {
@@ -20,9 +20,9 @@ afterAll(async () => {
 })
 
 
-describe(`POST api/v1/${endpoint1}/:id/${endpoint2}`, () => {
+describe(`POST api/v1/${urlSegment1}/:id/${urlSegment2}`, () => {
   it('should upload user`s photos', async () => {
-    const response = await axios.post(`/${endpoint1}`, testUser1);
+    const response = await axios.post(`/${urlSegment1}`, testUser1);
     const createdUser: User = response.data
     // Step 2: Create form data with a photo
     const formData = new FormData();
@@ -35,7 +35,7 @@ describe(`POST api/v1/${endpoint1}/:id/${endpoint2}`, () => {
       contentType: 'image/jpeg',
     });
     const updatedUser = await axios.post(
-      `/${endpoint1}/${createdUser.id}/${endpoint2}`,
+      `/${urlSegment1}/${createdUser.id}/${urlSegment2}`,
       formData,
       {
         headers: {

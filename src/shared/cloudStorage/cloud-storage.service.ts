@@ -7,7 +7,7 @@ import { bucket } from '../../firebase-admin/firebaseAdmin';
 
 @Service()
 export class CloudStorageService {
-  private _thumbHash: ThumbHash;
+  private _thumbHash?: ThumbHash;
   private _bucket = bucket;
 
   private async _resizeImage(imageBuffer: Buffer, width = 100, height = 100): Promise<ImageHashed> {
@@ -17,14 +17,16 @@ export class CloudStorageService {
 
   public async generatePhotoHashes(imageBuffer: Buffer, width = 100, height = 100): Promise<string> {
     try {
-      this._thumbHash = !this._thumbHash ? await import('thumbhash') : this._thumbHash;
+      if(!this._thumbHash){
+        this._thumbHash = await import('thumbhash');
+      }
       const { data, info } = await this._resizeImage(imageBuffer, width, height);
       const binaryThumbHash = this._thumbHash.rgbaToThumbHash(info?.width, info?.height, data);
       const thumbHashToBase64 = Buffer.from(binaryThumbHash).toString('base64');
       return thumbHashToBase64;
     }
     catch (error) {
-      console.log(error);
+      console.log('Thumbhash error', error);
       return '';
     }
   }
