@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {PrismaClient, User} from "@prisma/client";
+import {PrismaClient, User, UserPhoto} from "@prisma/client";
 import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
@@ -30,18 +30,35 @@ describe(`POST api/v1/${endpoint1}/:id/${endpoint2}`, () => {
       filename: 'justin.jpg',
       contentType: 'image/jpeg',
     });
-    formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..','assets', 'nicolas.jpg')), {
+    formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'nicolas.jpg')), {
       filename: 'nicolas.jpg',
       contentType: 'image/jpeg',
     });
-    
-    const updatedUser= await axios.post(
+    const updatedUser = await axios.post(
       `/${endpoint1}/${createdUser.id}/${endpoint2}`,
       formData,
-      {headers: {
-        Authorization: `Bearer ${tokenUser1}`,
-        ...formData.getHeaders()
-      }}
-    )
+      {
+        headers: {
+          Authorization: `Bearer ${tokenUser1}`,
+          ...formData.getHeaders()
+        }
+      }
+    );
+    expect(updatedUser.status).toBe(201);
+    expect(updatedUser.data).toMatchObject({
+      id: expect.any(Number),
+      photos: expect.any(Array),
+    })
+    const photos: UserPhoto[] = updatedUser.data.photos
+    expect(photos).toHaveLength(2)
+    photos.forEach((photo: UserPhoto) => {
+      expect(photo).toMatchObject({
+        id: expect.any(Number),
+        userId: createdUser.id,  // should be the same
+        url: expect.any(String),
+        placeholder: expect.any(String),
+        order: expect.any(Number),
+      })
+    })
   });
 });
