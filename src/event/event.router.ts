@@ -16,9 +16,9 @@ class EventRouter extends BaseRouter {
   constructor() {
     super();
     this._initializeRoutes();
-    this._router.use('/:eventId?/photos', photoRouter);
-    this._router.use('/:eventId?/locations', locationRouter);
-    this._router.use('/:eventId?/likes', likesRouter);
+    this._router.use(photoRouter);
+    this._router.use(locationRouter);
+    this._router.use(likesRouter);
   }
 
   protected _initializeRoutes(): void {

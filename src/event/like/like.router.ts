@@ -14,7 +14,7 @@ class LikeRouter extends BaseRouter {
   }
 
   protected _initializeRoutes(): void {
-    this._router.route('/')
+    this._router.route('/:eventId/likes')
       .post(
         validateRequestMiddleware({ params: idsSchema }),
         this._likeController.createOrDeleteLikeByEvent

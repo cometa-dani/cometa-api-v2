@@ -16,7 +16,7 @@ class PhotoRouter extends BaseRouter {
 
   protected _initializeRoutes() {
     this._router
-      .route('/')
+      .route('/:eventId?/photos')
       .post(
         imageUploadMiddleware.any(),
         validateRequestMiddleware({ params: idsSchema }),
@@ -24,7 +24,7 @@ class PhotoRouter extends BaseRouter {
       );
 
     this._router
-      .route('/:photoId')
+      .route('/:eventId?/photos/:photoId')
       .delete(
         validateRequestMiddleware({ params: idsSchema }),
         this._eventPhotoController.deleteEventPhotosById
