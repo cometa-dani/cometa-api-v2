@@ -71,7 +71,7 @@ class UserRouter extends BaseRouter {
     );
 
     this._router.delete('/:id/photos/:photoId',
-      authMiddleware,
+      // authMiddleware,
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.deleteUserPhotoById
     );

@@ -61,4 +61,46 @@ describe(`POST api/v1/${urlSegment1}/:id/${urlSegment2}`, () => {
       })
     })
   });
+  
+  // TODO: add tests for deleting photos
+  it('should keep the order of the photos', async () => {
+    const response = await axios.post(`/${urlSegment1}`, testUser1);
+    const createdUser: User = response.data
+    // Step 2: Create form data with a photo
+    const formData = new FormData();
+    formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'justin.jpg')), {
+      filename: 'justin.jpg',
+      contentType: 'image/jpeg',
+    });
+    formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'nicolas.jpg')), {
+      filename: 'nicolas.jpg',
+      contentType: 'image/jpeg',
+    });
+    const updatedUser = await axios.post(
+      `/${urlSegment1}/${createdUser.id}/${urlSegment2}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${tokenUser1}`,
+          ...formData.getHeaders()
+        }
+      }
+    );
+    expect(updatedUser.status).toBe(201);
+    expect(updatedUser.data).toMatchObject({
+      id: expect.any(Number),
+      photos: expect.any(Array),
+    })
+    const photos: UserPhoto[] = updatedUser.data.photos
+    expect(photos).toHaveLength(2)
+    photos.forEach((photo: UserPhoto, index: number) => {
+      expect(photo).toMatchObject({
+        id: expect.any(Number),
+        userId: createdUser.id,  // should be the same
+        url: expect.any(String),
+        placeholder: expect.any(String),
+        order: index + 1,
+      })
+    })
+  });
 });

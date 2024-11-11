@@ -103,16 +103,17 @@ enum Education {
 }
 
 model Organization {
-  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  uid         String?  @unique
-  avatarUrl   String?  @map("avatar_url")
-  name        String   @unique @db.VarChar(255)
-  email       String   @unique
+  id          Int        @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  uid         String?    @unique
+  avatarUrl   String?    @map("avatar_url")
+  name        String     @unique @db.VarChar(255)
+  email       String     @unique
   phone       String?
   description String?
   events      Event[]
+  locations   Location[]
 
   webPage       String? @map("web_page")
   instagramPage String? @map("instagram_page")
@@ -121,14 +122,16 @@ model Organization {
 
 model Location {
   // represents event locations
-  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  name        String   @unique @db.VarChar(255)
-  description String?
-  latitude    Float
-  longitude   Float
-  events      Event[]
+  id             Int           @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  name           String        @unique @db.VarChar(255)
+  description    String?
+  latitude       Float
+  longitude      Float
+  events         Event[]
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?
 }
 
 model Event {
