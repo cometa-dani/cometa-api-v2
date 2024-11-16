@@ -1,13 +1,11 @@
 import axios from 'axios';
-import {PrismaClient, User, UserPhoto} from "@prisma/client";
+import { PrismaClient, User, UserPhoto } from "@prisma/client";
 import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
-import {testUser1, tokenUser1} from "./userData";
+import { testUser1, tokenUser1 } from "./userData";
 
 const prisma = new PrismaClient()
-const urlSegment1 = 'users'
-const urlSegment2 = 'photos'
 
 
 beforeEach(async () => {
@@ -15,14 +13,9 @@ beforeEach(async () => {
 });
 
 
-afterAll(async () => {
-  await prisma.user.deleteMany();
-})
-
-
-describe(`POST api/v1/${urlSegment1}/:id/${urlSegment2}`, () => {
+describe(`POST api/v1/users/:id/photos`, () => {
   it('should upload user`s photos', async () => {
-    const response = await axios.post(`/${urlSegment1}`, testUser1);
+    const response = await axios.post(`/users`, testUser1);
     const createdUser: User = response.data
     // Step 2: Create form data with a photo
     const formData = new FormData();
@@ -35,7 +28,7 @@ describe(`POST api/v1/${urlSegment1}/:id/${urlSegment2}`, () => {
       contentType: 'image/jpeg',
     });
     const updatedUser = await axios.post(
-      `/${urlSegment1}/${createdUser.id}/${urlSegment2}`,
+      `/users/${createdUser.id}/photos`,
       formData,
       {
         headers: {
@@ -61,28 +54,43 @@ describe(`POST api/v1/${urlSegment1}/:id/${urlSegment2}`, () => {
       })
     })
   });
-  
+
   // TODO: add tests for deleting photos
   it('should keep the order of the photos', async () => {
-    const response = await axios.post(`/${urlSegment1}`, testUser1);
+    const response = await axios.post(`/users`, testUser1);
     const createdUser: User = response.data
     // Step 2: Create form data with a photo
     const formData = new FormData();
-    formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'justin.jpg')), {
+    const photo1 = fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'justin.jpg'));
+    const photo2 = fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'nicolas.jpg'));
+    formData.append('files[0]', photo1, {
       filename: 'justin.jpg',
       contentType: 'image/jpeg',
     });
-    formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'nicolas.jpg')), {
+    formData.append('files[1]', photo2, {
       filename: 'nicolas.jpg',
       contentType: 'image/jpeg',
     });
-    const updatedUser = await axios.post(
-      `/${urlSegment1}/${createdUser.id}/${urlSegment2}`,
+    formData.append('files[2]', photo1, {
+      filename: 'justin.jpg',
+      contentType: 'image/jpeg',
+    });
+    formData.append('files[3]', photo2, {
+      filename: 'nicolas.jpg',
+      contentType: 'image/jpeg',
+    });
+    formData.append('files[4]', photo1, {
+      filename: 'justin.jpg',
+      contentType: 'image/jpeg',
+    })
+
+    const  updatedUser = await axios.post(
+      `/users/${createdUser.id}/photos`,
       formData,
       {
         headers: {
           Authorization: `Bearer ${tokenUser1}`,
-          ...formData.getHeaders()
+          'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`
         }
       }
     );
@@ -92,15 +100,15 @@ describe(`POST api/v1/${urlSegment1}/:id/${urlSegment2}`, () => {
       photos: expect.any(Array),
     })
     const photos: UserPhoto[] = updatedUser.data.photos
-    expect(photos).toHaveLength(2)
+    expect(photos).toHaveLength(5)
     photos.forEach((photo: UserPhoto, index: number) => {
       expect(photo).toMatchObject({
         id: expect.any(Number),
         userId: createdUser.id,  // should be the same
         url: expect.any(String),
         placeholder: expect.any(String),
-        order: index + 1,
+        order: index,
       })
     })
-  });
+  }, 30_000);
 });
