@@ -73,17 +73,6 @@ class EventRouter extends BaseRouter {
         this._eventController.getEventByID
       );
 
-    // /**
-    //  *
-    //  * ******************************************
-    //  * TODO: move to likes folder
-    //  * ******************************************
-    //  */
-    // this._router.route('/:eventId/like') // creates a like for the given eventID
-    //   .post(
-    //     // oldController.createOrDeleteLikeByEventId
-    //   );
-
     /**
      *
      * ******************************************

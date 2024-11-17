@@ -128,6 +128,11 @@ describe(`GET /api/v1/${endpoint}/:uid`, () => {
 });
 
 
+// TODO: after refactoring the routes
+// '/:uid/targets'
+// '/:uid'
+
+
 describe(`GET /api/v1/${endpoint}/search?username=@jho`, () => {
   it('should search for users by username with pagination', async () => {
     await Promise.all([
