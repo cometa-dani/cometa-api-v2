@@ -46,7 +46,7 @@ export class UserService {
     queryParams: SearchByUsernameDTO, loggedInUserID: number
   )
     : Promise<[User[], number]> {
-    const { username, limit= 10, cursor =0 } = queryParams;
+    const { username, limit = 10, cursor = 0 } = queryParams;
     return (
       Promise.all([
         this._prismaService.user.findMany({
@@ -76,7 +76,7 @@ export class UserService {
 
   public async findByID(id: number, includePhotos = false) {
     return (
-        this._prismaService.user.findUnique({
+      this._prismaService.user.findUnique({
         where: { id },
         include: { photos: includePhotos }
       })
@@ -183,18 +183,37 @@ export class UserService {
     });
   }
 
-  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userID: number, startCount: number): Promise<User> {
+  public async deleteUserById(userId: number, photosIds: number[]) {
+    return Promise.all([
+      this._prismaService.user.delete({ where: { id: userId } }),  // photos will be deleted automatically
+      this._deleteAllUserPhotosFromBucket(userId, photosIds)
+    ]);
+  }
+
+  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userId: number, startCount: number): Promise<User> {
     try {
-      const userPhotos = (
-        await this._cloudStorageService.uploadManyPhotosToBucket(`users/${userID}`, incomingImgFiles, startCount)
-      );
+      const createdPhotos = await this._prismaService.userPhoto.createManyAndReturn({
+        data: incomingImgFiles.map((_, index) => ({ userId, order: startCount + index })),
+      });
+      const photosToUpload = createdPhotos.map((photo, index) => ({
+        id: photo.id,
+        order: photo.order,
+        file: incomingImgFiles[index],
+        destinationPath: `users/${userId}/photos/${photo.id}`
+      }));
+      const userPhotos = await this._cloudStorageService.uploadPhotosToBucket(photosToUpload);
       return this._prismaService.user.update({
-        where: { id: userID },
+        where: { id: userId },
         data: {
           photos: {
-            createMany: {
-              data: userPhotos,
-            }
+            updateMany: userPhotos.map((photo) => ({
+              where: { id: photo.id },
+              data: {
+                url: photo.url,
+                placeholder: photo.placeholder,
+                order: photo.order
+              }
+            }))
           }
         },
         include: {
@@ -206,8 +225,8 @@ export class UserService {
     }
   }
 
-  public async deleteUserPhoto(userId: number, photoToDelete: UserPhoto) {
-    const destinationPath = `users/${userId}/photos/${photoToDelete.order}`;
+  public async deleteUserPhotoById(userId: number, photoToDelete: UserPhoto) {
+    const destinationPath = `users/${userId}/photos/${photoToDelete.id}`;
     await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
     await this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } });
     return this._prismaService.userPhoto.updateMany({
@@ -220,13 +239,12 @@ export class UserService {
       }
     });
   }
-  
-  public async deleteAllUserPhotos(userId: number) {
-    const destinationPath = `users/${userId}/photos`;
-    await Promise.all([
-      await this._prismaService.userPhoto.deleteMany({ where: { userId } }),
-      await this._cloudStorageService.deletePhotoFromBucket(destinationPath)
-    ]);
-    return null;
+
+  private async _deleteAllUserPhotosFromBucket(userId: number, photosIds: number[]) {
+    if (photosIds.length === 0) return;
+    return Promise.all(
+      photosIds.map((photoId) => {
+        return this._cloudStorageService.deletePhotoFromBucket(`users/${userId}/photos/${photoId}`);
+      }));
   }
 }

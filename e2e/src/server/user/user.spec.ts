@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {PrismaClient, User} from "@prisma/client";
-import {testUser1, testUser2, tokenUser1} from "./userData";
+import { PrismaClient, User } from "@prisma/client";
+import { testUser1, testUser2, tokenUser1 } from "./userData";
 
 
 const prisma = new PrismaClient()
@@ -20,7 +20,7 @@ afterAll(async () => {
 describe(`POST api/v1/${endpoint}`, () => {
   it('should create a new user', async () => {
     const response = await axios.post(`/${endpoint}`, testUser1);
-    
+
     expect(response.status).toBe(201);
     expect(response.data).toMatchObject({
       username: '@' + testUser1.username,
@@ -30,11 +30,11 @@ describe(`POST api/v1/${endpoint}`, () => {
     });
     // Verify database state
     const user = await prisma.user.findUnique({
-      where: {email: testUser1.email}
+      where: { email: testUser1.email }
     });
     expect(user).toBeTruthy();
   });
-  
+
   it('should handle invalid input', async () => {
     const invalidData = {
       name: 'Test User'
@@ -67,7 +67,7 @@ describe(`PATCH api/v1/${endpoint}/:id`, () => {
     };
     // Send the update request
     const updateResponse = await axios.patch(`/${endpoint}/${testUser.id}`, updatedData);
-    
+
     expect(updateResponse.status).toBe(200);
     expect(updateResponse.data).toMatchObject({
       name: updatedData.name,
@@ -80,7 +80,7 @@ describe(`PATCH api/v1/${endpoint}/:id`, () => {
     });
     // Verify database state
     const foundUser = await prisma.user.findUnique({
-      where: {username: testUser.username}
+      where: { username: testUser.username }
     });
     expect(foundUser).toBeTruthy();
     expect(foundUser).toMatchObject({
@@ -93,9 +93,9 @@ describe(`PATCH api/v1/${endpoint}/:id`, () => {
       children: updatedData.children
     });
   });
-  
+
   it('should handle invalid update input', async () => {
-    const invalidData = {birthday: "InvalidDate"};
+    const invalidData = { birthday: "InvalidDate" };
     try {
       await axios.patch(`/${endpoint}/${testUser.id}`, invalidData);
     } catch (error) {
@@ -106,18 +106,18 @@ describe(`PATCH api/v1/${endpoint}/:id`, () => {
 
 
 describe(`GET /api/v1/${endpoint}/:uid`, () => {
-  it('should return user by id', async () => {
+  it('should return user by uid', async () => {
     await axios.post(`/${endpoint}`, testUser1);
     const response = await axios.get(`/${endpoint}/${testUser1.uid}`)
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject({
-      username: '@'+ testUser1.username,
+      username: '@' + testUser1.username,
       name: testUser1.name,
       email: testUser1.email,
       uid: testUser1.uid,
     });
   });
-  
+
   it('should return 404 for non-existent user', async () => {
     try {
       await axios.get(`/${endpoint}/non-existent-id`)
@@ -137,7 +137,7 @@ describe(`GET /api/v1/${endpoint}/search?username=@jho`, () => {
     const response = (
       await axios.get(
         `/${endpoint}/search?username=@jho&limit=10&cursor=0`, // Search for users with username starting with @jho
-        {headers: {Authorization: `Bearer ${tokenUser1}`}}
+        { headers: { Authorization: `Bearer ${tokenUser1}` } }
       )
     );
     expect(response.status).toBe(200);

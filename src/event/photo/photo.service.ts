@@ -10,18 +10,30 @@ export class EventPhotoService {
   private _prismaService = Container.get(PrismaService);
   private _cloudStorageService = Container.get(CloudStorageService);
 
-  public async uploadEventPhotos(incommingImgFiles: Express.Multer.File[], eventID: number, startCount: number) {
+  public async saveEventPhotos(incomingImgFiles: Express.Multer.File[], eventId: number, startCount: number) {
     try {
-      const eventPhotos = (
-        await this._cloudStorageService.uploadManyPhotosToBucket(`events/${eventID}`, incommingImgFiles, startCount)
-      );
+      const createdPhotos = await this._prismaService.eventPhoto.createManyAndReturn({
+        data: incomingImgFiles.map((_, index) => ({ eventId, order: startCount + index }))
+      });
+      const photosToUpload = createdPhotos.map((photo, index) => ({
+        id: photo.id,
+        order: photo.order,
+        file: incomingImgFiles[index],
+        destinationPath: `events/${eventId}/photos/${photo.id}`
+      }));
+      const eventPhotos = await this._cloudStorageService.uploadPhotosToBucket(photosToUpload);
       return this._prismaService.event.update({
-        where: { id: eventID },
+        where: { id: eventId },
         data: {
           photos: {
-            createMany: {
-              data: eventPhotos
-            }
+            updateMany: eventPhotos.map((photo) => ({
+              where: { id: photo.id },
+              data: {
+                url: photo.url,
+                placeholder: photo.placeholder,
+                order: photo.order
+              }
+            }))
           }
         },
         include: {
@@ -33,8 +45,15 @@ export class EventPhotoService {
     }
   }
 
-  public async deleteEventPhoto(eventID: number, photoToDelete: EventPhoto) {
-    const destinationPath = `events/${eventID}/photos/${photoToDelete.order}`;
+  public async deleteEventById(eventId: number, photosIds: number[]) {
+    return Promise.all([
+      this._prismaService.event.delete({ where: { id: eventId } }), // photos will be deleted automatically
+      this._deleteAllEventPhotosFromBucket(eventId, photosIds)
+    ]);
+  }
+
+  public async deleteEventPhotoById(eventID: number, photoToDelete: EventPhoto) {
+    const destinationPath = `events/${eventID}/photos/${photoToDelete.id}`;
     await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
     await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
     return this._prismaService.eventPhoto.updateMany({
@@ -46,5 +65,13 @@ export class EventPhotoService {
         order: { decrement: 1 }  // reorders the remaining photos
       }
     });
+  }
+
+  private async _deleteAllEventPhotosFromBucket(eventID: number, photosIds: number[]) {
+    if (photosIds.length === 0) return;
+    return Promise.all(
+      photosIds.map((photoId) => {
+        return this._cloudStorageService.deletePhotoFromBucket(`events/${eventID}/photos/${photoId}`);
+      }));
   }
 }

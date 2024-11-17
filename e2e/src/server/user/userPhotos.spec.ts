@@ -84,7 +84,7 @@ describe(`POST api/v1/users/:id/photos`, () => {
       contentType: 'image/jpeg',
     })
 
-    const  updatedUser = await axios.post(
+    const updatedUser = await axios.post(
       `/users/${createdUser.id}/photos`,
       formData,
       {
@@ -112,3 +112,75 @@ describe(`POST api/v1/users/:id/photos`, () => {
     })
   }, 30_000);
 });
+
+
+describe('DELETE api/v1/users/:id/photos/:photoId', () => {
+  it('should delete a photo', async () => {
+    const response = await axios.post(`/users`, testUser1);
+    const createdUser: User = response.data
+    // Step 2: Create form data with a photo
+    const formData = new FormData();
+    formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'justin.jpg')), {
+      filename: 'justin.jpg',
+      contentType: 'image/jpeg',
+    });
+    const updatedUser = await axios.post(
+      `/users/${createdUser.id}/photos`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${tokenUser1}`,
+          ...formData.getHeaders()
+        }
+      }
+    );
+    const photos: UserPhoto[] = updatedUser.data.photos
+    expect(photos).toHaveLength(1)
+    const photoId = photos[0].id
+    const deletedPhoto = await axios.delete(`/users/${createdUser.id}/photos/${photoId}`, {
+      headers: {
+        Authorization: `Bearer ${tokenUser1}`,
+      }
+    });
+    expect(deletedPhoto.status).toBe(204);
+  });
+});
+
+
+describe('DELETE api/v1/users/:id', () => {
+  it('should delete a user and all its photos', async () => {
+    const response = await axios.post(`/users`, testUser1);
+    const createdUser: User = response.data
+    const formData = new FormData();
+    formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'justin.jpg')), {
+      filename: 'justin.jpg',
+      contentType: 'image/jpeg',
+    });
+    formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..', 'assets', 'nicolas.jpg')), {
+      filename: 'nicolas.jpg',
+      contentType: 'image/jpeg',
+    })
+    await axios.post(
+      `/users/${createdUser.id}/photos`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${tokenUser1}`,
+          ...formData.getHeaders()
+        }
+      }
+    );
+    const deletedUser = await axios.delete(`/users/${createdUser.id}`, {
+      headers: {
+        Authorization: `Bearer ${tokenUser1}`,
+      }
+    });
+    const photos = await prisma.userPhoto.findMany({
+      where: {
+        userId: createdUser.id
+      }
+    })
+    expect(photos).toHaveLength(0)
+    expect(deletedUser.status).toBe(204);
+  });
+})

@@ -163,7 +163,7 @@ model EventPhoto {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  url         String
+  url         String?
   // uuid        String // remove in the future for @id with uuid()
   placeholder String?
   order       Int
@@ -203,7 +203,7 @@ model UserPhoto {
   id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  url         String
+  url         String?
   // uuid        String // remove in the future for @id with uuid()
   placeholder String?
   order       Int

@@ -29,7 +29,7 @@ export class PhotoController extends BaseController {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
       const startCount = eventFound.photos.length ?? 0;
-      const uploadedEventPhotos = await this._eventPhotoService.uploadEventPhotos(incommingImgFiles, eventFound.id, startCount);
+      const uploadedEventPhotos = await this._eventPhotoService.saveEventPhotos(incommingImgFiles, eventFound.id, startCount);
       if (!uploadedEventPhotos) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_PHOTO);
       }
@@ -50,7 +50,7 @@ export class PhotoController extends BaseController {
       if (!photoToDelete) {
         return this.notFound(res, ErrorMessage.PHOTO_NOT_FOUND);
       }
-      await this._eventPhotoService.deleteEventPhoto(eventFound.id, photoToDelete);
+      await this._eventPhotoService.deleteEventPhotoById(eventFound.id, photoToDelete);
       return this.noContent(res);
     }
     catch (error) {

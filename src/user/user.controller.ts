@@ -160,7 +160,12 @@ export class UserController extends BaseController {
 
   public deleteUserById: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      //
+      const userFound = await this._userService.findByID(req.params.id, true);
+      if (!userFound) {
+        return this.notFound(res, 'User not found');
+      }
+      await this._userService.deleteUserById(userFound.id, userFound.photos.map((photo) => photo.id) ?? []);
+      return this.noContent(res);
     } catch (error) {
       next(error);
     }
@@ -172,11 +177,11 @@ export class UserController extends BaseController {
       if (!userFound) {
         return this.notFound(res, ErrorMessage.USER_NOT_FOUND);
       }
-      const photoToDelete = userFound.photos.find(photo => photo.order === req.params.photoId);
+      const photoToDelete = userFound.photos.find(photo => photo.id === req.params.photoId);
       if (!photoToDelete) {
         return this.notFound(res, ErrorMessage.PHOTO_NOT_FOUND);
       }
-      await this._userService.deleteUserPhoto(userFound.id, photoToDelete);
+      await this._userService.deleteUserPhotoById(userFound.id, photoToDelete);
 
       return this.noContent(res);
     }

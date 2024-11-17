@@ -15,8 +15,16 @@ export type ImageHashed = {
   info: sharp.OutputInfo;
 }
 
-export type UploadedPhoto = {
+export type IUploadedPhoto = {
+  id: number;
   url: string;
   placeholder: string;
+  order: number;
+}
+
+export interface IPhotoToUpload {
+  id: number;
+  file: Express.Multer.File;
+  destinationPath: string;
   order: number;
 }

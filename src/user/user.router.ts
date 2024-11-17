@@ -37,6 +37,10 @@ class UserRouter extends BaseRouter {
       .patch(
         validateRequestMiddleware({ params: idsSchema, body: updateUserSchemma }),
         this._userController.updateUserByID
+      )
+      .delete(
+        validateRequestMiddleware({ params: idsSchema, }),
+        this._userController.deleteUserById
       );
     /**
      * ******************************************
@@ -64,14 +68,12 @@ class UserRouter extends BaseRouter {
      */
 
     this._router.post('/:id/photos',
-      // authMiddleware,
       imageUploadMiddleware.any(),
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.uploadUserPhotos
     );
 
     this._router.delete('/:id/photos/:photoId',
-      // authMiddleware,
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.deleteUserPhotoById
     );
