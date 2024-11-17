@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import Container from 'typedi';
 
 
-export async function authMiddleware(request: Request, response: Response, next: NextFunction, module: 'user' | 'organization' = 'user') {
+export async function authUserMiddleware(request: Request, response: Response, next: NextFunction, module: 'user' | 'organization' = 'user') {
   const authHeader = request.headers['authorization'];
   if (!authHeader) {
     return response.status(403).json({
@@ -73,3 +73,6 @@ export async function authMiddleware(request: Request, response: Response, next:
     next();
   }
 }
+
+export const authOrganizationMiddleware =
+  (request: Request, response: Response, next: NextFunction) => authUserMiddleware(request, response, next, 'organization');

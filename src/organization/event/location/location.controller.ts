@@ -1,9 +1,9 @@
 import Container, { Service } from "typedi";
-import { BaseController } from "../../helpers/baseController";
+import { BaseController } from "../../../helpers/baseController";
 import { LocationService } from "./location.service";
 import { CreateLocationDto, UpdateLocationDto } from "./location.dto";
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from "src/helpers/typeRequestHandlers";
-import { IdsDto, PaginationDto } from "../../shared/dto/baseDTOs";
+import { IdsDto, PaginationDto } from "../../../shared/dto/baseDTOs";
 
 
 @Service()

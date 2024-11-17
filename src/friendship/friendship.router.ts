@@ -1,4 +1,4 @@
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authUserMiddleware } from '../middlewares/authMiddleware';
 import { FrienshipController } from './friendship.controller';
 import { Container } from 'typedi';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
@@ -16,7 +16,7 @@ class FriendshipRouter extends BaseRouter {
   }
 
   protected _initializeRoutes() {
-    this._router.use(authMiddleware);
+    this._router.use(authUserMiddleware);
     this._router
       .route('/')
       .get(

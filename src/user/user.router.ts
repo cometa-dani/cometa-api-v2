@@ -1,5 +1,5 @@
 import { Container } from 'typedi';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authUserMiddleware } from '../middlewares/authMiddleware';
 import { imageUploadMiddleware } from '../middlewares/imageUploadMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import { BaseRouter } from '../helpers/baseRouter';
@@ -18,7 +18,7 @@ class UserRouter extends BaseRouter {
 
   protected _initializeRoutes(): void {
     this._router.get('/search',
-      authMiddleware,
+      authUserMiddleware,
       validateRequestMiddleware({ query: searchByUsernameSchemma }),
       this._userController.searchPaginatedUsersByUsername
     );
@@ -57,7 +57,7 @@ class UserRouter extends BaseRouter {
       this._userController.getLoggedInUserWithLikeEvents
     );
     this._router.get('/:uid/targets',
-      authMiddleware,
+      authUserMiddleware,
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.getTargetUserWithFriendship
     );

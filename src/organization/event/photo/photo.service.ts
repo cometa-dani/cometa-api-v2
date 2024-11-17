@@ -1,6 +1,6 @@
-import { HttpError } from "../../helpers/httpError";
-import { PrismaService } from "../../config/dataBase";
-import { CloudStorageService } from "../../shared/cloudStorage/cloud-storage.service";
+import { HttpError } from "../../../helpers/httpError";
+import { PrismaService } from "../../../config/dataBase";
+import { CloudStorageService } from "../../../shared/cloudStorage/cloud-storage.service";
 import Container, { Service } from "typedi";
 import { EventPhoto } from "@prisma/client";
 

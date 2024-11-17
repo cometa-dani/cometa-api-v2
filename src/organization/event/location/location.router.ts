@@ -1,7 +1,7 @@
 import Container from "typedi";
-import { BaseRouter } from "../../helpers/baseRouter";
-import { validateRequestMiddleware } from "../../middlewares/validateRequestMiddleware";
-import { idsSchema, paginationSchema } from "../../shared/dto/baseDTOs";
+import { BaseRouter } from "../../../helpers/baseRouter";
+import { validateRequestMiddleware } from "../../../middlewares/validateRequestMiddleware";
+import { idsSchema, paginationSchema } from "../../../shared/dto/baseDTOs";
 import { LocationController } from "./location.controller";
 import { createLocationSchemma, updateLocationSchemma } from "./location.dto";
 

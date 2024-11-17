@@ -1,9 +1,9 @@
 import Container from "typedi";
 import { PhotoController } from "./photo.controller";
-import { BaseRouter } from "../../helpers/baseRouter";
-import { imageUploadMiddleware } from "../../middlewares/imageUploadMiddleware";
-import { validateRequestMiddleware } from "../../middlewares/validateRequestMiddleware";
-import { idsSchema } from "../../shared/dto/baseDTOs";
+import { BaseRouter } from "../../../helpers/baseRouter";
+import { imageUploadMiddleware } from "../../../middlewares/imageUploadMiddleware";
+import { validateRequestMiddleware } from "../../../middlewares/validateRequestMiddleware";
+import { idsSchema } from "../../../shared/dto/baseDTOs";
 
 
 class PhotoRouter extends BaseRouter {

@@ -1,10 +1,10 @@
-import { BaseController } from "../../helpers/baseController";
+import { BaseController } from "../../../helpers/baseController";
 import Container, { Service } from "typedi";
 import { EventPhotoService } from "./photo.service";
-import { RequestHandlerParams } from "../../helpers/typeRequestHandlers";
-import { EventService } from "../event.service";
-import { IdsDto } from "../../shared/dto/baseDTOs";
-import { ErrorMessage } from "../../helpers/errorMessages";
+import { RequestHandlerParams } from "../../../helpers/typeRequestHandlers";
+import { IdsDto } from "../../../shared/dto/baseDTOs";
+import { ErrorMessage } from "../../../helpers/errorMessages";
+import { EventService } from "../../../event/event.service";
 
 
 @Service()
@@ -46,7 +46,7 @@ export class PhotoController extends BaseController {
       if (!eventFound) {
         return this.notFound(res, ErrorMessage.EVENT_NOT_FOUND);
       }
-      const photoToDelete = eventFound.photos.find(photo => photo.order === req.params.photoId);
+      const photoToDelete = eventFound.photos.find(photo => photo.id === req.params.photoId);
       if (!photoToDelete) {
         return this.notFound(res, ErrorMessage.PHOTO_NOT_FOUND);
       }

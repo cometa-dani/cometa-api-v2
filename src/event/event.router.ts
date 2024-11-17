@@ -1,13 +1,11 @@
 import { Container } from 'typedi';
 import likesRouter from './like/like.router';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authUserMiddleware } from '../middlewares/authMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
-import { createEventSchemma, getTargetUserEventsSchemma, searchEventsSchemma, updateEventSchemma, } from './event.dto';
+import { getTargetUserEventsSchemma, searchEventsSchemma } from './event.dto';
 import { EventController } from './event.controller';
 import { BaseRouter } from '../helpers/baseRouter';
-import photoRouter from './photo/photo.router';
 import { idsSchema } from '../shared/dto/baseDTOs';
-import locationRouter from './location/location.router';
 
 
 class EventRouter extends BaseRouter {
@@ -16,31 +14,15 @@ class EventRouter extends BaseRouter {
   constructor() {
     super();
     this._initializeRoutes();
-    this._router.use(photoRouter);
-    this._router.use(locationRouter);
     this._router.use(likesRouter);
   }
 
   protected _initializeRoutes(): void {
-    this._router.use(authMiddleware);
+    this._router.use(authUserMiddleware);
     this._router.route('/')
       .get(
         validateRequestMiddleware({ query: searchEventsSchemma }),
         this._eventController.getPaginatedLatestEvent
-      )
-      .post(
-        validateRequestMiddleware({ body: createEventSchemma }),
-        this._eventController.createEvent
-      );
-
-    this._router.route('/:eventId')
-      .patch(
-        validateRequestMiddleware({ body: updateEventSchemma, params: idsSchema }),
-        this._eventController.updateEvent
-      )
-      .delete(
-        validateRequestMiddleware({ params: idsSchema }),
-        this._eventController.deleteEvent
       );
 
     this._router.route('/search')

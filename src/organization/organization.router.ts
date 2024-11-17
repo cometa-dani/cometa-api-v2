@@ -5,7 +5,7 @@ import { OrganizationController } from './organization.controller';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import { idsSchema } from '../shared/dto/baseDTOs';
 import { createOrganizationSchemma, updateOrganizationSchemma } from './organizatoin.dto';
-// import { authMiddleware } from '../middlewares/authMiddleware';
+import eventRouter from './event/event.router';
 
 
 class OrganizationRouter extends BaseRouter {
@@ -14,6 +14,7 @@ class OrganizationRouter extends BaseRouter {
   constructor() {
     super();
     this._initializeRoutes();
+    this._router.use('/events', eventRouter);
   }
 
   protected _initializeRoutes(): void {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authUserMiddleware } from '../middlewares/authMiddleware';
 import { imageUploadMiddleware } from '../middlewares/imageUploadMiddleware';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import chatGroupController from './chat-group.controller';
@@ -17,7 +17,7 @@ class ChatGroupRouter {
     this.router
       .route('/')
       .post(
-        authMiddleware,
+        authUserMiddleware,
         imageUploadMiddleware.single('file'),
         validateRequestMiddleware({ body: createChatGroup }),
         chatGroupController.createChatGroup
@@ -26,7 +26,7 @@ class ChatGroupRouter {
     this.router
       .route('/:id')
       .get(
-        authMiddleware,
+        authUserMiddleware,
         validateRequestMiddleware({ params: iDParam }),
         chatGroupController.getChatGroupByID
       );

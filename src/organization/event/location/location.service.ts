@@ -1,4 +1,4 @@
-import { PrismaService } from "../../config/dataBase";
+import { PrismaService } from "../../../config/dataBase";
 import Container, { Service } from "typedi";
 import { CreateLocationDto, UpdateLocationDto } from "./location.dto";
 import { Location } from "@prisma/client";
