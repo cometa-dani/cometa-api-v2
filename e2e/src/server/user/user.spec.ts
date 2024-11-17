@@ -129,8 +129,8 @@ describe(`GET /api/v1/${endpoint}/:uid`, () => {
 
 
 // TODO: after refactoring the routes
-// '/:uid/targets'
-// '/:uid'
+// 'users/:uid/targets'
+// 'users/:uid'
 
 
 describe(`GET /api/v1/${endpoint}/search?username=@jho`, () => {
