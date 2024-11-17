@@ -9,6 +9,7 @@ export class CloudStorageService {
   private _thumbHash?: ThumbHash;
   private _bucket = bucket;
   private _env = process.env.NODE_ENV;
+  private _CACHE_CONTROL_MAX_AGE = 315360000;
 
   private async _resizeImage(imageBuffer: Buffer, width = 100, height = 100): Promise<ImageHashed> {
     const image = sharp(imageBuffer).resize(width, height, { fit: 'inside' });
@@ -40,9 +41,9 @@ export class CloudStorageService {
       contentType: imgFile.mimetype,
       public: true,
       metadata: {
+        name: path,
         firebaseStorageDownloadTokens: token,
-        cacheControl: 'public, max-age=315360000',
-        contentType: imgFile.mimetype,
+        cacheControl: `public, max-age=${this._CACHE_CONTROL_MAX_AGE}`,
       },
     });
     return this._generatePublicUrl(path, token);  // returns the public url
