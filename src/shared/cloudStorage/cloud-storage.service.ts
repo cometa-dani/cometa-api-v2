@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Service } from 'typedi';
 import { ImageHashed, ThumbHash, IUploadedPhoto, IPhotoToUpload } from './interfaces';
 import sharp from 'sharp';
@@ -34,9 +33,8 @@ export class CloudStorageService {
   public async uploadPhotoToBucket(
     destinationPath: string,
     imgFile: Express.Multer.File,
-    imgId?: number | string
+    token: number | string
   ) {
-    const token = imgId ? imgId.toString() : imgFile.filename;
     const path = this._env !== 'production' ? 'test/' + destinationPath : destinationPath;
     await this._bucket.file(path).save(imgFile.buffer, {
       contentType: imgFile.mimetype,
@@ -47,7 +45,7 @@ export class CloudStorageService {
         contentType: imgFile.mimetype,
       },
     });
-    return this._generatePublicUrl(path, token);
+    return this._generatePublicUrl(path, token);  // returns the public url
   }
 
   public async uploadPhotosToBucket(photosToUpload: IPhotoToUpload[]): Promise<IUploadedPhoto[]> {
@@ -71,15 +69,16 @@ export class CloudStorageService {
   }
 
   public deletePhotoFromBucket(destinationPath: string) {
+    const path = this._env !== 'production' ? 'test/' + destinationPath : destinationPath;
     return (
-      this._bucket.file(destinationPath).delete()
+      this._bucket.file(path).delete()
     );
   }
 
   // return getDownloadURL(this._bucket.file(destinationPath));
-  private async _generatePublicUrl(destinationPath: string, imgFileName: string) {
+  private async _generatePublicUrl(destinationPath: string, token: string | number) {
     const encodedFileName = encodeURIComponent(destinationPath);
-    const url = `https://firebasestorage.googleapis.com/v0/b/${this._bucket.name}/o/${encodedFileName}?alt=media&token=${imgFileName}`;
+    const url = `https://firebasestorage.googleapis.com/v0/b/${this._bucket.name}/o/${encodedFileName}?alt=media&token=${token}`;
     return url;
   }
 }

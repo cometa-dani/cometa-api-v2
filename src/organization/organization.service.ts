@@ -32,7 +32,7 @@ export class OrganizationService {
   }
 
   public async deleteOrganization(id: number) {
-    await this._cloudStorageService.deletePhotoFromBucket(`organizations/${id}`);
+    await this._cloudStorageService.deletePhotoFromBucket(`organizations/${id}/avatar`);
     return this._prismaService.organization.delete({
       where: { id }
     });
@@ -46,7 +46,7 @@ export class OrganizationService {
   }
 
   public async uploadAvatar(id: number, file: Express.Multer.File) {
-    const avatarUrl = await this._cloudStorageService.uploadPhotoToBucket(`organizations/${id}/avatar`, file);
+    const avatarUrl = await this._cloudStorageService.uploadPhotoToBucket(`organizations/${id}/avatar`, file, id);
     return this._prismaService.organization.update({
       where: { id },
       data: {
