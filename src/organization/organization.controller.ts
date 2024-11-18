@@ -5,6 +5,7 @@ import { RequestHandlerBody, RequestHandlerParams } from '../helpers/typeRequest
 import { CreateOrganizationDTO, UpdateOrganizationDTO } from './organizatoin.dto';
 import { OrganizationService } from './organization.service';
 import { IdsDto } from '../shared/dto/baseDTOs';
+import { ErrorMessage } from '../helpers/errorMessages';
 
 
 @Service()
@@ -36,10 +37,11 @@ export class OrganizationController extends BaseController {
 
   public createOrganization: RequestHandlerBody<CreateOrganizationDTO> = async (req, res, next) => {
     try {
-      const createOrganization = await this._organizationService.createOrganization(req.body);
-      if (!createOrganization) {
-        return this.conflict(res);
+      const organizationExists = await this._organizationService.getUniqueOrganization(req.body.uid);
+      if (organizationExists) {
+        return this.conflict(res, ErrorMessage.ALREADY_EXISTS);
       }
+      const createOrganization = await this._organizationService.createOrganization(req.body);
       return this.created(res, createOrganization);
     }
     catch (error) {

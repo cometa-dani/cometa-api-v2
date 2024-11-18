@@ -101,11 +101,11 @@ export class UserController extends BaseController {
     try {
       const userFound = await this._userService.findUniqueByField({ email: req.body.email });
       if (userFound) {
-        return this.conflict(res, ErrorMessage.USER_ALREADY_EXISTS);
+        return this.conflict(res, ErrorMessage.ALREADY_EXISTS);
       }
       const userCreated = await this._userService.create(req.body);
       if (!userCreated) {
-        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_USER);
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
       }
       return this.created(res, userCreated);
     }
@@ -135,7 +135,7 @@ export class UserController extends BaseController {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {
-        return this.notFound(res, ErrorMessage.USER_NOT_FOUND);
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
       if (userFound.photos.length > this._maxNumPhotos) {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
@@ -149,7 +149,7 @@ export class UserController extends BaseController {
       const startCount = userFound.photos.length ?? 0;
       const updatedUserPhotos = await this._userService.saveUserPhotos(incommingImgFiles, userFound.id, startCount);
       if (!updatedUserPhotos) {
-        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_PHOTO);
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
       }
       return this.created(res, updatedUserPhotos);
     }
@@ -175,14 +175,13 @@ export class UserController extends BaseController {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {
-        return this.notFound(res, ErrorMessage.USER_NOT_FOUND);
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
       const photoToDelete = userFound.photos.find(photo => photo.id === req.params.photoId);
       if (!photoToDelete) {
-        return this.notFound(res, ErrorMessage.PHOTO_NOT_FOUND);
+        return this.conflict(res, ErrorMessage.NOT_FOUND);
       }
       await this._userService.deleteUserPhotoById(userFound.id, photoToDelete);
-
       return this.noContent(res);
     }
     catch (error) {

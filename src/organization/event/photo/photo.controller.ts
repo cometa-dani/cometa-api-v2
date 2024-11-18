@@ -17,7 +17,7 @@ export class PhotoController extends BaseController {
     try {
       const eventFound = await this._eventService.getEventById(req.params.eventId);
       if (!eventFound) {
-        return this.notFound(res, ErrorMessage.EVENT_NOT_FOUND);
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
       if (eventFound.photos.length > this._maxNumPhotos) {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
@@ -31,7 +31,7 @@ export class PhotoController extends BaseController {
       const startCount = eventFound.photos.length ?? 0;
       const uploadedEventPhotos = await this._eventPhotoService.saveEventPhotos(incommingImgFiles, eventFound.id, startCount);
       if (!uploadedEventPhotos) {
-        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_PHOTO);
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
       }
       return this.created(res, uploadedEventPhotos);
     }
@@ -44,11 +44,11 @@ export class PhotoController extends BaseController {
     try {
       const eventFound = await this._eventService.getEventById(req.params.eventId);
       if (!eventFound) {
-        return this.notFound(res, ErrorMessage.EVENT_NOT_FOUND);
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
       const photoToDelete = eventFound.photos.find(photo => photo.id === req.params.photoId);
       if (!photoToDelete) {
-        return this.notFound(res, ErrorMessage.PHOTO_NOT_FOUND);
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
       await this._eventPhotoService.deleteEventPhotoById(eventFound.id, photoToDelete);
       return this.noContent(res);

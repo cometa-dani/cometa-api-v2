@@ -103,7 +103,7 @@ export class EventController extends BaseController {
     try {
       const foundEvent = await this._eventService.getEventById(req.params.eventId);
       if (!foundEvent) {
-        return this.notFound(res, ErrorMessage.EVENT_NOT_FOUND);
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
       return this.ok(res, foundEvent);
     }
@@ -138,7 +138,7 @@ export class EventController extends BaseController {
     try {
       const createdEvent = await this._eventService.createEvent(req.body);
       if (!createdEvent) {
-        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE_EVENT);
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
       }
       return this.created(res, createdEvent);
     }

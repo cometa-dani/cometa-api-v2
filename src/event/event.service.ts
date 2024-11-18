@@ -165,7 +165,7 @@ export class EventService {
       }
       return [latestLikedEvents, totalEventsCount];
     }
-    throw new HttpError(404, ErrorMessage.USER_NOT_FOUND);
+    throw new HttpError(404, ErrorMessage.NOT_FOUND);
   }
 
   public async getPaginatedLatestEvents(

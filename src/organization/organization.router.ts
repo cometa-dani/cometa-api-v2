@@ -1,6 +1,6 @@
 import { Container } from 'typedi';
 import { BaseRouter } from '../helpers/baseRouter';
-import { fileUploadMiddleware } from '../middlewares/fileUploadMiddleware';
+import { imageUploadMiddleware } from '../middlewares/imageUploadMiddleware';
 import { OrganizationController } from './organization.controller';
 import { validateRequestMiddleware } from '../middlewares/validateRequestMiddleware';
 import { idsSchema } from '../shared/dto/baseDTOs';
@@ -44,7 +44,7 @@ class OrganizationRouter extends BaseRouter {
     this._router.route('/:id/photos')
       .post(
         validateRequestMiddleware({ params: idsSchema }),
-        fileUploadMiddleware.single('avatar'),
+        imageUploadMiddleware.single('avatar'),
         this._organizationController.uploadOrganizationAvatar
       );
   }

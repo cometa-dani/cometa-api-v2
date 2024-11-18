@@ -52,7 +52,6 @@ class UserRouter extends BaseRouter {
      * ******************************************
      */
     this._router.get('/:uid',
-      // authMiddleware,
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.getLoggedInUserWithLikeEvents
     );

@@ -27,6 +27,12 @@ export class OrganizationService {
     });
   }
 
+  public async getUniqueOrganization(uid: string) {
+    return this._prismaService.organization.findUnique({
+      where: { uid }
+    });
+  }
+
   public async getOrganizations() {
     return this._prismaService.organization.findMany();
   }

@@ -15,7 +15,6 @@ const newOrganizations = [
     email: 'doha@chotto-matte.com',
     phone: '5996 52 349',
     webPage: 'https://chotto-matte.com/',
-    password: '123456',
     instagramPage: 'https://www.instagram.com/chottomatteglobal/',
     events: [
       {
@@ -85,7 +84,6 @@ const newOrganizations = [
     email: 'info@palma-intl.com',
     phone: '44378444',
     webPage: 'https://megapolisqatar.com/index.html',
-    password: '123456',
     instagramPage: 'https://www.instagram.com/megapolisqatar/',
     events: [
       {
