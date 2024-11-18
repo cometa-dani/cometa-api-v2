@@ -104,7 +104,6 @@ describe(`POST api/v1/organizations/events`, () => {
     const response = await axios.get(`/organizations/${newOrganization.id}`)
     const events = response.data?.events as Event[]
     const event = events.at(0)
-    console.log(event)
     // Step 2: Create form data with a photo
     const formData = new FormData();
     formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', '..', 'assets', 'events', '8.png')), {

@@ -162,11 +162,9 @@ export class EventController extends BaseController {
 
   public deleteEvent: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      // 1. we should delete images first
-      const createdEvent = await this._eventService.deleteEvent(req.params.eventId);
-      if (!createdEvent) {
-        return this.conflict(res);
-      }
+      // TODO: Delete event photos
+      const event = await this._eventService.getEventById(req.params.eventId); // CHANGE THIS LINE
+      await this._eventService.deleteEvent(req.params.eventId, event.photos.map((photo) => photo.id));
       return this.noContent(res);
     }
     catch (error) {
