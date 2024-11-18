@@ -6,6 +6,7 @@ export const createLocationSchemma = z.object({
   description: z.string().optional(),
   latitude: z.number({ coerce: true }),
   longitude: z.number({ coerce: true }),
+  organizationId: z.number({ coerce: true }),
 });
 
 export type CreateLocationDto = z.infer<typeof createLocationSchemma>;

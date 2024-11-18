@@ -23,6 +23,7 @@ export class LocationService {
         longitude: locationDto.longitude,
         name: locationDto.name,
         description: locationDto.description,
+        organizationId: locationDto.organizationId
       }
     });
     return newLocation;

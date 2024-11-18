@@ -18,8 +18,8 @@ class PhotoRouter extends BaseRouter {
     this._router
       .route('/:eventId?/photos')
       .post(
-        imageUploadMiddleware.any(),
         validateRequestMiddleware({ params: idsSchema }),
+        imageUploadMiddleware.any(),
         this._eventPhotoController.uploadEventPhotos
       );
 

@@ -23,7 +23,8 @@ export class OrganizationService {
 
   public async getOrganizationById(id: number) {
     return this._prismaService.organization.findUnique({
-      where: { id }
+      where: { id },
+      include: { events: true, locations: true }
     });
   }
 

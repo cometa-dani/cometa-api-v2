@@ -20,8 +20,7 @@ const payloadUser1 = {
 };
 
 // Generate the token
-export const tokenOrganization1 = jwt.sign(payloadUser1, SECRET_KEY, { expiresIn: '1h' }); // Expires in 1 hour
-
+export const tokenOrganization1 = jwt.sign(payloadUser1, SECRET_KEY, { expiresIn: '2h' }); // Expires in 1 hour
 
 export const testOrganization2: Partial<Organization> = {
   name: 'Chotto Matte',

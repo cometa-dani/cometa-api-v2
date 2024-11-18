@@ -51,12 +51,11 @@ export class OrganizationController extends BaseController {
 
   public uploadOrganizationAvatar: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const organization = (
-        await this._organizationService.uploadAvatar(req.params.id, req.file)
-      );
-      if (!organization) {
-        return this.conflict(res);
+      const organizationExists = await this._organizationService.getOrganizationById(req.params.id);
+      if (!organizationExists) {
+        return this.notFound(res);
       }
+      const organization = await this._organizationService.uploadAvatar(req.params.id, req.file);
       return this.ok(res, organization);
     }
     catch (error) {
@@ -66,12 +65,11 @@ export class OrganizationController extends BaseController {
 
   public updateOrganization: RequestHandlerParams<IdsDto, UpdateOrganizationDTO> = async (req, res, next) => {
     try {
-      const organization = (
-        await this._organizationService.updateOrganization(req.params.id, req.body)
-      );
-      if (!organization) {
-        return this.conflict(res);
+      const organizationExists = await this._organizationService.getOrganizationById(req.params.id);
+      if (!organizationExists) {
+        return this.notFound(res);
       }
+      const organization = await this._organizationService.updateOrganization(req.params.id, req.body);
       return this.ok(res, organization);
     }
     catch (error) {
@@ -81,10 +79,11 @@ export class OrganizationController extends BaseController {
 
   public deleteOrganization: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const organization = await this._organizationService.deleteOrganization(req.params.id);
-      if (!organization) {
-        return this.conflict(res);
+      const organizationExists = await this._organizationService.getOrganizationById(req.params.id);
+      if (!organizationExists) {
+        return this.notFound(res);
       }
+      const organization = await this._organizationService.deleteOrganization(req.params.id);
       return this.ok(res, organization);
     }
     catch (error) {
