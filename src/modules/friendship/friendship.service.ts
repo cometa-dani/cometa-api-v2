@@ -1,7 +1,7 @@
 import Container, { Service } from 'typedi';
 import { PrismaService } from '../../config/dataBase';
-import { Prisma, User } from '@prisma/client';
-import { INewFriend, GetFriendshipsDto } from './frienship.dto';
+import { Friendship, Prisma, User } from '@prisma/client';
+import { INewFriend, GetFriendshipsDto, IGetFriend } from './frienship.dto';
 import { HttpError } from '../../helpers/httpError';
 import { ErrorMessage } from '../../helpers/errorMessages';
 import { configCursorBasedPagination } from '../../helpers/configCursor';
@@ -12,10 +12,11 @@ export class FriendshipService {
   private _prismaService = Container.get(PrismaService);
 
   public async searchPaginatedFriendsByUsername(
-    loggedInUserID: number, paginatedQueries: GetFriendshipsDto
-  ): Promise<[Omit<INewFriend, 'sender' | 'receiver'>[], number]> {
+    loggedInUserID: number,
+    paginatedQueries: GetFriendshipsDto
+  )
+    : Promise<[IGetFriend[], number]> {
     const { cursor, limit, friendUserName } = paginatedQueries;
-
     const whereCondition: Prisma.FriendshipWhereInput = {
       OR: [
         { senderId: loggedInUserID, status: 'ACCEPTED', receiver: { username: { startsWith: friendUserName, mode: 'insensitive' } } },
@@ -53,9 +54,8 @@ export class FriendshipService {
   public async getPaginatedNewestFriends(
     queryParams: GetFriendshipsDto,
     loggedInUserID: number
-
-  ): Promise<[Omit<INewFriend, 'sender' | 'receiver'>[], number]> {
-
+  )
+    : Promise<[IGetFriend[], number]> {
     const { cursor, limit } = queryParams;
     const whereCondition: Prisma.FriendshipWhereInput = {
       OR: [
@@ -90,7 +90,7 @@ export class FriendshipService {
     return [newFriends, totalFriendshipsCount];
   }
 
-  public async getFriendshipByTargetUser(targetUserUUID: string, loggedInUserID: number) {
+  public async getFriendshipByTargetUser(targetUserUUID: string, loggedInUserID: number): Promise<Friendship> {
     const targetUser = await this._prismaService.user.findUnique({ where: { uid: targetUserUUID } });
     if (!targetUser) {
       throw new HttpError(404, 'user not found');
@@ -114,7 +114,7 @@ export class FriendshipService {
     return friendship;
   }
 
-  public async sentFriendshipInvitation(targetUserId: number, loggedInUserID: number) {
+  public async sentFriendshipInvitation(targetUserId: number, loggedInUserID: number): Promise<Friendship> {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
@@ -137,7 +137,7 @@ export class FriendshipService {
     );
   }
 
-  public async acceptFrienshipInvitation(targetUserID: number, loggedInUser: User) {
+  public async acceptFrienshipInvitation(targetUserID: number, loggedInUser: User): Promise<Friendship> {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
@@ -175,7 +175,7 @@ export class FriendshipService {
     throw new HttpError(409, ErrorMessage.INVITATION_DOES_NOT_EXIST);
   }
 
-  public async resetFriendshipInvitation(targetUserID: number, loggedInUser: User) {
+  public async resetFriendshipInvitation(targetUserID: number, loggedInUser: User): Promise<Friendship> {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [
@@ -195,7 +195,7 @@ export class FriendshipService {
     throw new HttpError(409, ErrorMessage.INVITATION_DOES_NOT_EXIST);
   }
 
-  public async deleteBySenderOrReceiver(tagetUserID: number, loggedInUserID: number) {
+  public async deleteBySenderOrReceiver(tagetUserID: number, loggedInUserID: number): Promise<null> {
     const friendshipExists = await this._prismaService.friendship.findFirst({
       where: {
         OR: [

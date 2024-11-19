@@ -1,5 +1,5 @@
 import { Container, Service } from 'typedi';
-import { GetFriendshipsDto, INewFriend, UpdateFriendshipDto } from './frienship.dto';
+import { GetFriendshipsDto, IGetFriend, UpdateFriendshipDto } from './frienship.dto';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../../helpers/typeRequestHandlers';
 import { BaseController } from '../../helpers/baseController';
 import { FriendshipService } from './friendship.service';
@@ -18,7 +18,7 @@ export class FrienshipController extends BaseController {
           await this._friendshipService.searchPaginatedFriendsByUsername(req.user.id, req.query)
         );
         const nextCursor = newFriends.at(-1)?.id ?? null;
-        const paginatedFriends: PaginatedResult<INewFriend> = {
+        const paginatedFriends: PaginatedResult<IGetFriend> = {
           items: newFriends,
           nextCursor,
           totalItems: totalFriends,
@@ -36,10 +36,11 @@ export class FrienshipController extends BaseController {
     async (req, res, next) => {
       try {
         const { limit = 10 } = req.query;
-        const [newFriends, totalFriendshipsCount] =
-          await this._friendshipService.getPaginatedNewestFriends(req.query, req.user.id);
+        const [newFriends, totalFriendshipsCount] = (
+          await this._friendshipService.getPaginatedNewestFriends(req.query, req.user.id)
+        );
         const nextCursor = newFriends.at(-1)?.id ?? null;
-        const paginatedFriends: PaginatedResult<INewFriend> = {
+        const paginatedFriends: PaginatedResult<IGetFriend> = {
           items: newFriends,
           nextCursor,
           totalItems: totalFriendshipsCount,

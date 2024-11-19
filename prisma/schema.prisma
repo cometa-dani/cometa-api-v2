@@ -199,20 +199,6 @@ model EventShare {
   userId  Int   @map("user_id")
 }
 
-model UserPhoto {
-  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  url         String?
-  // uuid        String // remove in the future for @id with uuid()
-  placeholder String?
-  order       Int
-
-  // Relations
-  userId Int  @map("user_id")
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model User {
   // represents users, who can like events and form matches with other users.
   id        Int       @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
@@ -266,6 +252,20 @@ model User {
 
   outgoingNotification Notification[] @relation("SentNotifications")
   incomingNotification Notification[] @relation("ReceivedNotifications")
+}
+
+model UserPhoto {
+  id          Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  url         String?
+  // uuid        String // remove in the future for @id with uuid()
+  placeholder String?
+  order       Int
+
+  // Relations
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Friendship {

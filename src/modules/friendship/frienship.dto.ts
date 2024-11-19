@@ -26,3 +26,5 @@ export interface INewFriend extends Friendship {
   receiver?: User,
   friend: User
 }
+
+export type IGetFriend = Omit<INewFriend, 'sender' | 'receiver'>
