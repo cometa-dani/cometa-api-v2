@@ -57,12 +57,4 @@ export class PhotoController extends BaseController {
       next(error);
     }
   };
-
-  public deleteAllPhotos: RequestHandlerParams<IdsDto> = async (req, res, next) => {
-    try {
-      //
-    } catch (error) {
-      next(error);
-    }
-  };
 }

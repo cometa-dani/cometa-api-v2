@@ -45,13 +45,6 @@ export class EventPhotoService {
     }
   }
 
-  public async deleteEventById(eventId: number, photosIds: number[]) {
-    return Promise.all([
-      this._prismaService.event.delete({ where: { id: eventId } }), // photos will be deleted automatically
-      this._deleteAllEventPhotosFromBucket(eventId, photosIds)
-    ]);
-  }
-
   public async deleteEventPhotoById(eventID: number, photoToDelete: EventPhoto) {
     const destinationPath = `events/${eventID}/photos/${photoToDelete.id}`;
     await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
@@ -65,13 +58,5 @@ export class EventPhotoService {
         order: { decrement: 1 }  // reorders the remaining photos
       }
     });
-  }
-
-  private async _deleteAllEventPhotosFromBucket(eventID: number, photosIds: number[]) {
-    if (photosIds.length === 0) return;
-    return Promise.all(
-      photosIds.map((photoId) => {
-        return this._cloudStorageService.deletePhotoFromBucket(`events/${eventID}/photos/${photoId}`);
-      }));
   }
 }

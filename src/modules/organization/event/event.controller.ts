@@ -39,10 +39,12 @@ export class EventController extends BaseController {
 
   public deleteEvent: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      // TODO: Delete event photos
-      // const event = await this._eventService.getEventById(req.params.eventId); // CHANGE THIS LINE
-      // await this._eventService.deleteEvent(req.params.eventId, event.photos.map((photo) => photo.id));
-      // return this.noContent(res);
+      const event = await this._eventService.getEventById(req.params.eventId);
+      if (!event) {
+        return this.notFound(res);
+      }
+      await this._eventService.deleteEvent(req.params.eventId, event.photos.map((photo) => photo.id));
+      return this.noContent(res);
     }
     catch (error) {
       next(error);

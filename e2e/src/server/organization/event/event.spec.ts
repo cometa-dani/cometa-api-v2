@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
-import { Event, Location, PrismaClient } from '@prisma/client';
+import { Event, EventPhoto, Location, PrismaClient } from '@prisma/client';
 import { testOrganization1, tokenOrganization1 } from '../organizationData';
 import path from 'path';
 import { stadiumEvents, getRamdomStadium, stadiumsLocations } from './eventData';
@@ -16,7 +16,7 @@ beforeEach(async () => {
   await prisma.location.deleteMany();
 });
 
-const createLocations = async (organizationID: number) => {
+const createManyLocations = async (organizationID: number) => {
   await Promise.all(
     stadiumsLocations.map((stadium) => {
       const payload = { ...stadium, organizationId: organizationID }
@@ -29,7 +29,17 @@ const createLocations = async (organizationID: number) => {
   )
 }
 
-const createEvents = async (organizationID: number, locations: Location[]) => {
+const createOneLocation = async (organizationID: number) => {
+  const stadium = stadiumsLocations[0]
+  const payload = { ...stadium, organizationId: organizationID }
+  return axios.post(`/organizations/events/locations`, payload, {
+    headers: {
+      Authorization: `Bearer ${tokenOrganization1}`,
+    }
+  });
+}
+
+const createManyEvents = async (organizationID: number, locations: Location[]) => {
   await Promise.all(
     stadiumEvents.map(event => {
       const payload = {
@@ -49,14 +59,59 @@ const createEvents = async (organizationID: number, locations: Location[]) => {
   )
 }
 
+const createOneEvent = async (organizationID: number, location: Location) => {
+  const event = stadiumEvents[0]
+  const payload = {
+    name: event.name,
+    description: event.description,
+    categories: event.categories.join(','),
+    date: event.date,
+    locationId: location.id,
+    organizationId: organizationID
+  }
+  return axios.post(`/organizations/events`, payload, {
+    headers: {
+      Authorization: `Bearer ${tokenOrganization1}`,
+    }
+  });
+}
+
+const createFormData = (): FormData => {
+  const formData = new FormData();
+  formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', '..', 'assets', 'events', '8.png')), {
+    filename: '8.png',
+    contentType: 'image/png',
+  });
+  formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..', '..', 'assets', 'events', '9.png')), {
+    filename: '9.png',
+    contentType: 'image/png',
+  });
+
+  return formData
+}
+
+const uploadPhotos = async (formData: FormData, event: Event) => {
+  return await axios.post(
+    `/organizations/events/${event.id}/photos`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${tokenOrganization1}`,
+        ...formData.getHeaders()
+      }
+    }
+  );
+}
+
+
 describe(`POST api/v1/organizations/events`, () => {
   it('should create many locations for an organization', async () => {
     const response1 = await axios.post(`/organizations`, testOrganization1);
     const newOrganization = response1.data
-    await createLocations(newOrganization.id)
-    const response = await axios.get(`/organizations/${newOrganization.id}`)
-    const locations = response.data?.locations as Location[]
-    expect(response.status).toBe(200);
+    await createManyLocations(newOrganization.id)
+    const response2 = await axios.get(`/organizations/${newOrganization.id}`)
+    const locations = response2.data?.locations as Location[]
+    expect(response2.status).toBe(200);
     expect(locations).toHaveLength(stadiumsLocations.length);
     locations.map(location => {
       expect(location).not.toBeNull();
@@ -73,13 +128,13 @@ describe(`POST api/v1/organizations/events`, () => {
   it('should create many events for an organization', async () => {
     const response1 = await axios.post(`/organizations`, testOrganization1);
     const newOrganization = response1.data
-    await createLocations(newOrganization.id)
-    const response = await axios.get(`/organizations/${newOrganization.id}`)
-    const locations = response.data?.locations as Location[]
-    await createEvents(newOrganization.id, locations)
+    await createManyLocations(newOrganization.id)
     const response2 = await axios.get(`/organizations/${newOrganization.id}`)
-    const eventsRes = response2.data?.events as Event[]
-    expect(response.status).toBe(200);
+    const locations = response2.data?.locations as Location[]
+    await createManyEvents(newOrganization.id, locations)
+    const response3 = await axios.get(`/organizations/${newOrganization.id}`)
+    const eventsRes = response3.data?.events as Event[]
+    expect(response3.status).toBe(200);
     expect(eventsRes).toHaveLength(stadiumEvents.length);
     eventsRes.map(location => {
       expect(location).not.toBeNull();
@@ -97,43 +152,74 @@ describe(`POST api/v1/organizations/events`, () => {
   it('should upload event`s photos', async () => {
     const response1 = await axios.post(`/organizations`, testOrganization1);
     const newOrganization = response1.data
-    await createLocations(newOrganization.id)
+    await createOneLocation(newOrganization.id)
+    const response2 = await axios.get(`/organizations/${newOrganization.id}`)
+    const locations = response2.data?.locations as Location[]
+    await createOneEvent(newOrganization.id, locations.at(0))
     const response3 = await axios.get(`/organizations/${newOrganization.id}`)
-    const locations = response3.data?.locations as Location[]
-    await createEvents(newOrganization.id, locations)
-    const response = await axios.get(`/organizations/${newOrganization.id}`)
-    const events = response.data?.events as Event[]
+    const events = response3.data?.events as Event[]
     const event = events.at(0)
     // Step 2: Create form data with a photo
-    const formData = new FormData();
-    formData.append('files[0]', fs.createReadStream(path.resolve(__dirname, '..', '..', '..', 'assets', 'events', '8.png')), {
-      filename: '8.png',
-      contentType: 'image/png',
-    });
-    formData.append('files[1]', fs.createReadStream(path.resolve(__dirname, '..', '..', '..', 'assets', 'events', '9.png')), {
-      filename: '9.png',
-      contentType: 'image/png',
-    });
-    const updatedEvent = await axios.post(
-      `/organizations/events/${event.id}/photos`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenOrganization1}`,
-          ...formData.getHeaders()
-        }
-      }
-    );
+    const formData = createFormData();
+    const updatedEvent = await uploadPhotos(formData, event)
     expect(updatedEvent.status).toBe(201);
     expect(updatedEvent.data.photos).toHaveLength(2);
   });
 });
 
 
+describe('DELETE api/v1/organizations/events/:eventId/photos/:photoId', () => {
+  it('should delete a photo by id', async () => {
+    const response1 = await axios.post(`/organizations`, testOrganization1);
+    const newOrganization = response1.data
+    await createOneLocation(newOrganization.id)
+    const response2 = await axios.get(`/organizations/${newOrganization.id}`)
+    const locations = response2.data?.locations as Location[]
+    await createOneEvent(newOrganization.id, locations.at(0))
+    const response3 = await axios.get(`/organizations/${newOrganization.id}`)
+    const event = response3.data?.events?.at(0) as Event
+
+    const formData = createFormData();
+    const updatedEvent = await uploadPhotos(formData, event)
+    const photo = updatedEvent.data?.photos?.at(0) as EventPhoto
+    expect(updatedEvent.data.photos).toHaveLength(2);
+    const deletedPhoto = await axios.delete(`/organizations/events/${event.id}/photos/${photo.id}`, {
+      headers: {
+        Authorization: `Bearer ${tokenOrganization1}`,
+      }
+    });
+    expect(deletedPhoto.status).toBe(204);
+    expect(deletedPhoto.data).toBe("");
+
+    const response4 = await prisma.eventPhoto.findMany({ where: { eventId: event.id } })
+    expect(response4).toHaveLength(1);
+  });
+
+  it('should delete all photos when deleting an event', async () => {
+    const response1 = await axios.post(`/organizations`, testOrganization1);
+    const newOrganization = response1.data
+    await createOneLocation(newOrganization.id)
+    const response2 = await axios.get(`/organizations/${newOrganization.id}`)
+    const locations = response2.data?.locations as Location[]
+    await createOneEvent(newOrganization.id, locations.at(0))
+    const response3 = await axios.get(`/organizations/${newOrganization.id}`)
+    const event = response3.data?.events?.at(0) as Event
+
+    const formData = createFormData();
+    const updatedEvent = await uploadPhotos(formData, event)
+    expect(updatedEvent.data.photos).toHaveLength(2);
+    const deletedEvent = await axios.delete(`/organizations/events/${event.id}`, {
+      headers: {
+        Authorization: `Bearer ${tokenOrganization1}`,
+      }
+    });
+    expect(deletedEvent.status).toBe(204);
+    expect(deletedEvent.data).toBe("");
+    const response4 = await prisma.eventPhoto.findMany({ where: { eventId: event.id } })
+    expect(response4).toHaveLength(0);
+  });
+})
+
 // TODO:
-// delete photo by id
-// detele event by id (likes, shares, photos)
 // delete organization by id (events, likes, shares, photos, locations)
-
-
 // chatApp
