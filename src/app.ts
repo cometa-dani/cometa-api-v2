@@ -5,12 +5,12 @@ import cors from 'cors';
 import { nodeEnv } from './vars';
 import { defaultErrorMiddleware } from './middlewares/defaultErrorMiddleware';
 // routers
-import { worldCitiesRouter } from './worldcities/worldcities.router';
-import organizationRouter from './organization/organization.router';
-import chatGroupRouter from './chatGroup/chat-group.router';
-import userRouter from './user/user.router';
-import friendShipRouter from './friendship/friendship.router';
-import eventRouter from './event/event.router';
+import { worldCitiesRouter } from './modules/worldcities/worldcities.router';
+import organizationRouter from './modules/organization/organization.router';
+import chatGroupRouter from './modules/chatGroup/chat-group.router';
+import userRouter from './modules/user/user.router';
+import friendShipRouter from './modules/friendship/friendship.router';
+import eventRouter from './modules/event/event.router';
 
 
 export const app = express();
