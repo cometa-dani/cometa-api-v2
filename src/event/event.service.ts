@@ -2,16 +2,14 @@ import { Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
 import { PrismaService } from '../config/dataBase';
 import { configCursorBasedPagination } from '../helpers/configCursor';
-import { CreateEventDto, GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO, UpdateEventDto } from './event.dto';
+import { GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
 import { HttpError } from '../helpers/httpError';
 import { ErrorMessage } from '../helpers/errorMessages';
-import { CloudStorageService } from '../shared/cloudStorage/cloud-storage.service';
 
 
 @Service()
 export class EventService {
   private _prismaService = Container.get(PrismaService);
-  private _cloudStorageService = Container.get(CloudStorageService);
 
   // TODO: remove in the future into the users folder
   public async getUsersWhoLikedSameEvent(
@@ -337,35 +335,5 @@ export class EventService {
       totalEventsCount = eventsCount;
     }
     return [latestLikedEvents, totalEventsCount];
-  }
-
-  public async createEvent(createEventDto: CreateEventDto): Promise<Event> {
-    return this._prismaService.event.create({
-      data: {
-        name: createEventDto.name,
-        categories: createEventDto.categories,
-        description: createEventDto.description,
-        date: createEventDto.date,
-        locationId: createEventDto.locationId,
-        organizationId: createEventDto.organizationId
-      }
-    });
-  }
-
-  public async updateEvent(eventId: number, updateEventDto: UpdateEventDto): Promise<Event> {
-    return this._prismaService.event.update({
-      where: { id: eventId },
-      data: updateEventDto
-    });
-  }
-
-  public async deleteEvent(eventId: number, photosIds: number[]) {
-    if (photosIds.length === 0) return;
-    return Promise.all([
-      this._prismaService.event.delete({ where: { id: eventId } }),
-      photosIds.map((photoId) => {
-        return this._cloudStorageService.deletePhotoFromBucket(`events/${eventId}/photos/${photoId}`);
-      })
-    ]);
   }
 }

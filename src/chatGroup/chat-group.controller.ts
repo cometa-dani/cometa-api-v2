@@ -13,7 +13,6 @@ class ChatGroupController extends BaseController {
     super();
   }
 
-
   createChatGroup: RequestHandlerBody<CreateChatGroupDTO> = async (req, res, next) => {
     try {
       const created = await this._chatGroupService.createChatGroup(req.body, req.file);
@@ -23,7 +22,6 @@ class ChatGroupController extends BaseController {
       next(error);
     }
   };
-
 
   getChatGroupByID: RequestHandlerParams<{ id?: number }> = async (req, res, next) => {
     try {
@@ -39,7 +37,5 @@ class ChatGroupController extends BaseController {
   };
 }
 
-
 const chatGroupController = Container.get(ChatGroupController);
-
 export default chatGroupController;

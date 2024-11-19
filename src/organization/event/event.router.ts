@@ -1,12 +1,12 @@
-import { EventController } from "../../event/event.controller";
 import { BaseRouter } from "../../helpers/baseRouter";
 import Container from "typedi";
 import photoRouter from "./photo/photo.router";
 import locationRouter from "./location/location.router";
 import { validateRequestMiddleware } from "../../middlewares/validateRequestMiddleware";
-import { createEventSchemma, updateEventSchemma } from "../../event/event.dto";
 import { idsSchema } from "../../shared/dto/baseDTOs";
 import { authOrganizationMiddleware } from "../../middlewares/authMiddleware";
+import { EventController } from "./event.controller";
+import { createEventSchemma, updateEventSchemma } from "./event.dto";
 
 
 class EventRouter extends BaseRouter {

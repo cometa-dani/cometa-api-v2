@@ -128,3 +128,12 @@ describe(`POST api/v1/organizations/events`, () => {
     expect(updatedEvent.data.photos).toHaveLength(2);
   });
 });
+
+
+// TODO:
+// delete photo by id
+// detele event by id (likes, shares, photos)
+// delete organization by id (events, likes, shares, photos, locations)
+
+
+// chatApp
