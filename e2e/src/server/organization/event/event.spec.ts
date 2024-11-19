@@ -4,7 +4,14 @@ import FormData from 'form-data';
 import { Event, EventPhoto, Location, PrismaClient } from '@prisma/client';
 import { testOrganization1, tokenOrganization1 } from '../organizationData';
 import path from 'path';
-import { stadiumEvents, getRamdomStadium, stadiumsLocations } from './eventData';
+import { stadiumEvents, stadiumsLocations } from './eventData';
+import {
+  createManyEvents,
+  createManyLocations,
+  createOneEvent,
+  createOneLocation,
+  uploadEventPhotos
+} from '../../../utils/utils';
 
 
 const prisma = new PrismaClient()
@@ -16,65 +23,6 @@ beforeEach(async () => {
   await prisma.location.deleteMany();
 });
 
-const createManyLocations = async (organizationID: number) => {
-  await Promise.all(
-    stadiumsLocations.map((stadium) => {
-      const payload = { ...stadium, organizationId: organizationID }
-      return axios.post(`/organizations/events/locations`, payload, {
-        headers: {
-          Authorization: `Bearer ${tokenOrganization1}`,
-        }
-      });
-    })
-  )
-}
-
-const createOneLocation = async (organizationID: number) => {
-  const stadium = stadiumsLocations[0]
-  const payload = { ...stadium, organizationId: organizationID }
-  return axios.post(`/organizations/events/locations`, payload, {
-    headers: {
-      Authorization: `Bearer ${tokenOrganization1}`,
-    }
-  });
-}
-
-const createManyEvents = async (organizationID: number, locations: Location[]) => {
-  await Promise.all(
-    stadiumEvents.map(event => {
-      const payload = {
-        name: event.name,
-        description: event.description,
-        categories: event.categories.join(','),
-        date: event.date,
-        locationId: locations[getRamdomStadium()].id,
-        organizationId: organizationID
-      }
-      return axios.post(`/organizations/events`, payload, {
-        headers: {
-          Authorization: `Bearer ${tokenOrganization1}`,
-        }
-      });
-    })
-  )
-}
-
-const createOneEvent = async (organizationID: number, location: Location) => {
-  const event = stadiumEvents[0]
-  const payload = {
-    name: event.name,
-    description: event.description,
-    categories: event.categories.join(','),
-    date: event.date,
-    locationId: location.id,
-    organizationId: organizationID
-  }
-  return axios.post(`/organizations/events`, payload, {
-    headers: {
-      Authorization: `Bearer ${tokenOrganization1}`,
-    }
-  });
-}
 
 const createFormData = (): FormData => {
   const formData = new FormData();
@@ -88,19 +36,6 @@ const createFormData = (): FormData => {
   });
 
   return formData
-}
-
-const uploadPhotos = async (formData: FormData, event: Event) => {
-  return await axios.post(
-    `/organizations/events/${event.id}/photos`,
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${tokenOrganization1}`,
-        ...formData.getHeaders()
-      }
-    }
-  );
 }
 
 
@@ -161,7 +96,7 @@ describe(`POST api/v1/organizations/events`, () => {
     const event = events.at(0)
     // Step 2: Create form data with a photo
     const formData = createFormData();
-    const updatedEvent = await uploadPhotos(formData, event)
+    const updatedEvent = await uploadEventPhotos(formData, event)
     expect(updatedEvent.status).toBe(201);
     expect(updatedEvent.data.photos).toHaveLength(2);
   });
@@ -180,7 +115,7 @@ describe('DELETE api/v1/organizations/events/:eventId/photos/:photoId', () => {
     const event = response3.data?.events?.at(0) as Event
 
     const formData = createFormData();
-    const updatedEvent = await uploadPhotos(formData, event)
+    const updatedEvent = await uploadEventPhotos(formData, event)
     const photo = updatedEvent.data?.photos?.at(0) as EventPhoto
     expect(updatedEvent.data.photos).toHaveLength(2);
     const deletedPhoto = await axios.delete(`/organizations/events/${event.id}/photos/${photo.id}`, {
@@ -206,7 +141,7 @@ describe('DELETE api/v1/organizations/events/:eventId/photos/:photoId', () => {
     const event = response3.data?.events?.at(0) as Event
 
     const formData = createFormData();
-    const updatedEvent = await uploadPhotos(formData, event)
+    const updatedEvent = await uploadEventPhotos(formData, event)
     expect(updatedEvent.data.photos).toHaveLength(2);
     const deletedEvent = await axios.delete(`/organizations/events/${event.id}`, {
       headers: {

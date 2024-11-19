@@ -269,22 +269,18 @@ model UserPhoto {
 }
 
 model Friendship {
-  id        Int      @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
+  id         Int              @id @default(autoincrement()) // TODO:   Sintrg @id @default(uuid())
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
   // sends invitations
-  sender   User @relation("SenderFriendship", fields: [senderId], references: [id], onDelete: Cascade)
+  sender     User             @relation("SenderFriendship", fields: [senderId], references: [id], onDelete: Cascade)
   // if senderID equal the user's id then friendship will be in outgoingFriendships array
-  senderId Int  @map("sender_id")
-
+  senderId   Int              @map("sender_id")
   // receives inivitation
-  receiver   User @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiver   User             @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
   // if receiverID equal the user's id then friendship will be in incommingFriendships array
-  receiverId Int  @map("receiver_id")
-
-  status FriendshipStatus @default(PENDING) //(e.g., PENDING, ACCEPTED, BLOCKED)
-  // chatRoomUuid String? @unique @map("chat_room_uuid") // CAN BE JUST THE ID (it's simpler)
+  receiverId Int              @map("receiver_id")
+  status     FriendshipStatus @default(PENDING) //(e.g., PENDING, ACCEPTED, BLOCKED)
 
   @@unique([senderId, receiverId])
 }
