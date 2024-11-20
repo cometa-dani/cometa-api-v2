@@ -14,6 +14,11 @@ beforeEach(async () => {
 });
 
 
+afterAll(async () => {
+  await prisma.organization.deleteMany(); // comment when coding
+})
+
+
 describe(`POST api/v1/organizations`, () => {
   it('should create a new organization', async () => {
     const response = await axios.post(`/organizations`, testOrganization1);

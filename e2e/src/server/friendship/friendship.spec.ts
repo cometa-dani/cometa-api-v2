@@ -14,6 +14,11 @@ beforeAll(async () => {
 })
 
 
+afterAll(async () => {
+  await prisma.user.deleteMany(); // comment when coding
+})
+
+
 // 1
 describe('GET api/v1/friendships', () => {
   it('should get all paginated new frienships in descending order', async () => {

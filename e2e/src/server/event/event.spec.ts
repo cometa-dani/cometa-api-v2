@@ -11,6 +11,11 @@ beforeAll(async () => {
 })
 
 
+afterAll(async () => {
+  await prisma.organization.deleteMany(); // comment when coding
+})
+
+
 // 1
 describe('GET api/v1/events', () => {
   it('should get the latest paginated events', async () => {

@@ -45,17 +45,6 @@ class FriendshipRouter extends BaseRouter {
         this._friendshipController.searchPaginatedFriends
       );
 
-    this._router
-      .route('/:id');
-    // .patch(
-    //   validateRequestMiddleware({ params: idsSchema, body: updateFrienshipSchemma }),
-    //   this._friendshipController.updateFriendShipInvitationByQueryParams
-    // )
-    // .delete(
-    //   validateRequestMiddleware({ params: idsSchema }),
-    //   this._friendshipController.deleteFriendshipById
-    // );
-
     //TODO: change the route to /:id/
     this._router
       .route('/:uid')
