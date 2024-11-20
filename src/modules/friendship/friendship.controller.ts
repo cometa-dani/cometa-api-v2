@@ -74,7 +74,7 @@ export class FrienshipController extends BaseController {
     async (req, res, next) => {
       try {
         const newFriendshipInvitation = (
-          await this._friendshipService.sentFriendshipInvitation(req.body.id, req.user.id)
+          await this._friendshipService.sentFriendshipInvitation(req.body.targetUserId, req.user.id)
         );
         this.created(res, newFriendshipInvitation);
       }
@@ -87,18 +87,18 @@ export class FrienshipController extends BaseController {
    *
    * @description follows or unfollows a friendship
    */
-  public updateFriendShipInvitation: RequestHandlerParams<IdsDto, UpdateFriendshipDto> =
+  public updateFriendShipInvitationByQueryParams: RequestHandlerQuery<IdsDto, UpdateFriendshipDto> =
     async (req, res, next) => {
       try {
         const { status } = req.body;
         if (status === 'ACCEPTED') {
           const acceptedFrienship =
-            await this._friendshipService.acceptFrienshipInvitation(req.params.id, req.user);
+            await this._friendshipService.acceptFrienshipInvitation(req.query.targetUserId, req.user);
           return this.ok(res, acceptedFrienship);
         }
         if (status === 'PENDING') {
           const pendingFriendship =
-            await this._friendshipService.resetFriendshipInvitation(req.params.id, req.user);
+            await this._friendshipService.resetFriendshipInvitation(req.query.targetUserId, req.user);
           return this.ok(res, pendingFriendship);
         }
         return this.badRequest(res);
@@ -108,10 +108,10 @@ export class FrienshipController extends BaseController {
       }
     };
 
-  public deleteFriendship: RequestHandlerParams<IdsDto> = async (req, res, next) => {
+  public deleteFriendshipById: RequestHandlerQuery<IdsDto> = async (req, res, next) => {
     try {
       const noContent = (
-        await this._friendshipService.deleteBySenderOrReceiver(req.params.id, req.user.id)
+        await this._friendshipService.deleteBySenderOrReceiver(req.query.targetUserId, req.user.id)
       );
       if (!noContent) {
         return this.noContent(res, noContent);

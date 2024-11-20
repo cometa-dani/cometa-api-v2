@@ -1,3 +1,14 @@
+import { PrismaClient } from "@prisma/client";
+import { createFootballEvents } from "./eventData";
+
+
+const prisma = new PrismaClient()
+
+
+beforeAll(async () => {
+  await prisma.organization.deleteMany() // cascades and deletes all events
+  await createFootballEvents()
+})
 
 
 // 1
@@ -7,7 +18,6 @@ describe('GET api/v1/events', () => {
     expect(true).toBe(true);
   })
 });
-
 
 
 // 2

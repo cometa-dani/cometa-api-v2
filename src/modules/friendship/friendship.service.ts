@@ -145,7 +145,7 @@ export class FriendshipService {
           { senderId: loggedInUser.id, receiverId: targetUserID }
         ]
       },
-      include: { sender: { select: { uid: true } } }
+      // include: { sender: { select: { uid: true } } }
     });
     // first time
     if (friendshipExists && friendshipExists.status === 'PENDING') {
@@ -160,19 +160,19 @@ export class FriendshipService {
       });
       return friendShip;
     }
-    // atfer first time
-    if (friendshipExists && friendshipExists.status === 'PENDING') {
-      const friendShip = await this._prismaService.friendship.update({
-        where: {
-          id: friendshipExists.id
-        },
-        data: {
-          status: 'ACCEPTED',
-        }
-      });
-      return friendShip;
-    }
     throw new HttpError(409, ErrorMessage.INVITATION_DOES_NOT_EXIST);
+    // // atfer first time
+    // if (friendshipExists && friendshipExists.status === 'PENDING') {
+    //   const friendShip = await this._prismaService.friendship.update({
+    //     where: {
+    //       id: friendshipExists.id
+    //     },
+    //     data: {
+    //       status: 'ACCEPTED',
+    //     }
+    //   });
+    //   return friendShip;
+    // }
   }
 
   public async resetFriendshipInvitation(targetUserID: number, loggedInUser: User): Promise<Friendship> {

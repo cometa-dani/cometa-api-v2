@@ -19,6 +19,8 @@ class FriendshipRouter extends BaseRouter {
     this._router.use(authUserMiddleware);
     this._router
       .route('/')
+      // 1
+      // TODO: test
       .get(
         validateRequestMiddleware({ query: getAllFriendshipsSchemma }),
         this._friendshipController.getPaginatedNewestFriends
@@ -26,6 +28,14 @@ class FriendshipRouter extends BaseRouter {
       .post(
         validateRequestMiddleware({ body: idsSchema }),
         this._friendshipController.sentFriendShipInvitation
+      )
+      .patch(
+        validateRequestMiddleware({ query: idsSchema, body: updateFrienshipSchemma }),
+        this._friendshipController.updateFriendShipInvitationByQueryParams
+      )
+      .delete(
+        validateRequestMiddleware({ query: idsSchema }),
+        this._friendshipController.deleteFriendshipById
       );
 
     this._router
@@ -36,15 +46,15 @@ class FriendshipRouter extends BaseRouter {
       );
 
     this._router
-      .route('/:id')
-      .patch(
-        validateRequestMiddleware({ params: idsSchema, body: updateFrienshipSchemma }),
-        this._friendshipController.updateFriendShipInvitation
-      )
-      .delete(
-        validateRequestMiddleware({ params: idsSchema }),
-        this._friendshipController.deleteFriendship
-      );
+      .route('/:id');
+    // .patch(
+    //   validateRequestMiddleware({ params: idsSchema, body: updateFrienshipSchemma }),
+    //   this._friendshipController.updateFriendShipInvitationByQueryParams
+    // )
+    // .delete(
+    //   validateRequestMiddleware({ params: idsSchema }),
+    //   this._friendshipController.deleteFriendshipById
+    // );
 
     //TODO: change the route to /:id/
     this._router

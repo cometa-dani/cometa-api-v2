@@ -4,7 +4,7 @@ export const getRamdomStadium = () => Math.floor(Math.random() * stadiumsLocatio
  *
  * @param {String} date
  */
-const parseDate = (date) => {
+export const parseDate = (date) => {
   const dateString = date;
   const parts = dateString.split(' '); // Split date and time
   const dateParts = parts[0].split('/'); // Split date into day, month, year
@@ -20,10 +20,6 @@ const parseDate = (date) => {
   return new Date(year, month, day, hours, minutes, seconds);
 };
 
-/**
- *
- * @type {import('@prisma/client').Location[]}
- */
 export const stadiumsLocations = [
   { name: 'Lusail Stadium', latitude: 25.123456, longitude: 51.654321, description: 'Lusail Stadium is a modern sporting venue located in Lusail, Qatar. It is a state-of-the-art stadium with impressive architecture and is often used for major sporting events.' },
   { name: 'Abdullah Bin Khalifa Stadium', latitude: 25.987654, longitude: 51.987123, description: 'This stadium is known for its vibrant atmosphere during football matches. Located in the heart of Doha, it has hosted numerous exciting games.' },

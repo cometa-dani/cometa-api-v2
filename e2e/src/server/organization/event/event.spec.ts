@@ -23,6 +23,11 @@ beforeEach(async () => {
   await prisma.location.deleteMany();
 });
 
+afterAll(async () => {
+  await prisma.organization.deleteMany();
+  await prisma.event.deleteMany();
+  await prisma.location.deleteMany();
+})
 
 const createFormData = (): FormData => {
   const formData = new FormData();
