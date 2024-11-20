@@ -1,12 +1,10 @@
 import axios from 'axios';
 import { WorldCities } from "@prisma/client";
 
-const endpoint = 'world-cities';
 
-
-describe(`GET api/v1/${endpoint}`, () => {
+describe(`GET api/v1/world-cities`, () => {
   it('should return paginated world cities', async () => {
-    const res = await axios.get(`/${endpoint}`);
+    const res = await axios.get(`/world-cities`);
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual(expect.objectContaining({

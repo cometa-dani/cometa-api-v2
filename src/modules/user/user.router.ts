@@ -17,13 +17,39 @@ class UserRouter extends BaseRouter {
   }
 
   protected _initializeRoutes(): void {
+
+    // 1
+    // TODO
+    this._router.get('/:uid', //  -> id
+      validateRequestMiddleware({ params: idsSchema }),
+      this._userController.getLoggedInUserWithLikeEvents
+    );
+
+    // 2
+    // TODO
+    this._router.get('/:uid/targets',  //  -> id
+      authUserMiddleware,
+      validateRequestMiddleware({ params: idsSchema }),
+      this._userController.getTargetUserWithFriendship
+    );
+
+    // 3
+    //  ?username=@Jhoa
+    // ?liked-same-event=8772
     this._router.get('/search',
       authUserMiddleware,
       validateRequestMiddleware({ query: searchByUsernameSchemma }),
       this._userController.searchPaginatedUsersByUsername
     );
+    // this._router.route('/search?liked-same-event=8772') // ? liked-same-event=8772
+    //   .get(
+    //     validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchema }),
+    //     this._eventController.getPaginatedUsersWhoLikedSameEvent
+    //   );
 
-    this._router.route('/')
+
+    // 4
+    this._router.route('/') // ?email=Jhoa%40gmail.com &username=@Jhoa
       .get(
         validateRequestMiddleware({ query: searchQueryParamsSchemma }),
         this._userController.findUniqueUserByQueryParams
@@ -42,29 +68,7 @@ class UserRouter extends BaseRouter {
         validateRequestMiddleware({ params: idsSchema, }),
         this._userController.deleteUserById
       );
-    /**
-     * ******************************************
-     * TODO:
-     *  urlPram should be userId
-     *  ?likes=true,  so we can remove this endpoint
-     *  ?friends=true
-     * ?targetUser=123
-     * ******************************************
-     */
-    this._router.get('/:uid',
-      validateRequestMiddleware({ params: idsSchema }),
-      this._userController.getLoggedInUserWithLikeEvents
-    );
-    this._router.get('/:uid/targets',
-      authUserMiddleware,
-      validateRequestMiddleware({ params: idsSchema }),
-      this._userController.getTargetUserWithFriendship
-    );
-    /**
-     * ******************************************
-     * TODO
-     * ******************************************
-     */
+
 
     this._router.post('/:id/photos',
       imageUploadMiddleware.any(),

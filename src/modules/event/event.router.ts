@@ -19,52 +19,39 @@ class EventRouter extends BaseRouter {
 
   protected _initializeRoutes(): void {
     this._router.use(authUserMiddleware);
+    // 1
     this._router.route('/')
       .get(
         validateRequestMiddleware({ query: searchEventsSchemma }),
         this._eventController.getPaginatedLatestEvent
       );
 
+    // 2
     this._router.route('/search')
       .get(
         validateRequestMiddleware({ query: searchEventsSchemma }),
         this._eventController.searchPaginatedEventsByName
       );
 
-    /**
-     *
-     * ******************************************
-     * TODO: change query params & (delete 'liked' segment)
-     * ******************************************
-     */
-    this._router.route('/liked/matches/:uid')   // ?matches=true&targetUser=123
-      .get(
-        validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchema }),
-        this._eventController.getPaginatedMatchedEventsByTwoUsers
-      );
-
-    this._router.route('/liked')  // change to ?liked=true&targetUser=123
-      .get(
-        validateRequestMiddleware({ query: getTargetUserEventsSchemma }),
-        this._eventController.getPaginatedLikedEventsForBucketList
-      );
-
+    // 3
     this._router.route('/liked/:eventId') // /:eventId?likes=true
       .get(
         validateRequestMiddleware({ params: idsSchema }),
         this._eventController.getEventByID
       );
 
-    /**
-     *
-     * ******************************************
-     * TODO: move to users folder
-     * ******************************************
-     */
-    this._router.route('/liked/:eventId/users') // ? liked-same-event=8772
+    // 4
+    this._router.route('/liked')
+      .get(
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma }),
+        this._eventController.getPaginatedLikedEventsForBucketList
+      );
+
+    //  5 ?liked-by-user1=123?liked-by-user2=123
+    this._router.route('/liked/matches/:uid')   // ?matches=true&targetUser=123
       .get(
         validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchema }),
-        this._eventController.getPaginatedUsersWhoLikedSameEvent
+        this._eventController.getPaginatedMatchedEventsByTwoUsers
       );
   }
 }

@@ -17,7 +17,7 @@ afterAll(async () => {
 })
 
 
-describe(`POST api/v1/${endpoint}`, () => {
+describe(`POST api/v1/users`, () => {
   it('should create a new user', async () => {
     const response = await axios.post(`/${endpoint}`, testUser1);
 
@@ -49,7 +49,65 @@ describe(`POST api/v1/${endpoint}`, () => {
 });
 
 
-describe(`PATCH api/v1/${endpoint}/:id`, () => {
+// 1
+// CHANGE FOR: for describe('GET /api/v1/users/:id?likedEvents=true')
+describe(`GET /api/v1/users/:uid`, () => {
+  it('should return user by uid with liked events', async () => {
+    await axios.post(`/${endpoint}`, testUser1);
+    const response = await axios.get(`/${endpoint}/${testUser1.uid}`)
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject({
+      username: '@' + testUser1.username,
+      name: testUser1.name,
+      email: testUser1.email,
+      uid: testUser1.uid,
+    });
+  });
+
+  it('should return 404 for non-existent user', async () => {
+    try {
+      await axios.get(`/${endpoint}/non-existent-id`)
+    } catch (error) {
+      expect(error.response.status).toBe(404);
+    }
+  });
+});
+
+
+// 1
+// CHANGE FOR: after refactoring the routes **************************
+describe(`GET /api/v1/users/:id?likedEvents=true`, () => {
+  it('should get an user by id with liked events', async () => {
+    expect(true).toBe(true);
+    //
+    //
+    //
+    //
+    //
+  })
+})
+
+
+// 2
+// TODO: after refactoring the routes **************************
+describe(`GET /api/v1/users/targets/:targetUserId=1231231`, () => {
+  it('should get an user by id with friends', async () => {
+    expect(true).toBe(true);
+  })
+
+  // 2
+  it('should query for ?friends=true&likes=true', async () => {
+    expect(true).toBe(true);
+    //
+    //
+    //
+    //
+    //
+  })
+})
+
+
+describe(`PATCH api/v1/users/:id`, () => {
   let testUser: User;
   it('should update an existing user', async () => {
     // First, create the user so that there is a user to update
@@ -105,36 +163,10 @@ describe(`PATCH api/v1/${endpoint}/:id`, () => {
 });
 
 
-describe(`GET /api/v1/${endpoint}/:uid`, () => {
-  it('should return user by uid', async () => {
-    await axios.post(`/${endpoint}`, testUser1);
-    const response = await axios.get(`/${endpoint}/${testUser1.uid}`)
-    expect(response.status).toBe(200);
-    expect(response.data).toMatchObject({
-      username: '@' + testUser1.username,
-      name: testUser1.name,
-      email: testUser1.email,
-      uid: testUser1.uid,
-    });
-  });
-
-  it('should return 404 for non-existent user', async () => {
-    try {
-      await axios.get(`/${endpoint}/non-existent-id`)
-    } catch (error) {
-      expect(error.response.status).toBe(404);
-    }
-  });
-});
-
-
-// TODO: after refactoring the routes
-// 'users/:uid/targets'
-// 'users/:uid'
-
-
-describe(`GET /api/v1/${endpoint}/search?username=@jho`, () => {
-  it('should search for users by username with pagination', async () => {
+// 3
+// TODO: after refactoring the routes **************************
+describe(`GET /api/v1/users/search?username=@jho&liked-same-event=121321&cursor=0&limit=10`, () => {
+  it('should search ?username=@jho for PAGINATED users by username starting with @', async () => {
     await Promise.all([
       axios.post(`/${endpoint}`, testUser1),
       axios.post(`/${endpoint}`, testUser2)
@@ -154,4 +186,39 @@ describe(`GET /api/v1/${endpoint}/search?username=@jho`, () => {
       itemsPerPage: expect.any(Number),
     });
   });
+
+  // 3
+  // TODO: after refactoring the routes **************************
+  it('should search ?liked-same-event=121321 for PAGINATED users', async () => {
+    expect(true).toBe(true);
+    //
+    //
+    //
+    //
+    //
+    //
+  })
+})
+
+
+// 4
+// TODO: after refactoring the routes **************************
+describe(`GET api/v1/users?username=@jho&email=jho%40gmail.com`, () => {
+  it('should GET ONE SINGLE USER by username', async () => {
+    expect(true).toBe(true);
+    //
+    //
+    //
+    //
+    //
+  })
+
+  it('should GET ONE SINGLE USER by email', async () => {
+    expect(true).toBe(true);
+    //
+    //
+    //
+    //
+    //
+  })
 })
