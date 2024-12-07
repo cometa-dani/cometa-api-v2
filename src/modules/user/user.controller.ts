@@ -99,7 +99,7 @@ export class UserController extends BaseController {
 
   public createUser: RequestHandlerBody<CreateUserDTO> = async (req, res, next) => {
     try {
-      const userFound = await this._userService.findUniqueByField({ email: req.body.email });
+      const userFound = await this._userService.findUniqueByField({ email: req.body.email, username: req.body.username });
       if (userFound) {
         return this.conflict(res, ErrorMessage.ALREADY_EXISTS);
       }

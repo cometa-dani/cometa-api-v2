@@ -84,6 +84,14 @@ export class UserService {
   }
 
   public async findUniqueByField(queryParams: SearchByQueryParamsDTO) {
+    if (queryParams.email && queryParams.username) {
+      return this._prismaService.user.findFirst({
+        where: {
+          email: queryParams.email,
+          username: queryParams.username
+        }
+      });
+    }
     if (queryParams.email) {
       return this._prismaService.user.findFirst({
         where: {
