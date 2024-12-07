@@ -13,7 +13,8 @@
     "db:down": "docker compose down",
     "migrate:generate": "npx prisma migrate dev --name",
     "migrate:run": "npx prisma migrate dev",
-    "migrate:save": "npx prisma db push"
+    "migrate:save": "npx prisma db push",
+    "instrospect": "npx prisma db pull"
   },
   "prisma": {
     "seed": "node prisma/seed.js",
