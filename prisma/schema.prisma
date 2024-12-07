@@ -126,7 +126,7 @@ model User {
   verified              Boolean?            @default(false)
   gender                Gender?
   exerciseFrequency     ExerciseFrequency?  @map("exercise_frequency")
-  uid                   String?             @db.Uuid
+  uid                   String?             @unique @db.Uuid
   chatGroupAsAdmin      ChatGroup[]         @relation("ChatGroupAdmin")
   likedEvents           EventLike[]
   sharedEvents          EventShare[]
