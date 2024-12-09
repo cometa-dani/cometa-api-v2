@@ -48,7 +48,7 @@ export async function authUserMiddleware(request: Request, response: Response, n
       message: 'UNAUTHORIZED'
     });
   }
-  const uid = payload['user_id'];
+  const uid = payload['sub'];
 
   if (module === 'organization') {
     const organization = await Container.get(PrismaService).organization.findUnique({ where: { uid } });
