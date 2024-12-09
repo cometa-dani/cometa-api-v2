@@ -23,7 +23,7 @@ const newOrganizations = [
         // organizationId: 2,
         date: parseDate('12/01/2024 19:00:00'),
         categories: ['PARTY'],
-        mediaUrl: 'https://firebasestorage.googleapis.com/v0/b/cometa-e5dd5.appspot.com/o/dev%2FChotto%20Matte(1).png?alt=media&token=7b4fd3c0-d22e-4584-b300-c8a04f0e6350',
+        mediaUrl: 'https://ynlqvrticeutltbgimpj.supabase.co/storage/v1/object/public/seeds/Chotto%20Matte(1).png',
         description:
           `⭐ Viaja a través de tus historias favoritas con Mundo Pixar, la exposición inmersiva más grande de Pixar hasta la fecha, que llega por primera vez a nuestro país. Los escenarios más famosos de Toy Story, Coco, Up, Buscando a Nemo o Del revés, cobran vida a tamaño real en esta experiencia mágica en el Recinto Ferial de IFEMA Madrid.
 
@@ -92,7 +92,7 @@ const newOrganizations = [
         // organizationId: 4,
         date: parseDate('12/01/2024 19:00:00'),
         categories: ['PARTY'],
-        mediaUrl: 'https://firebasestorage.googleapis.com/v0/b/cometa-e5dd5.appspot.com/o/dev%2FMegapolis.png?alt=media&token=d8269caa-3a64-4de1-9dd9-e48c932c630a',
+        mediaUrl: 'https://ynlqvrticeutltbgimpj.supabase.co/storage/v1/object/public/seeds/Anima%20Gallery.png',
         description:
           `⭐ Viaja a través de tus historias favoritas con Mundo Pixar, la exposición inmersiva más grande de Pixar hasta la fecha, que llega por primera vez a nuestro país. Los escenarios más famosos de Toy Story, Coco, Up, Buscando a Nemo o Del revés, cobran vida a tamaño real en esta experiencia mágica en el Recinto Ferial de IFEMA Madrid.
 
