@@ -1,14 +1,14 @@
 import { Service } from 'typedi';
 import { ImageHashed, ThumbHash, IUploadedPhoto, IPhotoToUpload } from './interfaces';
 import sharp from 'sharp';
-import { bucket } from '../../../firebase-admin/firebaseAdmin';
+import { supabase } from '../../../supabase/config';
+import { supabaseUrl } from '../../../vars';
 
 
 @Service()
 export class CloudStorageService {
   private _thumbHash?: ThumbHash;
-  private _bucket = bucket;
-  private _env = process.env.NODE_ENV;
+  private _storage = supabase.storage;
   private _CACHE_CONTROL_MAX_AGE = 315360000;
 
   private async _resizeImage(imageBuffer: Buffer, width = 100, height = 100): Promise<ImageHashed> {
@@ -34,24 +34,33 @@ export class CloudStorageService {
   public async uploadPhotoToBucket(
     destinationPath: string,
     imgFile: Express.Multer.File,
-    token: number | string
+    token: number | string,
+    bucket: string
   ) {
-    const path = this._env !== 'production' ? 'test/' + destinationPath : destinationPath;
-    await this._bucket.file(path).save(imgFile.buffer, {
-      contentType: imgFile.mimetype,
-      public: true,
-      metadata: {
-        name: path,
-        firebaseStorageDownloadTokens: token,
-        cacheControl: `public, max-age=${this._CACHE_CONTROL_MAX_AGE}`,
-      },
-    });
-    return this._generatePublicUrl(path, token);  // returns the public url
+    const result = await this._storage.from(bucket).upload(
+      destinationPath,
+      imgFile.buffer,
+      {
+        cacheControl: `max-age=${this._CACHE_CONTROL_MAX_AGE}`,
+        upsert: true,
+        contentType: imgFile.mimetype,
+        metadata: {
+          token
+        }
+      });
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+    return (
+      this._storage
+        .from(bucket)
+        .getPublicUrl(destinationPath)?.data?.publicUrl
+    );  // returns the public url
   }
 
-  public async uploadPhotosToBucket(photosToUpload: IPhotoToUpload[]): Promise<IUploadedPhoto[]> {
+  public async uploadPhotosToBucket(photosToUpload: IPhotoToUpload[], bucket: string): Promise<IUploadedPhoto[]> {
     const filesToUpload = photosToUpload.map(photo => {
-      return this.uploadPhotoToBucket(photo.destinationPath, photo.file, photo.id);
+      return this.uploadPhotoToBucket(photo.destinationPath, photo.file, photo.id, bucket);
     });
     const filesToHash = photosToUpload.map(photo => {
       return this.generatePhotoHashes(photo.file.buffer);
@@ -69,17 +78,15 @@ export class CloudStorageService {
     return uploadedPhotos;
   }
 
-  public deletePhotoFromBucket(destinationPath: string) {
-    const path = this._env !== 'production' ? 'test/' + destinationPath : destinationPath;
+  public deletePhotoFromBucket(destinationPath: string, bucket: string) {
     return (
-      this._bucket.file(path).delete()
+      this._storage.from(bucket).remove([destinationPath])
     );
   }
 
-  // return getDownloadURL(this._bucket.file(destinationPath));
   private async _generatePublicUrl(destinationPath: string, token: string | number) {
     const encodedFileName = encodeURIComponent(destinationPath);
-    const url = `https://firebasestorage.googleapis.com/v0/b/${this._bucket.name}/o/${encodedFileName}?alt=media&token=${token}`;
+    const url = `${supabaseUrl}/storage/v1/object/public/${encodedFileName}?token=${token}`;
     return url;
   }
 }

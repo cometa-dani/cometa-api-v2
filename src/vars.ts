@@ -36,4 +36,8 @@ export const serviceAccount = {
 };
 
 export const maxNumPhotosPerEvent = 3;
-export const maxNumPhotosPerUser = 5;
+export const maxNumPhotosPerUser = 7;
+
+// supabase
+export const supabaseUrl = env.SUPABASE_URL;
+export const supabaseAnonimousKey = env.SUPABASE_ANON_KEY;

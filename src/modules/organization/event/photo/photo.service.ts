@@ -21,7 +21,7 @@ export class EventPhotoService {
         file: incomingImgFiles[index],
         destinationPath: `events/${eventId}/photos/${photo.id}`
       }));
-      const eventPhotos = await this._cloudStorageService.uploadPhotosToBucket(photosToUpload);
+      const eventPhotos = await this._cloudStorageService.uploadPhotosToBucket(photosToUpload, 'organizations');
       return this._prismaService.event.update({
         where: { id: eventId },
         data: {
@@ -47,7 +47,7 @@ export class EventPhotoService {
 
   public async deleteEventPhotoById(eventID: number, photoToDelete: EventPhoto) {
     const destinationPath = `events/${eventID}/photos/${photoToDelete.id}`;
-    await this._cloudStorageService.deletePhotoFromBucket(destinationPath);
+    await this._cloudStorageService.deletePhotoFromBucket(destinationPath, 'organizations');
     await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
     return this._prismaService.eventPhoto.updateMany({
       where: {
