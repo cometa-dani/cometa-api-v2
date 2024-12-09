@@ -1,11 +1,12 @@
 import multer from 'multer';
 import { HttpError } from '../helpers/httpError';
 import { randomUUID } from 'crypto';
+import { maxNumPhotosPerUser } from '../vars';
 
 
 export const imageUploadMiddleware = multer({
   storage: multer.memoryStorage(), // Use memory storage
-  limits: { fileSize: 400_000_000, files: 5 }, // 400 megaBytes max.
+  limits: { fileSize: 400_000_000, files: maxNumPhotosPerUser }, // 400 megaBytes max.
   fileFilter:
     /**
      *

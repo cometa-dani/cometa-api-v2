@@ -78,10 +78,12 @@ export class CloudStorageService {
     return uploadedPhotos;
   }
 
-  public deletePhotoFromBucket(destinationPath: string, bucket: string) {
-    return (
-      this._storage.from(bucket).remove([destinationPath])
-    );
+  public async deletePhotoFromBucket(destinationPath: string, bucket: string) {
+    const { error, data } = await this._storage.from(bucket).remove([destinationPath]);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
   }
 
   private async _generatePublicUrl(destinationPath: string, token: string | number) {
