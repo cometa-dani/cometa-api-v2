@@ -2,7 +2,7 @@ import { Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
 import { PrismaService } from '../../config/dataBase';
 import { configCursorBasedPagination } from '../../helpers/configCursor';
-import { GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
+import { GetTargetUserEventsDTO, ILikeableEvent, ILikedEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
 import { HttpError } from '../../helpers/httpError';
 import { ErrorMessage } from '../../helpers/errorMessages';
 
@@ -260,12 +260,12 @@ export class EventService {
   public async getPaginatedLikedEvents(
     loggedInUserID: number, queryParams: GetTargetUserEventsDTO
   )
-    : Promise<[ILikeableEvent[], number]> {
+    : Promise<[ILikedEvent[], number]> {
     const { limit, cursor, userId: targetUserID } = queryParams;
     const hasTargetUser = loggedInUserID && targetUserID ? true : false;
     const userIdToLookFor = hasTargetUser ? targetUserID : loggedInUserID;
     const whereCondition = { userId: userIdToLookFor };
-    let latestLikedEvents: ILikeableEvent[];
+    let latestLikedEvents: ILikedEvent[];
     let totalEventsCount: number;
 
     if (hasTargetUser) {
@@ -274,6 +274,7 @@ export class EventService {
           ...configCursorBasedPagination(limit, cursor),
           where: whereCondition,
           select: {
+            id: true,
             event: {
               include: {
                 location: true,
@@ -291,9 +292,10 @@ export class EventService {
         }),
         this._prismaService.eventLike.count({ where: whereCondition }),
       ]);
-      latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
+      latestLikedEvents = eventsWithAllPhotos.map(({ event, id }) => {
         return {
-          ...event,
+          id,
+          event,
           isLiked: event.likes?.length === 1, // because we are getting only the liked events
         };
       });
@@ -305,8 +307,10 @@ export class EventService {
           ...configCursorBasedPagination(limit, cursor),
           where: whereCondition,
           select: {
+            id: true,
             event: {
               include: {
+                location: true,
                 photos: { take: 1, where: { order: 0 } },
                 likes: {
                   take: 3,
@@ -326,10 +330,11 @@ export class EventService {
         }),
         this._prismaService.eventLike.count({ where: whereCondition }),
       ]);
-      latestLikedEvents = eventsWithAllPhotos.map(({ event }) => {
+      latestLikedEvents = eventsWithAllPhotos.map(({ event, id }) => {
         return {
-          ...event,
-          isLiked: true, // because we are getting only the liked events by a same user
+          id,
+          event,
+          isLiked: true
         };
       });
       totalEventsCount = eventsCount;

@@ -95,6 +95,12 @@ export interface ILikeableEvent extends Event {
   isLiked: boolean;
 }
 
+export interface ILikedEvent {
+  id: number;
+  event: Event;
+  isLiked: boolean;
+}
+
 export interface IUsersLikedSameEvent extends EventLike {
   user: User & {
     hasIncommingFriendship: boolean;

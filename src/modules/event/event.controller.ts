@@ -1,5 +1,5 @@
 import { Container, Service } from 'typedi';
-import { GetTargetUserEventsDTO, ILikeableEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
+import { GetTargetUserEventsDTO, ILikeableEvent, ILikedEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
 import { RequestHandlerQuery, RequestHandlerParams } from '../../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
 import { BaseController } from '../../helpers/baseController';
@@ -120,7 +120,7 @@ export class EventController extends BaseController {
           await this._eventService.getPaginatedLikedEvents(req.user.id, req.query)
         );
         const nextCursor = events.at(-1)?.id ?? null;
-        const paginatedEvents: PaginatedResult<ILikeableEvent> = {
+        const paginatedEvents: PaginatedResult<ILikedEvent> = {
           items: events,
           totalItems: count,
           nextCursor,
