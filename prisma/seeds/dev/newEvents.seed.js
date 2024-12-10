@@ -62,6 +62,7 @@ const newOrganizations = [
         name: 'The St. Regis Marsa Arabia Island',
         latitude: 25.368925,
         longitude: 51.543934,
+        mapUrl: 'https://maps.app.goo.gl/UtYUzN7us6xziAeE9'
       },
     ]
   },
@@ -131,6 +132,7 @@ const newOrganizations = [
         name: 'Andalucia Way, Building B12، The Pearl, Doha',
         latitude: 25.366978,
         longitude: 51.551305,
+        mapUrl: 'https://maps.app.goo.gl/n71T6jDzkYgngLwv8'
         // organizationId: 4,
       },
     ]

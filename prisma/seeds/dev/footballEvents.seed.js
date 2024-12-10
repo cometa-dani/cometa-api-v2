@@ -126,6 +126,7 @@ const footBallEventsSeed = async () => {
               description: stadium.description,
               latitude: stadium.latitude,
               longitude: stadium.longitude,
+              mapUrl: 'https://maps.app.goo.gl/51tUUu7vhrY1SL8Q8'
             }))
           }
         }

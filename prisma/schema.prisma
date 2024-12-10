@@ -35,9 +35,11 @@ model Location {
   updatedAt      DateTime      @updatedAt @map("updated_at")
   name           String        @unique @db.VarChar(255)
   description    String?
-  latitude       Float
-  longitude      Float
+  latitude       Float?
+  longitude      Float?
   organizationId Int?
+  mapUrl         String?       @map("map_url")
+  mapCid         String?       @map("map_cid")
   events         Event[]
   Organization   Organization? @relation(fields: [organizationId], references: [id])
 }
