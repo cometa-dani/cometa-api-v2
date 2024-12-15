@@ -229,7 +229,25 @@ export class UserService {
         }
       });
     } catch (error) {
-      throw new HttpError(500, 'Uploading user photos failed' + error.message);
+      throw new HttpError(400, 'Uploading user photos failed' + error.message);
+    }
+  }
+
+  public async updateUserPhoto(userId: number, photoId: number, incomingImgFile: Express.Multer.File) {
+    try {
+      const photoToUpdate: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId, userId } });
+      const hashedPhoto = await this._cloudStorageService.generatePhotoHashes(incomingImgFile.buffer);
+      const photoUrl = await this._cloudStorageService.uploadPhotoToBucket(`${userId}/photos/${photoId}`, incomingImgFile, photoId, 'users');
+      console.log(photoUrl, photoToUpdate.url);
+      return this._prismaService.userPhoto.update({
+        where: { id: photoToUpdate.id },
+        data: {
+          url: photoUrl,
+          placeholder: hashedPhoto
+        }
+      });
+    } catch (error) {
+      throw new HttpError(400, 'Uploading user photos failed' + error.message);
     }
   }
 

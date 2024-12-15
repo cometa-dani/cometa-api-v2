@@ -158,6 +158,23 @@ export class UserController extends BaseController {
     }
   };
 
+  public updateUserPhoto: RequestHandlerParams<IdsDto> = async (req, res, next) => {
+    try {
+      const userFound = await this._userService.findByID(req.params.id, true);
+      if (!userFound) {
+        return this.notFound(res, ErrorMessage.NOT_FOUND);
+      }
+      const updatedUserPhotos = await this._userService.updateUserPhoto(userFound.id, req.params.photoId, req.file);
+      if (!updatedUserPhotos) {
+        return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
+      }
+      return this.ok(res, updatedUserPhotos);
+    }
+    catch (error) {
+      next(error);
+    }
+  };
+
   public deleteUserById: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const userFound = await this._userService.findByID(req.params.id, true);

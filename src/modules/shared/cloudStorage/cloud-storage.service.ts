@@ -35,14 +35,15 @@ export class CloudStorageService {
     destinationPath: string,
     imgFile: Express.Multer.File,
     token: number | string,
-    bucket: string
+    bucket: string,
+    upsert = true
   ) {
     const result = await this._storage.from(bucket).upload(
       destinationPath,
       imgFile.buffer,
       {
         cacheControl: `max-age=${this._CACHE_CONTROL_MAX_AGE}`,
-        upsert: true,
+        upsert,
         contentType: imgFile.mimetype,
         metadata: {
           token

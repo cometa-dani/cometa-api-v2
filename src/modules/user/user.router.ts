@@ -47,7 +47,6 @@ class UserRouter extends BaseRouter {
     //     this._eventController.getPaginatedUsersWhoLikedSameEvent
     //   );
 
-
     // 4
     this._router.route('/') // ?email=Jhoa%40gmail.com &username=@Jhoa
       .get(
@@ -69,17 +68,22 @@ class UserRouter extends BaseRouter {
         this._userController.deleteUserById
       );
 
-
     this._router.post('/:id/photos',
       imageUploadMiddleware.any(),
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.uploadUserPhotos
     );
 
-    this._router.delete('/:id/photos/:photoId',
-      validateRequestMiddleware({ params: idsSchema }),
-      this._userController.deleteUserPhotoById
-    );
+    this._router.route('/:id/photos/:photoId')
+      .patch(
+        imageUploadMiddleware.single('photo'),
+        validateRequestMiddleware({ params: idsSchema }),
+        this._userController.updateUserPhoto
+      )
+      .delete(
+        validateRequestMiddleware({ params: idsSchema }),
+        this._userController.deleteUserPhotoById
+      );
   }
 }
 
