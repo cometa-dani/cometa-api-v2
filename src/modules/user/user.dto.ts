@@ -26,11 +26,11 @@ export const searchByUsernameSchemma =
       z.string()
         .default('')
         .transform((str) => {
-            // If `str` is undefined or empty, default to '@'
-            if (!str) return '@';
-            // Ensure it starts with '@'
-            return str.startsWith('@') ? str : '@' + str;
-          }
+          // If `str` is undefined or empty, default to '@'
+          if (!str) return '@';
+          // Ensure it starts with '@'
+          return str.startsWith('@') ? str : '@' + str;
+        }
         )
   })
     .extend(paginationSchema.shape);
@@ -58,6 +58,7 @@ export type CreateUserDTO = z.infer<typeof createUserSchemma>
 export const updateUserSchemma = (
   createUserSchemma
     .extend({
+      biography: z.string(),
       phone: z.string(),
       birthday: z.string().transform(date => date ? new Date(date) : date),
       activateNotifications: z.boolean(),
