@@ -85,7 +85,7 @@ export const updateUserSchemma = (
       homeTown: z.string(),
       languages:
         z.string()
-          .transform(value => value.split(',')),
+          .transform(value => value.split(', ')),
       height: z.number(),
       weight: z.number(),
       favoriteSports: z.array(z.string()),
