@@ -224,17 +224,26 @@ export class UserService {
 
   public async updateUserPhoto(userId: number, photoId: number, incomingImgFile: Express.Multer.File) {
     try {
-      const photoToUpdate: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId, userId } });
+      const photoToDelete: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId, userId } });
       const hashedPhoto = await this._cloudStorageService.generatePhotoHashes(incomingImgFile.buffer);
-      const photoUrl = await this._cloudStorageService.uploadPhotoToBucket(`${userId}/photos/${photoId}`, incomingImgFile, photoId, 'users');
-      console.log(photoUrl, photoToUpdate.url);
-      return this._prismaService.userPhoto.update({
-        where: { id: photoToUpdate.id },
+      await this._cloudStorageService.deletePhotoFromBucket(`${userId}/photos/${photoId}`, 'users');
+      const createdPhoto = await this._prismaService.userPhoto.create({
         data: {
-          url: photoUrl,
-          placeholder: hashedPhoto
+          userId,
         }
       });
+      const newPhotoUrl = await this._cloudStorageService.uploadPhotoToBucket(`${userId}/photos/${createdPhoto.id}`, incomingImgFile, createdPhoto.id, 'users');
+      const [updatedPhoto] = await this._prismaService.$transaction([
+        this._prismaService.userPhoto.update({
+          where: { id: photoToDelete.id },
+          data: {
+            url: newPhotoUrl,
+            placeholder: hashedPhoto
+          }
+        }),
+        this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } })
+      ]);
+      return updatedPhoto;
     } catch (error) {
       throw new HttpError(400, 'Uploading user photos failed' + error.message);
     }
