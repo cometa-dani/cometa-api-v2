@@ -150,22 +150,11 @@ export class UserService {
     }
   }
 
-  public async findUniqueWithLikeEvents(uuid: string) {
+  public async findUniqueUser(uuid: string) {
     return this._prismaService.user.findUnique({
       where: { uid: uuid },
       include: {
-        photos: true,
-        likedEvents: {
-          include: {
-            event: {
-              select: {
-                photos: { take: 1, where: { order: 0 } },
-              }
-            }
-          },
-          orderBy: { id: 'desc' },
-          take: 5
-        }
+        photos: { orderBy: { order: 'asc' } }
       }
     });
   }

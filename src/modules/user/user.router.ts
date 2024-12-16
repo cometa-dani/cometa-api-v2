@@ -22,7 +22,7 @@ class UserRouter extends BaseRouter {
     // TODO
     this._router.get('/:uid', //  -> id
       validateRequestMiddleware({ params: idsSchema }),
-      this._userController.getLoggedInUserWithLikeEvents
+      this._userController.getUserProfile
     );
 
     // 2
