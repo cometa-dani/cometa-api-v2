@@ -146,9 +146,8 @@ export class UserController extends BaseController {
       if (incommingImgFiles.length > remainingPhotos) {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
-      const startCount = userFound.photos.length ?? 0;
       const updatedUserPhotos = (
-        await this._userService.saveUserPhotos(incommingImgFiles, userFound.id, startCount)
+        await this._userService.saveUserPhotos(incommingImgFiles, userFound.id)
       );
       if (!updatedUserPhotos) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
@@ -173,13 +172,13 @@ export class UserController extends BaseController {
       if (remainingPhotos === 0) {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
-      const updatedUserPhotos = (
+      const updatedUserPhoto = (
         await this._userService.updateUserPhoto(userFound.id, req.params.photoId, req.file)
       );
-      if (!updatedUserPhotos) {
+      if (!updatedUserPhoto) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
       }
-      return this.ok(res, updatedUserPhotos);
+      return this.ok(res, updatedUserPhoto);
     }
     catch (error) {
       next(error);

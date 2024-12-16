@@ -10,7 +10,6 @@ interface ValidateReqArgs {
 
 export function validateRequestMiddleware(validateReq: ValidateReqArgs): RequestHandler {
   return function (req: Request, res: Response, next: NextFunction) {
-
     for (const key in validateReq) {
       const schema = validateReq[key];
       if (schema) {

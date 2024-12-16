@@ -1,21 +1,23 @@
 import multer from 'multer';
 import { HttpError } from '../helpers/httpError';
-import { randomUUID } from 'crypto';
 import { maxNumPhotosPerUser } from '../vars';
 
 
 export const imageUploadMiddleware = multer({
   storage: multer.memoryStorage(), // Use memory storage
-  limits: { fileSize: 400_000_000, files: maxNumPhotosPerUser }, // 400 megaBytes max.
+  limits: {
+    fileSize: 400_000_000,
+    files: maxNumPhotosPerUser,
+    fieldSize: 400_000_000,
+  }, // 400 megaBytes max.
   fileFilter:
     /**
      *
      * @description fileFilter Function than prevents to send
      * a not allowed file format to the server.
      */
-    (req, file, filter) => {
+    (_, file, filter) => {
       if (new RegExp(/image\/*/i).test(file?.mimetype)) {
-        file.filename = file.filename + randomUUID();
         filter(null, true); // continues to next middleware
       }
       else {

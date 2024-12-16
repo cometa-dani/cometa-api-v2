@@ -187,10 +187,10 @@ export class UserService {
     ]);
   }
 
-  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userId: number, startCount: number): Promise<User> {
+  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userId: number): Promise<User> {
     try {
       const createdPhotos = await this._prismaService.userPhoto.createManyAndReturn({
-        data: incomingImgFiles.map((_, index) => ({ userId, order: startCount + index })),
+        data: incomingImgFiles.map(() => ({ userId })),
       });
       const photosToUpload = createdPhotos.map((photo, index) => ({
         id: photo.id,
@@ -208,7 +208,6 @@ export class UserService {
               data: {
                 url: photo.url,
                 placeholder: photo.placeholder,
-                order: photo.order
               }
             }))
           }
@@ -225,23 +224,25 @@ export class UserService {
   public async updateUserPhoto(userId: number, photoId: number, incomingImgFile: Express.Multer.File) {
     try {
       const photoToDelete: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId, userId } });
-      const hashedPhoto = await this._cloudStorageService.generatePhotoHashes(incomingImgFile.buffer);
+      const hashedPhoto: string = await this._cloudStorageService.generatePhotoHashes(incomingImgFile.buffer);
       await this._cloudStorageService.deletePhotoFromBucket(`${userId}/photos/${photoId}`, 'users');
-      const createdPhoto = await this._prismaService.userPhoto.create({
-        data: {
-          userId,
-        }
-      });
-      const newPhotoUrl = await this._cloudStorageService.uploadPhotoToBucket(`${userId}/photos/${createdPhoto.id}`, incomingImgFile, createdPhoto.id, 'users');
+      const createdPhoto: UserPhoto = await this._prismaService.userPhoto.create({ data: { userId } });
+      const newPhotoUrl: string = (await this._cloudStorageService.uploadPhotoToBucket(
+        `${userId}/photos/${createdPhoto.id}`,
+        incomingImgFile,
+        createdPhoto.id,
+        'users'
+      ));
       const [updatedPhoto] = await this._prismaService.$transaction([
+        this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } }),
         this._prismaService.userPhoto.update({
-          where: { id: photoToDelete.id },
+          where: { id: createdPhoto.id },
           data: {
             url: newPhotoUrl,
-            placeholder: hashedPhoto
+            placeholder: hashedPhoto,
+            order: photoToDelete.order // dont remove
           }
         }),
-        this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } })
       ]);
       return updatedPhoto;
     } catch (error) {

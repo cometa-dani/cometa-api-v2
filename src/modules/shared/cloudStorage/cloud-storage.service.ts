@@ -36,7 +36,7 @@ export class CloudStorageService {
     imgFile: Express.Multer.File,
     token: number | string,
     bucket: string,
-    upsert = true
+    upsert = false
   ) {
     const result = await this._storage.from(bucket).upload(
       destinationPath,
