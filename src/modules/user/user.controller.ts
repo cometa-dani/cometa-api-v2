@@ -6,12 +6,13 @@ import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
 import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO } from './user.dto';
 import { ErrorMessage } from '../../helpers/errorMessages';
 import { User } from '@prisma/client';
+import { maxNumPhotosPerUser } from '../../vars';
 
 
 @Service()
 export class UserController extends BaseController {
   private _userService = Container.get(UserService);
-  private _maxNumPhotos = 7;
+  private _maxNumPhotos = maxNumPhotosPerUser;
 
   constructor() {
     super();

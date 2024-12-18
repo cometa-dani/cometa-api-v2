@@ -6,6 +6,7 @@ import { PrismaService } from '../../config/dataBase';
 import { configCursorBasedPagination } from '../../helpers/configCursor';
 import { HttpError } from '../../helpers/httpError';
 import { IUploadedPhoto } from '../shared/cloudStorage/interfaces';
+import { maxNumPhotosPerUser } from '../../vars';
 
 
 @Service()
@@ -155,7 +156,7 @@ export class UserService {
     return this._prismaService.user.findUnique({
       where: { uid: uuid },
       include: {
-        photos: { orderBy: { order: 'asc' } }
+        photos: { orderBy: { order: 'asc' }, take: maxNumPhotosPerUser }
       }
     });
   }
