@@ -1,6 +1,6 @@
 import { Event } from "@prisma/client";
 import { PrismaService } from "../../../config/dataBase";
-import { CloudStorageService } from "../../shared/cloudStorage/cloud-storage.service";
+import { StorageService } from "../../shared/cloudStorage/cloud-storage.service";
 import Container, { Service } from "typedi";
 import { CreateEventDto, UpdateEventDto } from "./event.dto";
 
@@ -8,7 +8,7 @@ import { CreateEventDto, UpdateEventDto } from "./event.dto";
 @Service()
 export class EventService {
   private _prismaService = Container.get(PrismaService);
-  private _cloudStorageService = Container.get(CloudStorageService);
+  private _storageService = Container.get(StorageService);
 
   public getEventById(id: number) {
     return this._prismaService.event.findUnique({
@@ -48,7 +48,7 @@ export class EventService {
     if (photosIds.length === 0) return;
     return Promise.all(
       photosIds.map((photoId) => {
-        return this._cloudStorageService.deletePhotoFromBucket(`events/${eventId}/photos/${photoId}`, 'organizations');
+        return this._storageService.deletePhoto(`events/${eventId}/photos/${photoId}`, 'organizations');
       }));
   }
 }

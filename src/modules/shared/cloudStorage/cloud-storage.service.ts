@@ -6,7 +6,7 @@ import { supabaseUrl } from '../../../vars';
 
 
 @Service()
-export class CloudStorageService {
+export class StorageService {
   private _thumbHash?: ThumbHash;
   private _storage = supabase.storage;
   private _CACHE_CONTROL_MAX_AGE = 315360000;
@@ -16,7 +16,7 @@ export class CloudStorageService {
     return await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   }
 
-  public async generatePhotoHashes(imageBuffer: Buffer, width = 100, height = 100): Promise<string> {
+  public async generatePhotoBlurHashes(imageBuffer: Buffer, width = 100, height = 100): Promise<string> {
     try {
       if (!this._thumbHash) {
         this._thumbHash = await import('thumbhash');
@@ -31,7 +31,7 @@ export class CloudStorageService {
     }
   }
 
-  public async uploadPhotoToBucket(
+  public async uploadPhoto(
     destinationPath: string,
     imgFile: Express.Multer.File,
     token: number | string,
@@ -56,30 +56,30 @@ export class CloudStorageService {
       this._storage
         .from(bucket)
         .getPublicUrl(destinationPath)?.data?.publicUrl
-    );  // returns the public url
+    );
   }
 
-  public async uploadPhotosToBucket(photosToUpload: IPhotoToUpload[], bucket: string): Promise<IUploadedPhoto[]> {
+  public async uploadPhotos(photosToUpload: IPhotoToUpload[], bucket: string): Promise<IUploadedPhoto[]> {
     const filesToUpload = photosToUpload.map(photo => {
-      return this.uploadPhotoToBucket(photo.destinationPath, photo.file, photo.id, bucket);
+      return this.uploadPhoto(photo.destinationPath, photo.file, photo.id, bucket);
     });
-    const filesToHash = photosToUpload.map(photo => {
-      return this.generatePhotoHashes(photo.file.buffer);
+    const blurHashes = photosToUpload.map(photo => {
+      return this.generatePhotoBlurHashes(photo.file.buffer);
     });
-    const ImageHashed: string[] = await Promise.all(filesToHash);
+    const bluredHashes: string[] = await Promise.all(blurHashes);
     const photosUrls: string[] = await Promise.all(filesToUpload);
     const uploadedPhotos: IUploadedPhoto[] = photosToUpload.map((photo, index) => {
       return {
         id: photo.id,
         url: photosUrls[index],
-        placeholder: ImageHashed[index],
+        placeholder: bluredHashes[index],
         order: photo.order
       };
     });
     return uploadedPhotos;
   }
 
-  public async deletePhotoFromBucket(destinationPath: string, bucket: string) {
+  public async deletePhoto(destinationPath: string, bucket: string) {
     const { error, data } = await this._storage.from(bucket).remove([destinationPath]);
     if (error) {
       throw new Error(error.message);

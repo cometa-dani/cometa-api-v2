@@ -1,14 +1,15 @@
 import { HttpError } from "../../../../helpers/httpError";
 import { PrismaService } from "../../../../config/dataBase";
-import { CloudStorageService } from "../../../shared/cloudStorage/cloud-storage.service";
+import { StorageService } from "../../../shared/cloudStorage/cloud-storage.service";
 import Container, { Service } from "typedi";
 import { EventPhoto } from "@prisma/client";
+import { IUploadedPhoto } from "../../../../modules/shared/cloudStorage/interfaces";
 
 
 @Service()
 export class EventPhotoService {
   private _prismaService = Container.get(PrismaService);
-  private _cloudStorageService = Container.get(CloudStorageService);
+  private _storageService = Container.get(StorageService);
 
   public async saveEventPhotos(incomingImgFiles: Express.Multer.File[], eventId: number, startCount: number) {
     try {
@@ -21,7 +22,15 @@ export class EventPhotoService {
         file: incomingImgFiles[index],
         destinationPath: `events/${eventId}/photos/${photo.id}`
       }));
-      const eventPhotos = await this._cloudStorageService.uploadPhotosToBucket(photosToUpload, 'organizations');
+      let eventPhotos: IUploadedPhoto[] = [];
+      try {
+        eventPhotos = await this._storageService.uploadPhotos(photosToUpload, 'organizations');
+      } catch (error) {
+        await this._prismaService.eventPhoto.deleteMany({
+          where: { id: { in: createdPhotos.map((photo) => photo.id) } }
+        });
+        throw new HttpError(400, 'Uploading event photos failed' + error.message);
+      }
       return this._prismaService.event.update({
         where: { id: eventId },
         data: {
@@ -47,7 +56,7 @@ export class EventPhotoService {
 
   public async deleteEventPhotoById(eventID: number, photoToDelete: EventPhoto) {
     const destinationPath = `events/${eventID}/photos/${photoToDelete.id}`;
-    await this._cloudStorageService.deletePhotoFromBucket(destinationPath, 'organizations');
+    await this._storageService.deletePhoto(destinationPath, 'organizations');
     await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
     return this._prismaService.eventPhoto.updateMany({
       where: {

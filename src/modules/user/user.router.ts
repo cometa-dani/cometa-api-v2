@@ -74,18 +74,13 @@ class UserRouter extends BaseRouter {
       this._userController.uploadUserPhotos
     );
 
-    this._router.post('/:id/photos/:photoId',
+    this._router.patch('/:id/photos/:photoId',
       imageUploadMiddleware.single('file'),
       validateRequestMiddleware({ params: idsSchema }),
       this._userController.updateUserPhoto
     );
 
     this._router.route('/:id/photos/:photoId')
-      // .post(
-      //   imageUploadMiddleware.single('file'),
-      //   validateRequestMiddleware({ params: idsSchema }),
-      //   this._userController.updateUserPhoto
-      // )
       .delete(
         validateRequestMiddleware({ params: idsSchema }),
         this._userController.deleteUserPhotoById
