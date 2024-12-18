@@ -137,17 +137,17 @@ export class UserController extends BaseController {
       if (!userFound) {
         return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
-      if (userFound.photos.length > this._maxNumPhotos) {
+      if (userFound.photos.length === this._maxNumPhotos) {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
       const incommingImgFiles = req.files as Express.Multer.File[];
       const remainingPhotos: number = this._maxNumPhotos - userFound.photos.length;
-
       if (incommingImgFiles.length > remainingPhotos) {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
+      const startCount = userFound.photos.length ?? 0;
       const updatedUserPhotos = (
-        await this._userService.saveUserPhotos(incommingImgFiles, userFound.id)
+        await this._userService.saveUserPhotos(incommingImgFiles, userFound.id, startCount)
       );
       if (!updatedUserPhotos) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
@@ -164,13 +164,6 @@ export class UserController extends BaseController {
       const userFound = await this._userService.findByID(req.params.id, true);
       if (!userFound) {
         return this.notFound(res, ErrorMessage.NOT_FOUND);
-      }
-      if (userFound.photos.length > this._maxNumPhotos) {
-        return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
-      }
-      const remainingPhotos: number = this._maxNumPhotos - userFound.photos.length;
-      if (remainingPhotos === 0) {
-        return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
       const updatedUserPhoto = (
         await this._userService.updateUserPhoto(userFound.id, req.params.photoId, req.file)

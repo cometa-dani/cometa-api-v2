@@ -187,10 +187,10 @@ export class UserService {
     ]);
   }
 
-  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userId: number): Promise<User> {
+  public async saveUserPhotos(incomingImgFiles: Express.Multer.File[], userId: number, startCount = 0): Promise<User> {
     try {
       const createdPhotos = await this._prismaService.userPhoto.createManyAndReturn({
-        data: incomingImgFiles.map(() => ({ userId })),
+        data: incomingImgFiles.map((_, index) => ({ userId, order: index + startCount })),
       });
       const photosToUpload = createdPhotos.map((photo, index) => ({
         id: photo.id,
@@ -223,7 +223,7 @@ export class UserService {
 
   public async updateUserPhoto(userId: number, photoId: number, incomingImgFile: Express.Multer.File) {
     try {
-      const photoToDelete: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId, userId } });
+      const photoToDelete: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId } });
       const hashedPhoto: string = await this._cloudStorageService.generatePhotoHashes(incomingImgFile.buffer);
       await this._cloudStorageService.deletePhotoFromBucket(`${userId}/photos/${photoId}`, 'users');
       const createdPhoto: UserPhoto = await this._prismaService.userPhoto.create({ data: { userId } });

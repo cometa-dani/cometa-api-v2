@@ -146,7 +146,7 @@ model UserPhoto {
   updatedAt   DateTime @updatedAt @map("updated_at")
   url         String?
   placeholder String?
-  order       Int      @default(autoincrement())
+  order       Int?
   userId      Int      @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
