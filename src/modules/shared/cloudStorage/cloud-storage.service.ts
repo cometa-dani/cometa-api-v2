@@ -79,7 +79,7 @@ export class StorageService {
     return uploadedPhotos;
   }
 
-  public async deletePhoto(destinationPath: string, bucket: string) {
+  public async deletePhotos(destinationPath: string, bucket: string) {
     const { error, data } = await this._storage.from(bucket).remove([destinationPath]);
     if (error) {
       throw new Error(error.message);

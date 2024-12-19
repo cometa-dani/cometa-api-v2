@@ -185,7 +185,7 @@ export class UserService {
   public async deleteUserById(userId: number, photosIds: number[]) {
     return Promise.all([
       this._prismaService.user.delete({ where: { id: userId } }),  // photos will be deleted automatically
-      this._deleteAllUserPhotosFromBucket(userId, photosIds)
+      this._deleteAllUserPhotos(userId, photosIds)
     ]);
   }
 
@@ -236,7 +236,7 @@ export class UserService {
     try {
       const photoToDelete: UserPhoto = await this._prismaService.userPhoto.findUnique({ where: { id: photoId } });
       const hashedPhoto: string = await this._storageService.generatePhotoBlurHashes(incomingImgFile.buffer);
-      await this._storageService.deletePhoto(`${userId}/photos/${photoId}`, 'users');
+      await this._storageService.deletePhotos(`${userId}/photos/${photoId}`, 'users');
       const createdPhoto: UserPhoto = await this._prismaService.userPhoto.create({ data: { userId } });
       let newPhotoUrl = '';
       try {
@@ -269,7 +269,7 @@ export class UserService {
 
   public async deleteUserPhotoById(userId: number, photoToDelete: UserPhoto) {
     const destinationPath = `${userId}/photos/${photoToDelete.id}`;
-    await this._storageService.deletePhoto(destinationPath, 'users');
+    await this._storageService.deletePhotos(destinationPath, 'users');
     await this._prismaService.userPhoto.delete({ where: { id: photoToDelete.id } });
     return this._prismaService.userPhoto.updateMany({
       where: {
@@ -282,11 +282,12 @@ export class UserService {
     });
   }
 
-  private async _deleteAllUserPhotosFromBucket(userId: number, photosIds: number[]) {
+  private async _deleteAllUserPhotos(userId: number, photosIds: number[]) {
     if (photosIds.length === 0) return;
+    // return this._storageService.deletePhotos(`${userId}/`, 'users');
     return Promise.all(
       photosIds.map((photoId) => {
-        return this._storageService.deletePhoto(`${userId}/photos/${photoId}`, 'users');
+        return this._storageService.deletePhotos(`${userId}/photos/${photoId}`, 'users');
       }));
   }
 }

@@ -39,7 +39,7 @@ export class OrganizationService {
   }
 
   public async deleteOrganization(id: number) {
-    await this._storageService.deletePhoto(`${id}/avatar`, 'organizations');
+    await this._storageService.deletePhotos(`${id}/avatar`, 'organizations');
     return this._prismaService.organization.delete({
       where: { id }
     });

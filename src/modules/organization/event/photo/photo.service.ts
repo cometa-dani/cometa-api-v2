@@ -56,7 +56,7 @@ export class EventPhotoService {
 
   public async deleteEventPhotoById(eventID: number, photoToDelete: EventPhoto) {
     const destinationPath = `events/${eventID}/photos/${photoToDelete.id}`;
-    await this._storageService.deletePhoto(destinationPath, 'organizations');
+    await this._storageService.deletePhotos(destinationPath, 'organizations');
     await this._prismaService.eventPhoto.delete({ where: { id: photoToDelete.id } });
     return this._prismaService.eventPhoto.updateMany({
       where: {

@@ -48,7 +48,7 @@ export class EventService {
     if (photosIds.length === 0) return;
     return Promise.all(
       photosIds.map((photoId) => {
-        return this._storageService.deletePhoto(`events/${eventId}/photos/${photoId}`, 'organizations');
+        return this._storageService.deletePhotos(`events/${eventId}/photos/${photoId}`, 'organizations');
       }));
   }
 }
