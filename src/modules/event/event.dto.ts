@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Event, EventCategory, EventLike, EventPhoto, User } from '@prisma/client';
+import { Event, EventCategory, EventPhoto } from '@prisma/client';
 import { paginationSchema } from '../shared/dto/baseDTOs';
 
 
@@ -99,11 +99,4 @@ export interface ILikedEvent {
   id: number;
   event: Event;
   isLiked: boolean;
-}
-
-export interface IUsersLikedSameEvent extends EventLike {
-  user: User & {
-    hasIncommingFriendship: boolean;
-    hasOutgoingFriendship: boolean;
-  };
 }

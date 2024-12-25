@@ -1,5 +1,5 @@
 import { Container, Service } from 'typedi';
-import { GetTargetUserEventsDTO, ILikeableEvent, ILikedEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
+import { GetTargetUserEventsDTO, ILikeableEvent, ILikedEvent, SearchEventsDTO } from './event.dto';
 import { RequestHandlerQuery, RequestHandlerParams } from '../../helpers/typeRequestHandlers';
 import { EventService } from './event.service';
 import { BaseController } from '../../helpers/baseController';
@@ -11,29 +11,6 @@ import { Event } from '@prisma/client';
 @Service()
 export class EventController extends BaseController {
   private _eventService = Container.get(EventService);
-
-  // TODO remove to user folder
-  public getPaginatedUsersWhoLikedSameEvent: RequestHandlerQuery<GetTargetUserEventsDTO, null, IdsDto> =
-    async (req, res, next) => {
-      try {
-        const { limit } = req.query;
-        const [users, totalCount] = (
-          await this._eventService.getUsersWhoLikedSameEvent(req.params.eventId, req.user.id, req.query)
-        );
-        const nextCursor = users.at(-1)?.id ?? null;
-        const paginatedUsers: PaginatedResult<IUsersLikedSameEvent> = {
-          items: users,
-          nextCursor,
-          totalItems: totalCount,
-          hasNextCursor: users.length === limit,
-          itemsPerPage: limit,
-        };
-        return this.ok(res, paginatedUsers);
-      }
-      catch (error) {
-        next(error);
-      }
-    };
 
   public getPaginatedMatchedEventsByTwoUsers: RequestHandlerQuery<GetTargetUserEventsDTO, null, IdsDto> =
     async (req, res, next) => {

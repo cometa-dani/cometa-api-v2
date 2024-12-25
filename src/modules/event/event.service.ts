@@ -2,7 +2,7 @@ import { Prisma, Event } from '@prisma/client';
 import { Service, Container } from 'typedi';
 import { PrismaService } from '../../config/dataBase';
 import { configCursorBasedPagination } from '../../helpers/configCursor';
-import { GetTargetUserEventsDTO, ILikeableEvent, ILikedEvent, IUsersLikedSameEvent, SearchEventsDTO } from './event.dto';
+import { GetTargetUserEventsDTO, ILikeableEvent, ILikedEvent, SearchEventsDTO } from './event.dto';
 import { HttpError } from '../../helpers/httpError';
 import { ErrorMessage } from '../../helpers/errorMessages';
 
@@ -10,87 +10,6 @@ import { ErrorMessage } from '../../helpers/errorMessages';
 @Service()
 export class EventService {
   private _prismaService = Container.get(PrismaService);
-
-  // TODO: remove in the future into the users folder
-  public async getUsersWhoLikedSameEvent(
-    eventID: number, loggedInUserID: number, { limit, cursor }: GetTargetUserEventsDTO
-  )
-    : Promise<[IUsersLikedSameEvent[], number]> {
-    // EventLike model
-    const whereCondition: Prisma.EventLikeWhereInput = {
-      eventId: eventID, // all the likes for this event
-      userId: {
-        // gives all the users who liked the current event, excluding the current user
-        not: loggedInUserID
-      },
-      user: {
-        // excludes the current user's friendships
-        NOT: {
-          OR: [
-            {
-              outgoingFriendships: { some: { receiverId: loggedInUserID, status: 'ACCEPTED' } },
-            },
-            {
-              incomingFriendships: { some: { senderId: loggedInUserID, status: 'ACCEPTED' } },
-            }
-          ]
-        },
-      }
-    };
-    const query: Prisma.EventLikeFindManyArgs = {
-      ...configCursorBasedPagination(limit, cursor),
-      where: whereCondition,
-      include: {
-        user: {
-          include: {
-            photos: { take: 1, where: { order: 0 } },
-            // HANDLE FROM THE FRONT-END
-
-            // if status === 'PENDING', show either 'pending' button
-            // or show macth modal.
-
-            // if both are zero and are neither 'ACCEPTEP' or 'PENDING'
-            // show the 'JOIN' button.
-            outgoingFriendships: {                 // this can be one or zero
-              where: { receiverId: loggedInUserID },
-              // if there is one element here it means that you have sent a
-              // friendship inviation to this person, SO SHOW THE "PENDING" button
-            },
-
-            incomingFriendships: {                // this can be one or zero
-              // since friendship are unique, here I will know if I have
-              // a pending invitatopm
-
-              where: { senderId: loggedInUserID }
-              // if there is the frienship invitation then you can make
-              // instant MATCH on CLICK
-              // else if its empty, you can send yourself the inviation
-              //  and then the button changes to "PENDING".
-            }
-          }
-        }
-      }
-    };
-    // gets all the likes given to an event
-    const [totalusersCount = 0, usersWhoLikedEventList = []] = (
-      await
-        Promise.all([
-          this._prismaService.eventLike.count({ where: whereCondition }),
-          this._prismaService.eventLike.findMany(query)
-        ])
-    );
-    const usersList: IUsersLikedSameEvent[] =
-      usersWhoLikedEventList.map(likedEvent => ({
-        ...likedEvent,
-        user: {
-          ...likedEvent['user'],
-          hasIncommingFriendship: likedEvent['user']['incomingFriendships']?.at(0)?.status === 'PENDING',
-          hasOutgoingFriendship: likedEvent['user']['outgoingFriendships']?.at(0)?.status === 'PENDING'
-        }
-      }));
-
-    return [usersList, totalusersCount];
-  }
 
   public async getPaginatedMatchedEventsByTwoUsers(
     loggedInUserID: number, targetUserId: string, queryParams: GetTargetUserEventsDTO

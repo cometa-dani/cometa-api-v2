@@ -3,7 +3,14 @@ import { BaseController } from '../../helpers/baseController';
 import { RequestHandlerBody, RequestHandlerParams, RequestHandlerQuery } from '../../helpers/typeRequestHandlers';
 import { UserService } from './user.service';
 import { IdsDto, PaginatedResult } from '../shared/dto/baseDTOs';
-import { SearchByQueryParamsDTO, CreateUserDTO, SearchByUsernameDTO, UpdateUserDTO } from './user.dto';
+import {
+  SearchByQueryParamsDTO,
+  CreateUserDTO,
+  SearchByUsernameDTO,
+  UpdateUserDTO,
+  GetTargetUserEventsDTO,
+  IUsersLikedSameEvent
+} from './user.dto';
 import { ErrorMessage } from '../../helpers/errorMessages';
 import { User } from '@prisma/client';
 import { maxNumPhotosPerUser } from '../../vars';
@@ -28,24 +35,47 @@ export class UserController extends BaseController {
     }
   };
 
-  public searchPaginatedUsersByUsername: RequestHandlerQuery<SearchByUsernameDTO> = async (req, res, next) => {
-    try {
-      const { limit = 10 } = req.query;
-      const [users, count] = await this._userService.searchAllByUsername(req.query, req.user.id);
-      const nextCursor = users.at(-1)?.id ?? null;
-      const paginatedUsers: PaginatedResult<User> = {
-        items: users,
-        totalItems: count,
-        nextCursor,
-        hasNextCursor: users.length === limit,
-        itemsPerPage: limit,
-      };
-      return this.ok(res, paginatedUsers);
-    }
-    catch (error) {
-      next(error);
-    }
-  };
+  public searchPaginatedUsersByUsername: RequestHandlerQuery<SearchByUsernameDTO> =
+    async (req, res, next) => {
+      try {
+        const { limit = 10 } = req.query;
+        const [users, count] = await this._userService.searchAllByUsername(req.query, req.user.id);
+        const nextCursor = users.at(-1)?.id ?? null;
+        const paginatedUsers: PaginatedResult<User> = {
+          items: users,
+          totalItems: count,
+          nextCursor,
+          hasNextCursor: users.length === limit,
+          itemsPerPage: limit,
+        };
+        return this.ok(res, paginatedUsers);
+      }
+      catch (error) {
+        next(error);
+      }
+    };
+
+  public getPaginatedUsersWhoLikedSameEvent: RequestHandlerQuery<GetTargetUserEventsDTO> =
+    async (req, res, next) => {
+      try {
+        const { limit = 10 } = req.query;
+        const [users, totalCount] = (
+          await this._userService.getUsersWhoLikedSameEvent(req.user.id, req.query)
+        );
+        const nextCursor = users.at(-1)?.id ?? null;
+        const paginatedUsers: PaginatedResult<IUsersLikedSameEvent> = {
+          items: users,
+          nextCursor,
+          totalItems: totalCount,
+          hasNextCursor: users.length === limit,
+          itemsPerPage: limit,
+        };
+        return this.ok(res, paginatedUsers);
+      }
+      catch (error) {
+        next(error);
+      }
+    };
 
   public findUniqueUserByQueryParams: RequestHandlerQuery<SearchByQueryParamsDTO> = async (req, res, next) => {
     try {

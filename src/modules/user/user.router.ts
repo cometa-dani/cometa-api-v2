@@ -1,3 +1,10 @@
+import {
+  searchQueryParamsSchemma,
+  createUserSchemma,
+  updateUserSchemma,
+  searchByUsernameSchemma,
+  getTargetUserEventsSchemma
+} from './user.dto';
 import { Container } from 'typedi';
 import { authUserMiddleware } from '../../middlewares/authMiddleware';
 import { imageUploadMiddleware } from '../../middlewares/imageUploadMiddleware';
@@ -5,7 +12,7 @@ import { validateRequestMiddleware } from '../../middlewares/validateRequestMidd
 import { BaseRouter } from '../../helpers/baseRouter';
 import { UserController } from './user.controller';
 import { idsSchema } from '../shared/dto/baseDTOs';
-import { searchQueryParamsSchemma, createUserSchemma, updateUserSchemma, searchByUsernameSchemma } from './user.dto';
+import { Router } from 'express';
 
 
 class UserRouter extends BaseRouter {
@@ -13,39 +20,26 @@ class UserRouter extends BaseRouter {
 
   constructor() {
     super();
+    this._router = Router();
     this._initializeRoutes();
   }
 
   protected _initializeRoutes(): void {
 
-    // 1
-    // TODO
-    this._router.get('/:uid', //  -> id
-      validateRequestMiddleware({ params: idsSchema }),
-      this._userController.getUserProfile
-    );
-
-    // 2
-    // TODO
-    this._router.get('/:uid/targets',  //  -> id
-      authUserMiddleware,
-      validateRequestMiddleware({ params: idsSchema }),
-      this._userController.getTargetUserWithFriendship
-    );
-
     // 3
     //  ?username=@Jhoa
-    // ?liked-same-event=8772
-    this._router.get('/search',
-      authUserMiddleware,
-      validateRequestMiddleware({ query: searchByUsernameSchemma }),
-      this._userController.searchPaginatedUsersByUsername
-    );
-    // this._router.route('/search?liked-same-event=8772') // ? liked-same-event=8772
-    //   .get(
-    //     validateRequestMiddleware({ query: getTargetUserEventsSchemma, params: idsSchema }),
-    //     this._eventController.getPaginatedUsersWhoLikedSameEvent
-    //   );
+    this._router.route('/search')
+      .get(
+        authUserMiddleware,
+        validateRequestMiddleware({ query: searchByUsernameSchemma }),
+        this._userController.searchPaginatedUsersByUsername
+      );
+    this._router.route('/liked-same-event')
+      .get(
+        authUserMiddleware,
+        validateRequestMiddleware({ query: getTargetUserEventsSchemma }),
+        this._userController.getPaginatedUsersWhoLikedSameEvent
+      );
 
     // 4
     this._router.route('/') // ?email=Jhoa%40gmail.com &username=@Jhoa
@@ -85,6 +79,24 @@ class UserRouter extends BaseRouter {
         validateRequestMiddleware({ params: idsSchema }),
         this._userController.deleteUserPhotoById
       );
+
+    // 1
+    // TODO
+    this._router.route('/:uid')
+      .get( //  -> id
+        validateRequestMiddleware({ params: idsSchema }),
+        this._userController.getUserProfile
+      );
+
+    // 2
+    // TODO
+    this._router.route('/:uid/targets')
+      .get(  //  -> id
+        authUserMiddleware,
+        validateRequestMiddleware({ params: idsSchema }),
+        this._userController.getTargetUserWithFriendship
+      );
+
   }
 }
 
