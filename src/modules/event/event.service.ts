@@ -190,7 +190,7 @@ export class EventService {
     if (hasTargetUser) {
       const [eventsWithAllPhotos, eventsCount] = await Promise.all([
         this._prismaService.eventLike.findMany({
-          ...configCursorBasedPagination(limit, cursor),
+          ...configCursorBasedPagination(limit, cursor), // TODO: Pienso que el cursor deberia ser por event_id no por id
           where: whereCondition,
           select: {
             id: true,

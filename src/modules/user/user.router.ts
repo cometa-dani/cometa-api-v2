@@ -96,7 +96,6 @@ class UserRouter extends BaseRouter {
         validateRequestMiddleware({ params: idsSchema }),
         this._userController.getTargetUserWithFriendship
       );
-
   }
 }
 

@@ -9,6 +9,7 @@ import { LikeService } from "./like.service";
 export class LikeController extends BaseController {
   private _likeService = Container.get(LikeService);
 
+  // TODO separeta likes and dislikes to handle different errors and scenerios
   public createOrDeleteLikeByEvent: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
       const foundEventLiked = await this._likeService.findUnique(req.params.eventId, req.user.id);

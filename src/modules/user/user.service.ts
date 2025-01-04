@@ -142,8 +142,8 @@ export class UserService {
       });
       return {
         ...userFound,
-        hasIncommingFriendship: userFound['incomingFriendships']?.at(0)?.status === 'PENDING',
-        hasOutgoingFriendship: userFound['outgoingFriendships']?.at(0)?.status === 'PENDING',
+        hasIncommingFriendshipInvitation: userFound['incomingFriendships']?.at(0)?.status === 'PENDING',
+        hasOutgoingFriendshipInvitation: userFound['outgoingFriendships']?.at(0)?.status === 'PENDING',
         isFriend: this._areFriends(userFound, loggedInUserID)
       };
     }
@@ -348,8 +348,9 @@ export class UserService {
         ...likedEvent,
         user: {
           ...likedEvent['user'],
-          hasIncommingFriendship: likedEvent['user']['incomingFriendships']?.at(0)?.status === 'PENDING',
-          hasOutgoingFriendship: likedEvent['user']['outgoingFriendships']?.at(0)?.status === 'PENDING'
+          hasIncommingFriendshipInvitation: likedEvent['user']['incomingFriendships']?.at(0)?.status === 'PENDING',
+          hasOutgoingFriendshipInvitation: likedEvent['user']['outgoingFriendships']?.at(0)?.status === 'PENDING',
+          isFriend: false
         }
       }));
 
