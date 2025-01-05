@@ -1,51 +1,51 @@
-import Container, { Service } from 'typedi';
-import { ChatGroup, User } from '@prisma/client';
-import { PrismaService } from '../../config/dataBase';
-import { CreateChatGroupDTO } from './chat-group.dto';
+// import Container, { Service } from 'typedi';
+// import { ChatGroup, User } from '@prisma/client';
+// import { PrismaService } from '../../config/dataBase';
+// import { CreateChatGroupDTO } from './chat-group.dto';
 
 
-interface IChatGroupWithMembers extends ChatGroup {
-  members: User[]
-}
+// interface IChatGroupWithMembers extends ChatGroup {
+//   members: User[]
+// }
 
-@Service()
-export class ChatGroupRepository {
-  private _prismaService = Container.get(PrismaService);
+// @Service()
+// export class ChatGroupRepository {
+//   private _prismaService = Container.get(PrismaService);
 
-  async findByID(id: number, loggedInUser: number): Promise<IChatGroupWithMembers | null> {
-    const foundChatGroup = await this._prismaService.chatGroup.findUnique({
-      where: { id },
-      include: {
-        members: {
-          where: { id: { not: loggedInUser } },
-          include: { photos: { where: { order: 0 } } }
-        }
-      }
-    });
-    return foundChatGroup;
-  }
+//   async findByID(id: number, loggedInUser: number): Promise<IChatGroupWithMembers | null> {
+//     const foundChatGroup = await this._prismaService.chatGroup.findUnique({
+//       where: { id },
+//       include: {
+//         members: {
+//           where: { id: { not: loggedInUser } },
+//           include: { photos: { where: { order: 0 } } }
+//         }
+//       }
+//     });
+//     return foundChatGroup;
+//   }
 
-  async create(payload: CreateChatGroupDTO, img: string, adminId: number): Promise<ChatGroup | null> {
-    const createdChatGroup = await this._prismaService.chatGroup.create({
-      data: {
-        name: payload.groupName,
-        description: '',
-        // photo: {
-        //   create: {
-        //     url: img,
-        //     placeholder: '',
-        //     uuid: ''
-        //   }
-        // },
-        admin: {
-          connect: { id: adminId }
-        },
-        members: {
-          connect: payload.members.map((uid) => ({ uid }))
-          // create: payload.members
-        }
-      }
-    });
-    return createdChatGroup;
-  }
-}
+//   async create(payload: CreateChatGroupDTO, img: string, adminId: number): Promise<ChatGroup | null> {
+//     const createdChatGroup = await this._prismaService.chatGroup.create({
+//       data: {
+//         name: payload.groupName,
+//         description: '',
+//         // photo: {
+//         //   create: {
+//         //     url: img,
+//         //     placeholder: '',
+//         //     uuid: ''
+//         //   }
+//         // },
+//         admin: {
+//           connect: { id: adminId }
+//         },
+//         members: {
+//           connect: payload.members.map((uid) => ({ uid }))
+//           // create: payload.members
+//         }
+//       }
+//     });
+//     return createdChatGroup;
+//   }
+// }

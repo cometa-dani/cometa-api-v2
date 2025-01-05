@@ -34,36 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _ChatGroupMember: {
-        Row: {
-          A: number
-          B: number
-        }
-        Insert: {
-          A: number
-          B: number
-        }
-        Update: {
-          A?: number
-          B?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: '_ChatGroupMember_A_fkey'
-            columns: ['A']
-            isOneToOne: false
-            referencedRelation: 'ChatGroup'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: '_ChatGroupMember_B_fkey'
-            columns: ['B']
-            isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       _prisma_migrations: {
         Row: {
           applied_steps_count: number
@@ -97,47 +67,9 @@ export type Database = {
         }
         Relationships: []
       }
-      ChatGroup: {
-        Row: {
-          admin_id: number
-          avatar_url: string | null
-          created_at: string
-          description: string | null
-          id: number
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          admin_id: number
-          avatar_url?: string | null
-          created_at?: string
-          description?: string | null
-          id?: number
-          name: string
-          updated_at: string
-        }
-        Update: {
-          admin_id?: number
-          avatar_url?: string | null
-          created_at?: string
-          description?: string | null
-          id?: number
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'ChatGroup_admin_id_fkey'
-            columns: ['admin_id']
-            isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       Event: {
         Row: {
-          categories: Database['public']['Enums']['EventCategory'][] | null
+          categories: Database["public"]["Enums"]["EventCategory"][] | null
           created_at: string
           date: string
           description: string
@@ -148,7 +80,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          categories?: Database['public']['Enums']['EventCategory'][] | null
+          categories?: Database["public"]["Enums"]["EventCategory"][] | null
           created_at?: string
           date: string
           description: string
@@ -159,7 +91,7 @@ export type Database = {
           updated_at: string
         }
         Update: {
-          categories?: Database['public']['Enums']['EventCategory'][] | null
+          categories?: Database["public"]["Enums"]["EventCategory"][] | null
           created_at?: string
           date?: string
           description?: string
@@ -171,18 +103,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'Event_location_id_fkey'
-            columns: ['location_id']
+            foreignKeyName: "Event_location_id_fkey"
+            columns: ["location_id"]
             isOneToOne: false
-            referencedRelation: 'Location'
-            referencedColumns: ['id']
+            referencedRelation: "Location"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'Event_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "Event_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'Organization'
-            referencedColumns: ['id']
+            referencedRelation: "Organization"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -210,18 +142,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'EventLike_event_id_fkey'
-            columns: ['event_id']
+            foreignKeyName: "EventLike_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: 'Event'
-            referencedColumns: ['id']
+            referencedRelation: "Event"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'EventLike_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "EventLike_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -255,11 +187,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'EventPhoto_event_id_fkey'
-            columns: ['event_id']
+            foreignKeyName: "EventPhoto_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: 'Event'
-            referencedColumns: ['id']
+            referencedRelation: "Event"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -287,18 +219,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'EventShare_event_id_fkey'
-            columns: ['event_id']
+            foreignKeyName: "EventShare_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: 'Event'
-            referencedColumns: ['id']
+            referencedRelation: "Event"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'EventShare_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "EventShare_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -306,41 +238,47 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          last_message_at: string | null
+          messages: Json[] | null
           receiver_id: number
           sender_id: number
-          status: Database['public']['Enums']['FriendshipStatus']
+          status: Database["public"]["Enums"]["FriendshipStatus"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
+          last_message_at?: string | null
+          messages?: Json[] | null
           receiver_id: number
           sender_id: number
-          status?: Database['public']['Enums']['FriendshipStatus']
+          status?: Database["public"]["Enums"]["FriendshipStatus"]
           updated_at: string
         }
         Update: {
           created_at?: string
           id?: number
+          last_message_at?: string | null
+          messages?: Json[] | null
           receiver_id?: number
           sender_id?: number
-          status?: Database['public']['Enums']['FriendshipStatus']
+          status?: Database["public"]["Enums"]["FriendshipStatus"]
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'Friendship_receiver_id_fkey'
-            columns: ['receiver_id']
+            foreignKeyName: "Friendship_receiver_id_fkey"
+            columns: ["receiver_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'Friendship_sender_id_fkey'
-            columns: ['sender_id']
+            foreignKeyName: "Friendship_sender_id_fkey"
+            columns: ["sender_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -349,8 +287,10 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
-          latitude: number
-          longitude: number
+          latitude: number | null
+          longitude: number | null
+          map_cid: string | null
+          map_url: string | null
           name: string
           organizationId: number | null
           updated_at: string
@@ -359,8 +299,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
-          latitude: number
-          longitude: number
+          latitude?: number | null
+          longitude?: number | null
+          map_cid?: string | null
+          map_url?: string | null
           name: string
           organizationId?: number | null
           updated_at: string
@@ -369,19 +311,21 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
-          latitude?: number
-          longitude?: number
+          latitude?: number | null
+          longitude?: number | null
+          map_cid?: string | null
+          map_url?: string | null
           name?: string
           organizationId?: number | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'Location_organizationId_fkey'
-            columns: ['organizationId']
+            foreignKeyName: "Location_organizationId_fkey"
+            columns: ["organizationId"]
             isOneToOne: false
-            referencedRelation: 'Organization'
-            referencedColumns: ['id']
+            referencedRelation: "Organization"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -418,18 +362,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'Notification_receiver_id_fkey'
-            columns: ['receiver_id']
+            foreignKeyName: "Notification_receiver_id_fkey"
+            columns: ["receiver_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'Notification_sender_id_fkey'
-            columns: ['sender_id']
+            foreignKeyName: "Notification_sender_id_fkey"
+            columns: ["sender_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -488,27 +432,27 @@ export type Database = {
           created_at: string | null
           current_location: string | null
           drinking: boolean | null
-          education_level: Database['public']['Enums']['Education'] | null
+          education_level: Database["public"]["Enums"]["Education"] | null
           email: string
-          ethnicity: Database['public']['Enums']['Ethnicity'] | null
+          ethnicity: Database["public"]["Enums"]["Ethnicity"] | null
           exercise_frequency:
-          | Database['public']['Enums']['ExerciseFrequency']
+          | Database["public"]["Enums"]["ExerciseFrequency"]
           | null
           favorite_sports: string[] | null
-          gender: Database['public']['Enums']['Gender'] | null
+          gender: Database["public"]["Enums"]["Gender"] | null
           height: number | null
           home_town: string | null
           id: number
-          interests: Database['public']['Enums']['EventCategory'][] | null
+          interests: Database["public"]["Enums"]["EventCategory"][] | null
           languages: string[] | null
-          looking_for: Database['public']['Enums']['LookingFor'] | null
+          looking_for: Database["public"]["Enums"]["LookingFor"] | null
           music: string[] | null
           name: string | null
           occupation: string | null
           pets: string[] | null
           phone: string | null
           relationship_status:
-          | Database['public']['Enums']['RelationshipStatus']
+          | Database["public"]["Enums"]["RelationshipStatus"]
           | null
           smoking: boolean | null
           uid: string | null
@@ -526,27 +470,27 @@ export type Database = {
           created_at?: string | null
           current_location?: string | null
           drinking?: boolean | null
-          education_level?: Database['public']['Enums']['Education'] | null
+          education_level?: Database["public"]["Enums"]["Education"] | null
           email: string
-          ethnicity?: Database['public']['Enums']['Ethnicity'] | null
+          ethnicity?: Database["public"]["Enums"]["Ethnicity"] | null
           exercise_frequency?:
-          | Database['public']['Enums']['ExerciseFrequency']
+          | Database["public"]["Enums"]["ExerciseFrequency"]
           | null
           favorite_sports?: string[] | null
-          gender?: Database['public']['Enums']['Gender'] | null
+          gender?: Database["public"]["Enums"]["Gender"] | null
           height?: number | null
           home_town?: string | null
           id?: number
-          interests?: Database['public']['Enums']['EventCategory'][] | null
+          interests?: Database["public"]["Enums"]["EventCategory"][] | null
           languages?: string[] | null
-          looking_for?: Database['public']['Enums']['LookingFor'] | null
+          looking_for?: Database["public"]["Enums"]["LookingFor"] | null
           music?: string[] | null
           name?: string | null
           occupation?: string | null
           pets?: string[] | null
           phone?: string | null
           relationship_status?:
-          | Database['public']['Enums']['RelationshipStatus']
+          | Database["public"]["Enums"]["RelationshipStatus"]
           | null
           smoking?: boolean | null
           uid?: string | null
@@ -564,27 +508,27 @@ export type Database = {
           created_at?: string | null
           current_location?: string | null
           drinking?: boolean | null
-          education_level?: Database['public']['Enums']['Education'] | null
+          education_level?: Database["public"]["Enums"]["Education"] | null
           email?: string
-          ethnicity?: Database['public']['Enums']['Ethnicity'] | null
+          ethnicity?: Database["public"]["Enums"]["Ethnicity"] | null
           exercise_frequency?:
-          | Database['public']['Enums']['ExerciseFrequency']
+          | Database["public"]["Enums"]["ExerciseFrequency"]
           | null
           favorite_sports?: string[] | null
-          gender?: Database['public']['Enums']['Gender'] | null
+          gender?: Database["public"]["Enums"]["Gender"] | null
           height?: number | null
           home_town?: string | null
           id?: number
-          interests?: Database['public']['Enums']['EventCategory'][] | null
+          interests?: Database["public"]["Enums"]["EventCategory"][] | null
           languages?: string[] | null
-          looking_for?: Database['public']['Enums']['LookingFor'] | null
+          looking_for?: Database["public"]["Enums"]["LookingFor"] | null
           music?: string[] | null
           name?: string | null
           occupation?: string | null
           pets?: string[] | null
           phone?: string | null
           relationship_status?:
-          | Database['public']['Enums']['RelationshipStatus']
+          | Database["public"]["Enums"]["RelationshipStatus"]
           | null
           smoking?: boolean | null
           uid?: string | null
@@ -599,7 +543,7 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          order: number
+          order: number | null
           placeholder: string | null
           updated_at: string
           url: string | null
@@ -608,7 +552,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: number
-          order: number
+          order?: number | null
           placeholder?: string | null
           updated_at: string
           url?: string | null
@@ -617,7 +561,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
-          order?: number
+          order?: number | null
           placeholder?: string | null
           updated_at?: string
           url?: string | null
@@ -625,11 +569,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'UserPhoto_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "UserPhoto_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'User'
-            referencedColumns: ['id']
+            referencedRelation: "User"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -660,72 +604,72 @@ export type Database = {
     }
     Enums: {
       Education:
-      | 'SECONDARY'
-      | 'UNIVERSITY'
-      | 'HIGH_SCHOOL'
-      | 'SOME_COLLEGE'
-      | 'BACHELORS'
-      | 'MASTERS'
-      | 'DOCTORATE'
-      | 'OTHER'
+      | "SECONDARY"
+      | "UNIVERSITY"
+      | "HIGH_SCHOOL"
+      | "SOME_COLLEGE"
+      | "BACHELORS"
+      | "MASTERS"
+      | "DOCTORATE"
+      | "OTHER"
       Ethnicity:
-      | 'WHITE'
-      | 'HISPANIC'
-      | 'LATINO'
-      | 'BLACK'
-      | 'ASIAN'
-      | 'MIDDLE_EASTERN'
-      | 'NATIVE_AMERICAN'
-      | 'PACIFIC_ISLANDER'
-      | 'MIXED'
-      | 'OTHER'
+      | "WHITE"
+      | "HISPANIC"
+      | "LATINO"
+      | "BLACK"
+      | "ASIAN"
+      | "MIDDLE_EASTERN"
+      | "NATIVE_AMERICAN"
+      | "PACIFIC_ISLANDER"
+      | "MIXED"
+      | "OTHER"
       EventCategory:
-      | 'RESTAURANT'
-      | 'BAR'
-      | 'CLUB'
-      | 'CAFE'
-      | 'CONCERT'
-      | 'FESTIVAL'
-      | 'THEATRE'
-      | 'MUSEUM'
-      | 'EXHIBITION'
-      | 'PARK'
-      | 'BRUNCH'
-      | 'SHOWS'
-      | 'SPORTS'
-      | 'GALLERY'
-      | 'PARTY'
-      | 'CINEMA'
-      | 'CONFERENCE'
-      | 'FOOD_AND_DRINK'
-      | 'SEMINAR'
-      | 'WORKSHOP'
-      | 'EDUCATIONAL'
-      | 'CULTURAL'
-      ExerciseFrequency: 'NEVER' | 'RARELY' | 'SOMETIMES' | 'OFTEN' | 'DAILY'
-      FriendshipStatus: 'PENDING' | 'ACCEPTED' | 'BLOCKED'
+      | "RESTAURANT"
+      | "BAR"
+      | "CLUB"
+      | "CAFE"
+      | "CONCERT"
+      | "FESTIVAL"
+      | "THEATRE"
+      | "MUSEUM"
+      | "EXHIBITION"
+      | "PARK"
+      | "BRUNCH"
+      | "SHOWS"
+      | "SPORTS"
+      | "GALLERY"
+      | "PARTY"
+      | "CINEMA"
+      | "CONFERENCE"
+      | "FOOD_AND_DRINK"
+      | "SEMINAR"
+      | "WORKSHOP"
+      | "EDUCATIONAL"
+      | "CULTURAL"
+      ExerciseFrequency: "NEVER" | "RARELY" | "SOMETIMES" | "OFTEN" | "DAILY"
+      FriendshipStatus: "PENDING" | "ACCEPTED" | "BLOCKED"
       Gender:
-      | 'MALE'
-      | 'FEMALE'
-      | 'BINARY'
-      | 'GAY'
-      | 'BISEXUAL'
-      | 'LESBIAN'
-      | 'OTHER'
+      | "MALE"
+      | "FEMALE"
+      | "BINARY"
+      | "GAY"
+      | "BISEXUAL"
+      | "LESBIAN"
+      | "OTHER"
       LookingFor:
-      | 'MEET_NEW_PEOPLE'
-      | 'DISCOVER_NEW_EVENTS'
-      | 'FIND_NEW_PLACES'
-      | 'FRIENDSHIP'
-      | 'RELATIONSHIP'
-      | 'NETWORKING'
+      | "MEET_NEW_PEOPLE"
+      | "DISCOVER_NEW_EVENTS"
+      | "FIND_NEW_PLACES"
+      | "FRIENDSHIP"
+      | "RELATIONSHIP"
+      | "NETWORKING"
       RelationshipStatus:
-      | 'SINGLE'
-      | 'IN_A_RELATIONSHIP'
-      | 'MARRIED'
-      | 'DIVORCED'
-      | 'WIDOWED'
-      | 'OTHER'
+      | "SINGLE"
+      | "IN_A_RELATIONSHIP"
+      | "MARRIED"
+      | "DIVORCED"
+      | "WIDOWED"
+      | "OTHER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -787,7 +731,7 @@ export type Database = {
           claims_role: unknown
           created_at: string
           entity: unknown
-          filters: Database['realtime']['CompositeTypes']['user_defined_filter'][]
+          filters: Database["realtime"]["CompositeTypes"]["user_defined_filter"][]
           id: number
           subscription_id: string
         }
@@ -796,7 +740,7 @@ export type Database = {
           claims_role?: unknown
           created_at?: string
           entity: unknown
-          filters?: Database['realtime']['CompositeTypes']['user_defined_filter'][]
+          filters?: Database["realtime"]["CompositeTypes"]["user_defined_filter"][]
           id?: never
           subscription_id: string
         }
@@ -805,7 +749,7 @@ export type Database = {
           claims_role?: unknown
           created_at?: string
           entity?: unknown
-          filters?: Database['realtime']['CompositeTypes']['user_defined_filter'][]
+          filters?: Database["realtime"]["CompositeTypes"]["user_defined_filter"][]
           id?: never
           subscription_id?: string
         }
@@ -821,7 +765,7 @@ export type Database = {
           wal: Json
           max_record_bytes?: number
         }
-        Returns: Database['realtime']['CompositeTypes']['wal_rls'][]
+        Returns: Database["realtime"]["CompositeTypes"]["wal_rls"][]
       }
       broadcast_changes: {
         Args: {
@@ -840,7 +784,7 @@ export type Database = {
         Args: {
           prepared_statement_name: string
           entity: unknown
-          columns: Database['realtime']['CompositeTypes']['wal_column'][]
+          columns: Database["realtime"]["CompositeTypes"]["wal_column"][]
         }
         Returns: string
       }
@@ -853,7 +797,7 @@ export type Database = {
       }
       check_equality_op: {
         Args: {
-          op: Database['realtime']['Enums']['equality_op']
+          op: Database["realtime"]["Enums"]["equality_op"]
           type_: unknown
           val_1: string
           val_2: string
@@ -862,8 +806,8 @@ export type Database = {
       }
       is_visible_through_filters: {
         Args: {
-          columns: Database['realtime']['CompositeTypes']['wal_column'][]
-          filters: Database['realtime']['CompositeTypes']['user_defined_filter'][]
+          columns: Database["realtime"]["CompositeTypes"]["wal_column"][]
+          filters: Database["realtime"]["CompositeTypes"]["user_defined_filter"][]
         }
         Returns: boolean
       }
@@ -874,7 +818,7 @@ export type Database = {
           max_changes: number
           max_record_bytes: number
         }
-        Returns: Database['realtime']['CompositeTypes']['wal_rls'][]
+        Returns: Database["realtime"]["CompositeTypes"]["wal_rls"][]
       }
       quote_wal2json: {
         Args: {
@@ -903,13 +847,13 @@ export type Database = {
       }
     }
     Enums: {
-      action: 'INSERT' | 'UPDATE' | 'DELETE' | 'TRUNCATE' | 'ERROR'
-      equality_op: 'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte' | 'in'
+      action: "INSERT" | "UPDATE" | "DELETE" | "TRUNCATE" | "ERROR"
+      equality_op: "eq" | "neq" | "lt" | "lte" | "gt" | "gte" | "in"
     }
     CompositeTypes: {
       user_defined_filter: {
         column_name: string | null
-        op: Database['realtime']['Enums']['equality_op'] | null
+        op: Database["realtime"]["Enums"]["equality_op"] | null
         value: string | null
       }
       wal_column: {
@@ -1035,11 +979,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'objects_bucketId_fkey'
-            columns: ['bucket_id']
+            foreignKeyName: "objects_bucketId_fkey"
+            columns: ["bucket_id"]
             isOneToOne: false
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1079,11 +1023,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 's3_multipart_uploads_bucket_id_fkey'
-            columns: ['bucket_id']
+            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey"
+            columns: ["bucket_id"]
             isOneToOne: false
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1126,18 +1070,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 's3_multipart_uploads_parts_bucket_id_fkey'
-            columns: ['bucket_id']
+            foreignKeyName: "s3_multipart_uploads_parts_bucket_id_fkey"
+            columns: ["bucket_id"]
             isOneToOne: false
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 's3_multipart_uploads_parts_upload_id_fkey'
-            columns: ['upload_id']
+            foreignKeyName: "s3_multipart_uploads_parts_upload_id_fkey"
+            columns: ["upload_id"]
             isOneToOne: false
-            referencedRelation: 's3_multipart_uploads'
-            referencedColumns: ['id']
+            referencedRelation: "s3_multipart_uploads"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1245,27 +1189,27 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, 'public'>]
+type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   PublicTableNameOrOptions extends
-  | keyof (PublicSchema['Tables'] & PublicSchema['Views'])
+  | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
   | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-  ? keyof (Database[PublicTableNameOrOptions['schema']]['Tables'] &
-    Database[PublicTableNameOrOptions['schema']]['Views'])
+  ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])
   : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions['schema']]['Tables'] &
-    Database[PublicTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
   ? R
   : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema['Tables'] &
-    PublicSchema['Views'])
-  ? (PublicSchema['Tables'] &
-    PublicSchema['Views'])[PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+    PublicSchema["Views"])
+  ? (PublicSchema["Tables"] &
+    PublicSchema["Views"])[PublicTableNameOrOptions] extends {
       Row: infer R
     }
   ? R
@@ -1274,19 +1218,19 @@ export type Tables<
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
-  | keyof PublicSchema['Tables']
+  | keyof PublicSchema["Tables"]
   | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-  ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
   : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
     Insert: infer I
   }
   ? I
   : never
-  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
-  ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
     Insert: infer I
   }
   ? I
@@ -1295,19 +1239,19 @@ export type TablesInsert<
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
-  | keyof PublicSchema['Tables']
+  | keyof PublicSchema["Tables"]
   | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-  ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
   : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
     Update: infer U
   }
   ? U
   : never
-  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
-  ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
     Update: infer U
   }
   ? U
@@ -1316,28 +1260,28 @@ export type TablesUpdate<
 
 export type Enums<
   PublicEnumNameOrOptions extends
-  | keyof PublicSchema['Enums']
+  | keyof PublicSchema["Enums"]
   | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? keyof Database[PublicEnumNameOrOptions['schema']]['Enums']
+  ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
   : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema['Enums']
-  ? PublicSchema['Enums'][PublicEnumNameOrOptions]
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
   : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-  | keyof PublicSchema['CompositeTypes']
+  | keyof PublicSchema["CompositeTypes"]
   | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-  ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+  ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
   : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema['CompositeTypes']
-  ? PublicSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+  ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
   : never

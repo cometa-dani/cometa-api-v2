@@ -25,6 +25,10 @@ export class FriendshipService {
     };
     // Query the database to find friends where the current authenticated user is either the sender or receiver
     const query: Prisma.FriendshipFindManyArgs = ({
+      select: {
+        messages: false,
+        lastMessageAt: false
+      },
       include: {
         receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
         sender: { include: { photos: { take: 1, where: { order: 0 } } } },
@@ -65,6 +69,10 @@ export class FriendshipService {
     };
     // Query the database to find friends where the current authenticated user is either the sender or receiver
     const query: Prisma.FriendshipFindManyArgs = ({
+      select: {
+        messages: false,
+        lastMessageAt: false
+      },
       include: {
         receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
         sender: { include: { photos: { take: 1, where: { order: 0 } } } },

@@ -129,7 +129,7 @@ model User {
   gender                Gender?
   exerciseFrequency     ExerciseFrequency?  @map("exercise_frequency")
   uid                   String?             @unique @db.Uuid
-  chatGroupAsAdmin      ChatGroup[]         @relation("ChatGroupAdmin")
+  // chatGroupAsAdmin      ChatGroup[]         @relation("ChatGroupAdmin")
   likedEvents           EventLike[]
   sharedEvents          EventShare[]
   incomingFriendships   Friendship[]        @relation("ReceiverFriendship")
@@ -137,7 +137,8 @@ model User {
   incomingNotification  Notification[]      @relation("ReceivedNotifications")
   outgoingNotification  Notification[]      @relation("SentNotifications")
   photos                UserPhoto[]
-  chatGroupMemberships  ChatGroup[]         @relation("ChatGroupMember")
+  // chatGroupMemberships  ChatGroup[]         @relation("ChatGroupMember")
+  // chatParticipations    ChatParticipant[]
 }
 
 model UserPhoto {
@@ -152,29 +153,68 @@ model UserPhoto {
 }
 
 model Friendship {
-  id         Int              @id @default(autoincrement())
-  createdAt  DateTime         @default(now()) @map("created_at")
-  updatedAt  DateTime         @updatedAt @map("updated_at")
-  senderId   Int              @map("sender_id")
-  receiverId Int              @map("receiver_id")
-  status     FriendshipStatus @default(PENDING)
-  receiver   User             @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
-  sender     User             @relation("SenderFriendship", fields: [senderId], references: [id], onDelete: Cascade)
+  id            Int              @id @default(autoincrement())
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  senderId      Int              @map("sender_id")
+  receiverId    Int              @map("receiver_id")
+  status        FriendshipStatus @default(PENDING)
+  receiver      User             @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender        User             @relation("SenderFriendship", fields: [senderId], references: [id], onDelete: Cascade)
+  messages      Json[]           @default([])
+  lastMessageAt DateTime?        @map("last_message_at")
 
   @@unique([senderId, receiverId])
+  @@index([lastMessageAt]) // Optional: Add index if you'll sort by last message
+  @@index([senderId])
+  @@index([receiverId])
 }
 
-model ChatGroup {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  name        String
-  description String?
-  avatarUrl   String?  @map("avatar_url")
-  adminId     Int      @map("admin_id")
-  admin       User     @relation("ChatGroupAdmin", fields: [adminId], references: [id])
-  members     User[]   @relation("ChatGroupMember")
-}
+// model ChatRoom {
+//   id                Int               @id @default(autoincrement())
+//   createdAt         DateTime          @default(now()) @map("created_at")
+//   updatedAt         DateTime          @updatedAt @map("updated_at")
+//   name              String? // Optional name for group chats
+//   isGroup           Boolean           @default(false) @map("is_group")
+//   messages          Json              @default("[]") // Will store IMessage compatible structure
+//   lastMessageAt     DateTime?         @map("last_message_at")
+//   participants      ChatParticipant[]
+//   avatarUrl         String?           @map("avatar_url")
+//   avatarPlaceHolder String?           @map("avatar_placeholder")
+//   friendship        Friendship?       @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+//   friendshipId      Int?              @unique @map("friendship_id") // Only for 1:1 chats
+
+//   @@index([lastMessageAt]) // Add index for sorting chats by latest message
+// }
+
+// model ChatParticipant {
+//   id         Int       @id @default(autoincrement())
+//   createdAt  DateTime  @default(now()) @map("created_at") // Add to match your schema style
+//   updatedAt  DateTime  @updatedAt @map("updated_at") // Add to match your schema style
+//   userId     Int       @map("user_id")
+//   chatRoomId Int       @map("chat_room_id")
+//   joinedAt   DateTime  @default(now()) @map("joined_at")
+//   isAdmin    Boolean   @default(false) @map("is_admin")
+//   lastRead   DateTime? @map("last_read")
+//   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   chatRoom   ChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+//   @@unique([userId, chatRoomId])
+//   @@index([lastRead]) // Add index for unread messages queries
+//   @@index([userId]) // Add index for user's chat list queries
+// }
+
+// model ChatGroup {
+//   id          Int      @id @default(autoincrement())
+//   createdAt   DateTime @default(now()) @map("created_at")
+//   updatedAt   DateTime @updatedAt @map("updated_at")
+//   name        String
+//   description String?
+//   avatarUrl   String?  @map("avatar_url")
+//   adminId     Int      @map("admin_id")
+//   admin       User     @relation("ChatGroupAdmin", fields: [adminId], references: [id])
+//   members     User[]   @relation("ChatGroupMember")
+// }
 
 model WorldCities {
   id      Int     @id @default(autoincrement())

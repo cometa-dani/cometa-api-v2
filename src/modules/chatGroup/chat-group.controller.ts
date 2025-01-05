@@ -25,10 +25,10 @@ class ChatGroupController extends BaseController {
 
   getChatGroupByID: RequestHandlerParams<{ id?: number }> = async (req, res, next) => {
     try {
-      const chatGroup = await this._chatGroupService.getChatGroupByID(req.params.id, req.user.id);
-      if (chatGroup) {
-        return this.ok(res, chatGroup);
-      }
+      // const chatGroup = await this._chatGroupService.getChatGroupByID(req.params.id, req.user.id);
+      // if (chatGroup) {
+      //   return this.ok(res, chatGroup);
+      // }
       return this.notFound(res);
     }
     catch (error) {
