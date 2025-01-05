@@ -25,10 +25,20 @@ export class FriendshipService {
     };
     // Query the database to find friends where the current authenticated user is either the sender or receiver
     const query: Prisma.FriendshipFindManyArgs = ({
-      select: {
-        messages: false,
-        lastMessageAt: false
-      },
+      // select: {
+      //   messages: false,
+      //   lastMessageAt: false,
+      //   sender: true,
+      //   receiver: true,
+      //   // sender: { include: { photos: { take: 1, where: { order: 0 } } } },
+      //   // receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
+      //   id: true,
+      //   createdAt: true,
+      //   status: true,
+      //   updatedAt: true,
+      //   senderId: true,
+      //   receiverId: true
+      // },
       include: {
         receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
         sender: { include: { photos: { take: 1, where: { order: 0 } } } },
@@ -69,10 +79,20 @@ export class FriendshipService {
     };
     // Query the database to find friends where the current authenticated user is either the sender or receiver
     const query: Prisma.FriendshipFindManyArgs = ({
-      select: {
-        messages: false,
-        lastMessageAt: false
-      },
+      // select: {
+      //   // messages: false,
+      //   // lastMessageAt: false,
+      //   // sender: { include: { photos: { take: 1, where: { order: 0 } } } },
+      //   // receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
+      //   // sender: true,
+      //   // receiver: true,
+      //   // id: true,
+      //   // createdAt: true,
+      //   // status: true,
+      //   // updatedAt: true,
+      //   // receiverId: true,
+      //   // senderId: true
+      // },
       include: {
         receiver: { include: { photos: { take: 1, where: { order: 0 } } } },
         sender: { include: { photos: { take: 1, where: { order: 0 } } } },

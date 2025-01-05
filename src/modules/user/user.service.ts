@@ -144,7 +144,8 @@ export class UserService {
         ...userFound,
         hasIncommingFriendshipInvitation: userFound['incomingFriendships']?.at(0)?.status === 'PENDING',
         hasOutgoingFriendshipInvitation: userFound['outgoingFriendships']?.at(0)?.status === 'PENDING',
-        isFriend: this._areFriends(userFound, loggedInUserID)
+        isFriend: this._areFriends(userFound, loggedInUserID),
+        friendshipId: userFound['incomingFriendships']?.at(0)?.id || userFound['outgoingFriendships']?.at(0)?.id
       };
     }
     catch (error) {
