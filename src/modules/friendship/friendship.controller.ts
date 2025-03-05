@@ -110,13 +110,8 @@ export class FrienshipController extends BaseController {
 
   public deleteFriendshipById: RequestHandlerQuery<IdsDto> = async (req, res, next) => {
     try {
-      const noContent = (
-        await this._friendshipService.deleteBySenderOrReceiver(req.query.targetUserId, req.user.id)
-      );
-      if (!noContent) {
-        return this.noContent(res, noContent);
-      }
-      return this.conflict(res);
+      await this._friendshipService.deleteBySenderOrReceiver(req.query.targetUserId, req.user.id);
+      return this.noContent(res);
     }
     catch (error) {
       next(error);
