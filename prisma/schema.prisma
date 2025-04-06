@@ -156,12 +156,12 @@ model Friendship {
   id            Int              @id @default(autoincrement())
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
-  senderId      Int              @map("sender_id")
-  receiverId    Int              @map("receiver_id")
-  status        FriendshipStatus @default(PENDING)
-  receiver      User             @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
   sender        User             @relation("SenderFriendship", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId      Int              @map("sender_id")
+  receiver      User             @relation("ReceiverFriendship", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId    Int              @map("receiver_id")
   messages      Json[]           @default([])
+  status        FriendshipStatus @default(PENDING)
   lastMessageAt DateTime?        @map("last_message_at")
 
   @@unique([senderId, receiverId])
@@ -226,13 +226,13 @@ model Notification {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
-  type       String
-  message    String
-  read       Boolean  @default(false)
-  senderId   Int      @map("sender_id")
-  receiverId Int      @map("receiver_id")
-  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User     @relation("SentNotifications", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   Int      @map("sender_id")
+  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId Int      @map("receiver_id")
+  message    String
+  type       String
+  read       Boolean  @default(false)
 }
 
 enum EventCategory {
