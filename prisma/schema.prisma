@@ -134,11 +134,12 @@ model User {
   sharedEvents          EventShare[]
   incomingFriendships   Friendship[]        @relation("ReceiverFriendship")
   outgoingFriendships   Friendship[]        @relation("SenderFriendship")
-  incomingNotification  Notification[]      @relation("ReceivedNotifications")
-  outgoingNotification  Notification[]      @relation("SentNotifications")
   photos                UserPhoto[]
   // chatGroupMemberships  ChatGroup[]         @relation("ChatGroupMember")
   // chatParticipations    ChatParticipant[]
+  incomingNotification  Notification[]      @relation("ReceiverNotifications")
+  outgoingNotification  Notification[]      @relation("SenderNotifications")
+  notifications         Notification[]      @relation("User")
 }
 
 model UserPhoto {
@@ -226,13 +227,15 @@ model Notification {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
-  sender     User     @relation("SentNotifications", fields: [senderId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SenderNotifications", fields: [senderId], references: [id], onDelete: Cascade)
   senderId   Int      @map("sender_id")
-  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceiverNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId Int      @map("receiver_id")
   message    String
   type       String
   read       Boolean  @default(false)
+  user       User     @relation("User", fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @map("user_id")
 }
 
 enum EventCategory {
