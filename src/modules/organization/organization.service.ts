@@ -14,8 +14,6 @@ export class OrganizationService {
       data: {
         email: organization.email,
         name: organization.name,
-        description: organization.description,
-        phone: organization.phone,
         uid: organization.uid
       }
     });
