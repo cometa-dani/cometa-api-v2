@@ -12,7 +12,7 @@ export class LocationController extends BaseController {
 
   public getAll: RequestHandlerQuery<PaginationDto, null, IdsDto> = async (req, res, next) => {
     try {
-      const allLocations = await this._locationService.findAll(req.params.eventId);
+      const allLocations = await this._locationService.findAll(req.params.organizationId);
       this.ok(res, allLocations);
     }
     catch (error) {

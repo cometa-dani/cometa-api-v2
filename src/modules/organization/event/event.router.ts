@@ -1,7 +1,6 @@
 import { BaseRouter } from "../../../helpers/baseRouter";
 import Container from "typedi";
 import photoRouter from "./photo/photo.router";
-import locationRouter from "./location/location.router";
 import { validateRequestMiddleware } from "../../../middlewares/validateRequestMiddleware";
 import { idsSchema } from "../../shared/dto/baseDTOs";
 import { authOrganizationMiddleware } from "../../../middlewares/authMiddleware";
@@ -16,12 +15,15 @@ class EventRouter extends BaseRouter {
     super();
     this._initializeRoutes();
     this._router.use(photoRouter);
-    this._router.use(locationRouter);
   }
 
   protected _initializeRoutes(): void {
     this._router.use(authOrganizationMiddleware);
     this._router.route('/')
+      .get(
+        validateRequestMiddleware({ params: idsSchema }),
+        this._eventController.getEvents
+      )
       .post(
         validateRequestMiddleware({ body: createEventSchemma }),
         this._eventController.createEvent

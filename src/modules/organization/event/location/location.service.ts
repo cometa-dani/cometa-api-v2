@@ -8,8 +8,8 @@ import { Location } from "@prisma/client";
 export class LocationService {
   private _prismaService = Container.get(PrismaService);
 
-  public async findAll(eventId: number): Promise<Location[]> {
-    return this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });
+  public async findAll(organizationId: number): Promise<Location[]> {
+    return this._prismaService.location.findMany({ where: { organizationId } });
   }
 
   public async findByID(id: number): Promise<Location> {

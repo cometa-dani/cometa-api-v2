@@ -10,6 +10,18 @@ import { EventService } from "./event.service";
 export class EventController extends BaseController {
   private _eventService = Container.get(EventService);
 
+  getEvents: RequestHandlerParams<IdsDto> = async (req, res, next) => {
+    try {
+      const events = await this._eventService.getAllEvents(req.params.organizationId);
+      if (!events) {
+        return this.notFound(res);
+      }
+      return this.ok(res, events);
+    }
+    catch (error) {
+      next(error);
+    }
+  };
 
   public createEvent: RequestHandlerBody<CreateEventDto> = async (req, res, next) => {
     try {
