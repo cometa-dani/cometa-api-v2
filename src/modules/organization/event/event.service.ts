@@ -15,7 +15,8 @@ export class EventService {
       where: {
         organizationId
       },
-      include: { photos: true, location: true }
+      include: { photos: true, location: true },
+      orderBy: { id: 'desc' }
     });
   }
 
