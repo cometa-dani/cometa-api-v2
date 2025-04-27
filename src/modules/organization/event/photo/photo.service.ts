@@ -11,7 +11,7 @@ export class EventPhotoService {
   private _prismaService = Container.get(PrismaService);
   private _storageService = Container.get(StorageService);
 
-  public async saveEventPhotos(incomingImgFiles: Express.Multer.File[], eventId: number, startCount: number) {
+  public async saveEventPhotos(organizationId: number, incomingImgFiles: Express.Multer.File[], eventId: number, startCount: number) {
     try {
       const createdPhotos = await this._prismaService.eventPhoto.createManyAndReturn({
         data: incomingImgFiles.map((_, index) => ({ eventId, order: startCount + index }))
@@ -20,7 +20,7 @@ export class EventPhotoService {
         id: photo.id,
         order: photo.order,
         file: incomingImgFiles[index],
-        destinationPath: `events/${eventId}/photos/${photo.id}`
+        destinationPath: `${organizationId}/events/${eventId}/photos/${photo.id}`
       }));
       let eventPhotos: IUploadedPhoto[] = [];
       try {
@@ -50,7 +50,7 @@ export class EventPhotoService {
         }
       });
     } catch (error) {
-      throw new HttpError(500, 'Uploading event photos failed' + error.message);
+      throw new HttpError(400, 'Uploading event photos failed' + error.message);
     }
   }
 

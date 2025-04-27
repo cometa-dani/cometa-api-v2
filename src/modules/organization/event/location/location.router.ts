@@ -15,7 +15,7 @@ class LocationRouter extends BaseRouter {
   }
 
   protected _initializeRoutes() {
-    this._router.route('/locations')
+    this._router.route('/:organizationId/locations')
       .get(
         validateRequestMiddleware({ query: paginationSchema, params: idsSchema }),
         this._locationController.getAll
@@ -25,7 +25,7 @@ class LocationRouter extends BaseRouter {
         this._locationController.createLocation
       );
 
-    this._router.route('/locations/:locationId')
+    this._router.route('/:organizationId/locations/:locationId')
       .get(
         validateRequestMiddleware({ params: idsSchema }),
         this._locationController.getById

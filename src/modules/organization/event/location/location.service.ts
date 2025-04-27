@@ -8,22 +8,23 @@ import { Location } from "@prisma/client";
 export class LocationService {
   private _prismaService = Container.get(PrismaService);
 
-  public async findAll(eventId: number): Promise<Location[]> {
-    return this._prismaService.location.findMany({ where: { events: { some: { id: eventId } } } });
+  public async findAll(organizationId: number): Promise<Location[]> {
+    return this._prismaService.location.findMany({ where: { organizationId }, orderBy: { id: 'desc' } });
   }
 
   public async findByID(id: number): Promise<Location> {
     return this._prismaService.location.findUnique({ where: { id } });
   }
 
-  public async create(locationDto: CreateLocationDto): Promise<Location> {
+  public async create(organizationId: number, locationDto: CreateLocationDto): Promise<Location> {
     const newLocation = await this._prismaService.location.create({
       data: {
         latitude: locationDto.latitude,
         longitude: locationDto.longitude,
         name: locationDto.name,
+        mapUrl: locationDto.mapUrl,
         description: locationDto.description,
-        organizationId: locationDto.organizationId
+        organizationId
       }
     });
     return newLocation;

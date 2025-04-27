@@ -12,7 +12,7 @@ export class LocationController extends BaseController {
 
   public getAll: RequestHandlerQuery<PaginationDto, null, IdsDto> = async (req, res, next) => {
     try {
-      const allLocations = await this._locationService.findAll(req.params.eventId);
+      const allLocations = await this._locationService.findAll(+req.params.organizationId);
       this.ok(res, allLocations);
     }
     catch (error) {
@@ -22,7 +22,7 @@ export class LocationController extends BaseController {
 
   public getById: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const location = await this._locationService.findByID(req.params.locationId);
+      const location = await this._locationService.findByID(+req.params.locationId);
       this.ok(res, location);
     }
     catch (error) {
@@ -32,7 +32,7 @@ export class LocationController extends BaseController {
 
   public createLocation: RequestHandlerBody<CreateLocationDto, IdsDto> = async (req, res, next) => {
     try {
-      const newLocation = await this._locationService.create(req.body);
+      const newLocation = await this._locationService.create(+req.params.organizationId, req.body);
       if (!newLocation) {
         return this.conflict(res);
       }

@@ -1,10 +1,9 @@
 import { BaseRouter } from "../../../helpers/baseRouter";
 import Container from "typedi";
-import photoRouter from "./photo/photo.router";
-import locationRouter from "./location/location.router";
+// import photoRouter from "./photo/photo.router";
 import { validateRequestMiddleware } from "../../../middlewares/validateRequestMiddleware";
 import { idsSchema } from "../../shared/dto/baseDTOs";
-import { authOrganizationMiddleware } from "../../../middlewares/authMiddleware";
+// import { authOrganizationMiddleware } from "../../../middlewares/authMiddleware";
 import { EventController } from "./event.controller";
 import { createEventSchemma, updateEventSchemma } from "./event.dto";
 
@@ -15,19 +14,22 @@ class EventRouter extends BaseRouter {
   constructor() {
     super();
     this._initializeRoutes();
-    this._router.use(photoRouter);
-    this._router.use(locationRouter);
+    // this._router.use(photoRouter);
   }
 
   protected _initializeRoutes(): void {
-    this._router.use(authOrganizationMiddleware);
-    this._router.route('/')
+    // this._router.use(authOrganizationMiddleware);
+    this._router.route('/:organizationId/events')
+      .get(
+        validateRequestMiddleware({ params: idsSchema }),
+        this._eventController.getEvents
+      )
       .post(
         validateRequestMiddleware({ body: createEventSchemma }),
         this._eventController.createEvent
       );
 
-    this._router.route('/:eventId')
+    this._router.route('/:organizationId/events/:eventId')
       .patch(
         validateRequestMiddleware({ body: updateEventSchemma, params: idsSchema }),
         this._eventController.updateEvent

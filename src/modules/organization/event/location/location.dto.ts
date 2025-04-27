@@ -4,9 +4,10 @@ import { z } from "zod";
 export const createLocationSchemma = z.object({
   name: z.string(),
   description: z.string().optional(),
-  latitude: z.number({ coerce: true }),
-  longitude: z.number({ coerce: true }),
-  organizationId: z.number({ coerce: true }),
+  mapUrl: z.string(),
+  latitude: z.number({ coerce: true }).optional(),
+  longitude: z.number({ coerce: true }).optional(),
+  // organizationId: z.number({ coerce: true }),
 });
 
 export type CreateLocationDto = z.infer<typeof createLocationSchemma>;

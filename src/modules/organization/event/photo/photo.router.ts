@@ -6,7 +6,7 @@ import { validateRequestMiddleware } from "../../../../middlewares/validateReque
 import { idsSchema } from "../../../shared/dto/baseDTOs";
 
 
-class PhotoRouter extends BaseRouter {
+class EventPhotoRouter extends BaseRouter {
   private _eventPhotoController = Container.get(PhotoController);
 
   constructor() {
@@ -16,15 +16,15 @@ class PhotoRouter extends BaseRouter {
 
   protected _initializeRoutes() {
     this._router
-      .route('/:eventId?/photos')
+      .route('/:organizationId/events/:eventId?/photos')
       .post(
+        imageUploadMiddleware.array('files'),
         validateRequestMiddleware({ params: idsSchema }),
-        imageUploadMiddleware.any(),
         this._eventPhotoController.uploadEventPhotos
       );
 
     this._router
-      .route('/:eventId?/photos/:photoId')
+      .route(':organizationId/events/:eventId?/photos/:photoId')
       .delete(
         validateRequestMiddleware({ params: idsSchema }),
         this._eventPhotoController.deleteEventPhotosById
@@ -32,4 +32,4 @@ class PhotoRouter extends BaseRouter {
   }
 }
 
-export default new PhotoRouter().getRouter();
+export default new EventPhotoRouter().getRouter();

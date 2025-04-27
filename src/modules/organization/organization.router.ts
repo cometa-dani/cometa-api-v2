@@ -6,6 +6,8 @@ import { validateRequestMiddleware } from '../../middlewares/validateRequestMidd
 import { idsSchema } from '../shared/dto/baseDTOs';
 import { createOrganizationSchemma, updateOrganizationSchemma } from './organizatoin.dto';
 import eventRouter from './event/event.router';
+import locationRouter from './event/location/location.router';
+import eventPhotoRouter from './event/photo/photo.router';
 
 
 class OrganizationRouter extends BaseRouter {
@@ -14,7 +16,9 @@ class OrganizationRouter extends BaseRouter {
   constructor() {
     super();
     this._initializeRoutes();
-    this._router.use('/events', eventRouter);
+    this._router.use(eventRouter);
+    this._router.use(locationRouter);
+    this._router.use(eventPhotoRouter);
   }
 
   protected _initializeRoutes(): void {
@@ -27,11 +31,13 @@ class OrganizationRouter extends BaseRouter {
         this._organizationController.createOrganization
       );
 
-    this._router.route('/:id')
+    this._router.route('/:uid')
       .get(
         validateRequestMiddleware({ params: idsSchema }),
         this._organizationController.getOrganizationById
-      )
+      );
+
+    this._router.route('/:id')
       .patch(
         validateRequestMiddleware({ body: updateOrganizationSchemma, params: idsSchema }),
         this._organizationController.updateOrganization

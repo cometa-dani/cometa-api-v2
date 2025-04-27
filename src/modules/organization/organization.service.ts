@@ -14,8 +14,6 @@ export class OrganizationService {
       data: {
         email: organization.email,
         name: organization.name,
-        description: organization.description,
-        phone: organization.phone,
         uid: organization.uid
       }
     });
@@ -24,13 +22,14 @@ export class OrganizationService {
   public async getOrganizationById(id: number) {
     return this._prismaService.organization.findUnique({
       where: { id },
-      include: { events: true, locations: true }
+      // include: { events: true, locations: true }
     });
   }
 
   public async getUniqueOrganization(uid: string) {
     return this._prismaService.organization.findUnique({
-      where: { uid }
+      where: { uid },
+      include: { events: true, locations: true }
     });
   }
 

@@ -24,7 +24,7 @@ export class OrganizationController extends BaseController {
 
   public getOrganizationById: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const organization = await this._organizationService.getOrganizationById(req.params.id);
+      const organization = await this._organizationService.getUniqueOrganization(req.params.uid);
       if (!organization) {
         return this.notFound(res);
       }

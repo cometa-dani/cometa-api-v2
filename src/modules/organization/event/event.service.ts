@@ -10,6 +10,16 @@ export class EventService {
   private _prismaService = Container.get(PrismaService);
   private _storageService = Container.get(StorageService);
 
+  public getAllEvents(organizationId: number) {
+    return this._prismaService.event.findMany({
+      where: {
+        organizationId
+      },
+      include: { photos: true, location: true },
+      orderBy: { id: 'desc' }
+    });
+  }
+
   public getEventById(id: number) {
     return this._prismaService.event.findUnique({
       where: { id },

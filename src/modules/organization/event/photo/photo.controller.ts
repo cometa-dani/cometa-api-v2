@@ -15,7 +15,7 @@ export class PhotoController extends BaseController {
 
   public uploadEventPhotos: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const eventFound = await this._eventService.getEventById(req.params.eventId);
+      const eventFound = await this._eventService.getEventById(+req.params.eventId);
       if (!eventFound) {
         return this.notFound(res, ErrorMessage.NOT_FOUND);
       }
@@ -29,7 +29,7 @@ export class PhotoController extends BaseController {
         return this.conflict(res, ErrorMessage.MAX_NUMBER_OF_PHOTOS_REACHED);
       }
       const startCount = eventFound.photos.length ?? 0;
-      const uploadedEventPhotos = await this._eventPhotoService.saveEventPhotos(incommingImgFiles, eventFound.id, startCount);
+      const uploadedEventPhotos = await this._eventPhotoService.saveEventPhotos(+req.params.organizationId, incommingImgFiles, eventFound.id, startCount);
       if (!uploadedEventPhotos) {
         return this.conflict(res, ErrorMessage.COULD_NOT_CREATE);
       }
