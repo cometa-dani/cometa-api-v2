@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const createEventSchemma = z.object({
   name: z.string().default(''),
-  description: z.string().min(5).max(200).default(''),
+  description: z.string().min(3).max(1000),
   locationId: z.number({ coerce: true }),
   organizationId: z.number({ coerce: true }),
   date: z.string().transform(date => new Date(date)),

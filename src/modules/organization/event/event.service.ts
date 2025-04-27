@@ -14,7 +14,8 @@ export class EventService {
     return this._prismaService.event.findMany({
       where: {
         organizationId
-      }
+      },
+      include: { photos: true, location: true }
     });
   }
 

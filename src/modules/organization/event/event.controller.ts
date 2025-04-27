@@ -12,7 +12,7 @@ export class EventController extends BaseController {
 
   getEvents: RequestHandlerParams<IdsDto> = async (req, res, next) => {
     try {
-      const events = await this._eventService.getAllEvents(req.params.organizationId);
+      const events = await this._eventService.getAllEvents(+req.params.organizationId);
       if (!events) {
         return this.notFound(res);
       }
