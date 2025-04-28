@@ -33,7 +33,7 @@ export class EventService {
         name: createEventDto.name,
         categories: createEventDto.categories,
         description: createEventDto.description,
-        date: createEventDto.date,
+        date: createEventDto.date || undefined,
         locationId: createEventDto.locationId,
         organizationId: createEventDto.organizationId
       }

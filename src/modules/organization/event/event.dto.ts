@@ -7,7 +7,7 @@ export const createEventSchemma = z.object({
   description: z.string().min(3).max(1000),
   locationId: z.number({ coerce: true }),
   organizationId: z.number({ coerce: true }),
-  date: z.string().transform(date => new Date(date)),
+  date: z.string().transform(date => date ? new Date(date) : '').optional(),
   categories:
     z.string()
       .transform(value => value.split(','))
